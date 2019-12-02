@@ -10,9 +10,12 @@
         <module name="Framework" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel>
+    <bytecodeTargetLevel target="8">
       <module name="Framework" target="1.5" />
-      <module name="Gatherer" target="1.5" />
+      <module name="Gatherer" target="1.8" />
     </bytecodeTargetLevel>
+  </component>
+  <component name="JavacSettings">
+    <option name="PREFER_TARGET_JDK_COMPILER" value="false" />
   </component>
 </project>
