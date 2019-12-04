@@ -34,5 +34,7 @@
     <orderEntry type="library" name="Maven: javax.xml.bind:jaxb-api:2.4.0-b180830.0359" level="project" />
     <orderEntry type="library" name="Maven: com.sun.xml.bind:jaxb-core:2.3.0.1" level="project" />
     <orderEntry type="library" name="Maven: com.sun.xml.bind:jaxb-impl:2.4.0-b180830.0438" level="project" />
+    <orderEntry type="library" name="Maven: edu.stanford.nlp:stanford-corenlp:models:3.5.0" level="project" />
+    <orderEntry type="library" name="Maven: javax.json:javax.json-api:1.0" level="project" />
   </component>
 </module>
