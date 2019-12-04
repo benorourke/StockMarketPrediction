@@ -6,13 +6,15 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="Gatherer" />
         <module name="Framework" />
+        <module name="Gatherer" />
+        <module name="preprocessor" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="Framework" target="1.5" />
       <module name="Gatherer" target="1.5" />
+      <module name="preprocessor" target="1.5" />
     </bytecodeTargetLevel>
   </component>
 </project>

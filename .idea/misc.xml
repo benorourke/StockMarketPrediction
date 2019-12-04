@@ -5,6 +5,7 @@
       <list>
         <option value="$PROJECT_DIR$/Gatherer/pom.xml" />
         <option value="$PROJECT_DIR$/Framework/pom.xml" />
+        <option value="$PROJECT_DIR$/Preprocessor/pom.xml" />
       </list>
     </option>
   </component>
