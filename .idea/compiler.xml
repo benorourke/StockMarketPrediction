@@ -12,9 +12,9 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel target="8">
-      <module name="Framework" target="1.5" />
+      <module name="Framework" target="1.8" />
       <module name="Gatherer" target="1.8" />
-      <module name="NaturalLanguageProcessor" target="1.5" />
+      <module name="NaturalLanguageProcessor" target="1.8" />
     </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
