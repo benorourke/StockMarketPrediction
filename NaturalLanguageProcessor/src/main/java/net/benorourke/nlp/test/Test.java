@@ -1,4 +1,4 @@
-package net.benorourke.nlp;
+package net.benorourke.nlp.test;
 
 import edu.stanford.nlp.ling.CoreAnnotations;
 import edu.stanford.nlp.neural.rnn.RNNCoreAnnotations;
@@ -7,6 +7,8 @@ import edu.stanford.nlp.pipeline.StanfordCoreNLP;
 import edu.stanford.nlp.sentiment.SentimentCoreAnnotations;
 import edu.stanford.nlp.trees.Tree;
 import edu.stanford.nlp.util.CoreMap;
+import net.benorourke.nlp.mining.BagOfWords;
+import net.benorourke.nlp.mining.Document;
 import net.benorourke.nlp.stanford.StanfordPreprocessor;
 
 import java.util.Arrays;
@@ -33,13 +35,27 @@ public class Test {
 //    }
 
 //    public static void main(String[] args) {
-//        StanfordLemmatizer lemmatizer = new StanfordLemmatizer();
-//        System.out.println(lemmatizer.lemmatize("Test Going gone go going"));
+//        Preprocessor preprocessor = new StanfordPreprocessor(Preprocess.values());
+//        System.out.println(preprocessor.preprocess("Test Going gone go going"));
 //    }
 
     public static void main(String[] args) {
-        Preprocessor preprocessor = new StanfordPreprocessor(Preprocess.values());
-        System.out.println(preprocessor.preprocess("Test Going gone go going"));
+        BagOfWords bow = new BagOfWords();
+
+        Document doc1 = new Document(Document.DocumentType.NEWS_HEADLINE,
+                                     "This is a test",
+                                     Arrays.asList("This", "is", "a", "test"));
+        Document doc2 = new Document(Document.DocumentType.NEWS_HEADLINE,
+                                "This is another test",
+                                     Arrays.asList("This", "is", "another", "test"));
+        Document[] corpus = new Document[]{doc1, doc2};
+
+        double tfidf1 = bow.tfidf(corpus, doc1, "a");
+        double tfidf2 = bow.tfidf(corpus, doc2, "another");
+        double tfidf3 = bow.tfidf(corpus, doc1, "This");
+        System.out.println("tfidf_a = " + tfidf1);
+        System.out.println("tfidf_another = " + tfidf2);
+        System.out.println("tfidf_This = " + tfidf3);
     }
 
 }

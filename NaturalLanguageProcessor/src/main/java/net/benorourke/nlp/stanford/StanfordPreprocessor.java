@@ -24,7 +24,6 @@ public class StanfordPreprocessor extends Preprocessor {
 
     @Override
     public String preprocess(String documentText) {
-
         List<String> lemmas = new LinkedList<String>();
         Annotation document = new Annotation(documentText);
         pipeline.annotate(document);
