@@ -8,13 +8,13 @@
         <outputRelativeToContentRoot value="true" />
         <module name="Framework" />
         <module name="Gatherer" />
-        <module name="preprocessor" />
+        <module name="Preprocessor" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel target="8">
-      <module name="Framework" target="1.8" />
+      <module name="Framework" target="1.5" />
       <module name="Gatherer" target="1.8" />
-      <module name="Preprocessor" target="1.8" />
+      <module name="Preprocessor" target="1.5" />
     </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
