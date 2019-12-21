@@ -5,6 +5,7 @@
       <module fileurl="file://$PROJECT_DIR$/Framework/Framework.iml" filepath="$PROJECT_DIR$/Framework/Framework.iml" />
       <module fileurl="file://$PROJECT_DIR$/Gatherer/Gatherer.iml" filepath="$PROJECT_DIR$/Gatherer/Gatherer.iml" />
       <module fileurl="file://$PROJECT_DIR$/NaturalLanguageProcessor/NaturalLanguageProcessor.iml" filepath="$PROJECT_DIR$/NaturalLanguageProcessor/NaturalLanguageProcessor.iml" />
+      <module fileurl="file://$PROJECT_DIR$/UserInterface/UserInterface.iml" filepath="$PROJECT_DIR$/UserInterface/UserInterface.iml" />
     </modules>
   </component>
 </project>

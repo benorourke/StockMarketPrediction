@@ -8,6 +8,7 @@
         <outputRelativeToContentRoot value="true" />
         <module name="Framework" />
         <module name="Gatherer" />
+        <module name="UserInterface" />
         <module name="NaturalLanguageProcessor" />
       </profile>
     </annotationProcessing>
@@ -15,6 +16,7 @@
       <module name="Framework" target="1.8" />
       <module name="Gatherer" target="1.8" />
       <module name="NaturalLanguageProcessor" target="1.8" />
+      <module name="UserInterface" target="1.8" />
     </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
