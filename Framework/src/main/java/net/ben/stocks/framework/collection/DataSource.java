@@ -3,9 +3,13 @@ package net.ben.stocks.framework.collection;
 import net.ben.stocks.framework.data.Data;
 import net.ben.stocks.framework.exception.FailedCollectionException;
 
-public interface DataSource
+import java.util.Collection;
+
+public interface DataSource<T extends Data>
 {
 
-    Data retrieveNext() throws FailedCollectionException;
+    Class<? extends T> getDataClazz();
+
+    Collection<T> retrieveNext(Query query) throws FailedCollectionException;
 
 }
