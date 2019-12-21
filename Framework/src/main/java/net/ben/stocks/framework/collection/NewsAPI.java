@@ -1,15 +1,16 @@
-package net.benorourke.gatherer.newsapi;
+package net.ben.stocks.framework.collection;
 
-import net.benorourke.gatherer.DataSource;
-import net.benorourke.gatherer.TextualData;
-import net.benorourke.gatherer.exception.FailedRetrievalException;
+import net.ben.stocks.framework.data.Data;
+import net.ben.stocks.framework.data.DataType;
+import net.ben.stocks.framework.data.Document;
+import net.ben.stocks.framework.exception.FailedCollectionException;
 
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.*;
 
-public class NewsAPI extends DataSource
+public class NewsAPI implements DataSource
 {
     private String apiKey;
 
@@ -19,10 +20,10 @@ public class NewsAPI extends DataSource
     }
 
     @Override
-    public Collection<TextualData> retrieve() throws FailedRetrievalException
+    public Data retrieveNext() throws FailedCollectionException
     {
         String result = readConnection(newConnection(buildUrlExtension()));
-        return null;
+        return new Document(new Date(), result);
     }
 
     private String buildUrlExtension()
@@ -30,7 +31,7 @@ public class NewsAPI extends DataSource
         return "/v2/top-headlines?country=gb&apiKey=" + apiKey;
     }
 
-    private HttpURLConnection newConnection(String urlExtension) throws FailedRetrievalException
+    private HttpURLConnection newConnection(String urlExtension) throws FailedCollectionException
     {
         URL url = null;
         try
@@ -47,11 +48,11 @@ public class NewsAPI extends DataSource
         catch (IOException e)
         {
             e.printStackTrace();
-            throw new FailedRetrievalException(e);
+            throw new FailedCollectionException(e);
         }
     }
 
-    private String readConnection(HttpURLConnection con) throws FailedRetrievalException
+    private String readConnection(HttpURLConnection con) throws FailedCollectionException
     {
         try
         {
@@ -69,7 +70,7 @@ public class NewsAPI extends DataSource
         }
         catch (IOException e)
         {
-            throw new FailedRetrievalException(e);
+            throw new FailedCollectionException(e);
         }
     }
 

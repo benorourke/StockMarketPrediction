@@ -1,6 +1,0 @@
-net\benorourke\gatherer\DataSource.class
-net\benorourke\gatherer\Gatherer.class
-net\benorourke\gatherer\exception\FailedRetrievalException.class
-net\benorourke\gatherer\newsapi\NewsAPI.class
-net\benorourke\gatherer\TextualData$TextualDataType.class
-net\benorourke\gatherer\TextualData.class
