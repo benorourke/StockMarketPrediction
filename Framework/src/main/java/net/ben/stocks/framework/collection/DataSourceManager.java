@@ -2,7 +2,7 @@ package net.ben.stocks.framework.collection;
 
 import net.ben.stocks.framework.collection.quote.AlphaVantage;
 import net.ben.stocks.framework.collection.text.NewsAPI;
-import net.ben.stocks.framework.data.Data;
+import net.ben.stocks.framework.series.data.Data;
 
 import java.util.ArrayList;
 import java.util.List;

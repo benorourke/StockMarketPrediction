@@ -3,8 +3,7 @@ package net.ben.stocks.framework.collection.text;
 import net.ben.stocks.framework.collection.DataSource;
 import net.ben.stocks.framework.collection.Query;
 import net.ben.stocks.framework.collection.URLConnector;
-import net.ben.stocks.framework.data.Data;
-import net.ben.stocks.framework.data.Document;
+import net.ben.stocks.framework.series.data.Document;
 import net.ben.stocks.framework.exception.FailedCollectionException;
 
 import java.io.*;

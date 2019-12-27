@@ -1,4 +1,4 @@
-package net.ben.stocks.framework.data;
+package net.ben.stocks.framework.series.data;
 
 import java.util.Date;
 

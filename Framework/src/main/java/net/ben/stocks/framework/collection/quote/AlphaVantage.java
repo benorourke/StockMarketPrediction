@@ -2,8 +2,7 @@ package net.ben.stocks.framework.collection.quote;
 
 import net.ben.stocks.framework.collection.DataSource;
 import net.ben.stocks.framework.collection.Query;
-import net.ben.stocks.framework.data.Data;
-import net.ben.stocks.framework.data.StockQuote;
+import net.ben.stocks.framework.series.data.StockQuote;
 import net.ben.stocks.framework.exception.FailedCollectionException;
 
 import java.util.Collection;
