@@ -9,6 +9,12 @@ import java.util.Collection;
 
 public class AlphaVantage implements DataSource<StockQuote>
 {
+    private final String apiKey;
+
+    public AlphaVantage(String apiKey)
+    {
+        this.apiKey = apiKey;
+    }
 
     @Override
     public Class<? extends StockQuote> getDataClazz()
