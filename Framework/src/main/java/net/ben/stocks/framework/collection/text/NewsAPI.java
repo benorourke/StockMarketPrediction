@@ -13,7 +13,7 @@ public class NewsAPI implements DataSource<Document>
 {
     private static final String BASE_URL = "https://newsapi.org/";
 
-    private String apiKey;
+    private final String apiKey;
 
     public NewsAPI(String apiKey)
     {
