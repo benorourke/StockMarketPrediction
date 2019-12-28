@@ -26,7 +26,7 @@ public class URLConnector
 
     public String read() throws IOException
     {
-        connection.getResponseCode(); // Think this is needed? TODO - Check
+        connection.getResponseCode();
         BufferedReader in = new BufferedReader(
                 new InputStreamReader(connection.getInputStream()));
         String inputLine;
@@ -38,6 +38,11 @@ public class URLConnector
 
         connection.disconnect();
         return content.toString();
+    }
+
+    public int getResponseCode() throws IOException
+    {
+        return connection.getResponseCode();
     }
 
     public static URLConnector connect(String url) throws IOException
