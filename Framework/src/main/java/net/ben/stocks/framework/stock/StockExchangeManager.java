@@ -9,7 +9,7 @@ import java.util.Set;
 
 public class StockExchangeManager implements Initialisable
 {
-    private List<StockExchange> exchanges;
+    private final List<StockExchange> exchanges;
 
     public StockExchangeManager()
     {
@@ -23,6 +23,14 @@ public class StockExchangeManager implements Initialisable
         nyse.getStocks().add(new Stock(nyse, "Amazon", "AMZN"));
 
         exchanges.add(nyse);
+    }
+
+    public StockExchange getByName(String exchangeName)
+    {
+        return exchanges
+                .stream()
+                .filter(e -> e.getName().equalsIgnoreCase(exchangeName))
+                .findFirst().orElse(null);
     }
 
     public List<StockExchange> getExchanges()

@@ -1,40 +1,50 @@
 package net.ben.stocks.framework.series;
 
+import net.ben.stocks.framework.Framework;
 import net.ben.stocks.framework.util.Initialisable;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.util.ArrayList;
+import java.util.List;
 
-public class TimeSeriesManager implements Initialisable
+public class TimeSeriesManager
 {
-    private File storageDirectory;
+    private final Framework framework;
 
-
-
-    public TimeSeriesManager(File storageDirectory)
+    public TimeSeriesManager(Framework framework)
     {
-        this.storageDirectory = storageDirectory;
+        this.framework = framework;
     }
 
-    @Override
-    public void initialise()
+    private List<TimeSeries> getStoredTimeSeries()
     {
-        refresh();
-    }
+        File storageDirectory = framework.getFileManager().getDirectory();
 
-    private void refresh()
-    {
-        if(!storageDirectory.exists())
+        if (!storageDirectory.exists())
             storageDirectory.mkdir();
-    }
 
-    public File getStorageDirectory()
-    {
-        return storageDirectory;
-    }
+        List<TimeSeries> result = new ArrayList<TimeSeries>();
 
-    public void setStorageDirectory(File storageDirectory)
-    {
-        this.storageDirectory = storageDirectory;
+        if (storageDirectory.listFiles() == null)
+            return result;
+
+        for (File file : storageDirectory.listFiles())
+        {
+            if (!file.isDirectory()) continue;
+
+            File infoFile = framework.getFileManager().getTimeSeriesInfoFile(file);
+            try
+            {
+                result.add(framework.getGson().fromJson(new FileReader(infoFile), TimeSeries.class));
+            }
+            catch (FileNotFoundException e)
+            {
+                e.printStackTrace();
+            }
+        }
+        return result;
     }
 
 }

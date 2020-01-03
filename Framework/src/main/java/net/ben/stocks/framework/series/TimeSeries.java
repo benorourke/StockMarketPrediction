@@ -13,4 +13,13 @@ public class TimeSeries
         this.stock = stock;
     }
 
+    public String getName()
+    {
+        return name;
+    }
+
+    public Stock getStock()
+    {
+        return stock;
+    }
 }

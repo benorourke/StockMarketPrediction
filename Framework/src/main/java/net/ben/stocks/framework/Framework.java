@@ -1,7 +1,12 @@
 package net.ben.stocks.framework;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import net.ben.stocks.framework.collection.DataSourceManager;
+import net.ben.stocks.framework.persistence.gson.FileManager;
+import net.ben.stocks.framework.persistence.gson.StockAdapter;
 import net.ben.stocks.framework.series.TimeSeriesManager;
+import net.ben.stocks.framework.stock.Stock;
 import net.ben.stocks.framework.stock.StockExchangeManager;
 import net.ben.stocks.framework.util.Initialisable;
 
@@ -10,32 +15,40 @@ import java.io.File;
 
 public class Framework implements Initialisable
 {
+    private final FileManager fileManager;
     private final StockExchangeManager stockExchangeManager;
     private final DataSourceManager dataSourceManager;
     private final TimeSeriesManager timeSeriesManager;
 
+    private final Gson gson;
+
     public Framework()
     {
-        File defaultDir = FileSystemView.getFileSystemView().getDefaultDirectory();
-        File dir = new File(defaultDir + "/Stocks/");
-        log("Using Directory " + dir.getPath());
-
+        fileManager = new FileManager(this);
         stockExchangeManager = new StockExchangeManager();
         dataSourceManager = new DataSourceManager();
-        timeSeriesManager = new TimeSeriesManager(dir); // Takes about 100ms
+        timeSeriesManager = new TimeSeriesManager(this);
+
+        gson = new GsonBuilder()
+                        .registerTypeAdapter(Stock.class, new StockAdapter(stockExchangeManager))
+                        .create();
     }
 
     @Override
     public void initialise()
     {
         stockExchangeManager.initialise();
-        timeSeriesManager.initialise();
     }
 
     public void log(String message)
     {
-        // TODO - Using log4j or other means of standardised logging
+        // TODO - Using log4j or some other means of logging
         System.out.println(message);
+    }
+
+    public FileManager getFileManager()
+    {
+        return fileManager;
     }
 
     public StockExchangeManager getStockExchangeManager()
@@ -51,6 +64,11 @@ public class Framework implements Initialisable
     public TimeSeriesManager getTimeSeriesManager()
     {
         return timeSeriesManager;
+    }
+
+    public Gson getGson()
+    {
+        return gson;
     }
 
 }
