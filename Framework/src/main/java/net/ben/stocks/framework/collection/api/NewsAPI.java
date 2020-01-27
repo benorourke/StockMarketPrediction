@@ -1,5 +1,6 @@
-package net.ben.stocks.framework.collection.text;
+package net.ben.stocks.framework.collection.api;
 
+import net.ben.stocks.framework.collection.Constraint;
 import net.ben.stocks.framework.collection.DataSource;
 import net.ben.stocks.framework.collection.Query;
 import net.ben.stocks.framework.collection.URLConnector;
@@ -9,7 +10,7 @@ import net.ben.stocks.framework.exception.FailedCollectionException;
 import java.io.*;
 import java.util.*;
 
-public class NewsAPI implements DataSource<Document>
+public class NewsAPI extends DataSource<Document>
 {
     private static final String BASE_URL = "https://newsapi.org/";
 
@@ -21,9 +22,15 @@ public class NewsAPI implements DataSource<Document>
     }
 
     @Override
-    public Class<? extends Document> getDataClazz()
+    public Class<? extends Document> getDataClass()
     {
         return Document.class;
+    }
+
+    @Override
+    public Constraint[] getConstraints()
+    {
+        return new Constraint[0];
     }
 
     @Override

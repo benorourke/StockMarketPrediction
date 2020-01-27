@@ -1,7 +1,7 @@
 package net.ben.stocks.framework.collection;
 
-import net.ben.stocks.framework.collection.quote.AlphaVantage;
-import net.ben.stocks.framework.collection.text.NewsAPI;
+import net.ben.stocks.framework.collection.api.AlphaVantage;
+import net.ben.stocks.framework.collection.api.NewsAPI;
 import net.ben.stocks.framework.series.data.Data;
 
 import java.util.ArrayList;
@@ -30,7 +30,7 @@ public class DataSourceManager
     {
         return getDataSources()
                     .stream()
-                    .filter(source -> clazz.isAssignableFrom(source.getDataClazz()))
+                    .filter(source -> clazz.isAssignableFrom(source.getDataClass()))
                     .map(source -> (DataSource<T>) source)
                     .collect(Collectors.toList());
     }

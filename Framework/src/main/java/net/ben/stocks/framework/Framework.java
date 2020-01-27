@@ -10,9 +10,6 @@ import net.ben.stocks.framework.stock.Stock;
 import net.ben.stocks.framework.stock.StockExchangeManager;
 import net.ben.stocks.framework.util.Initialisable;
 
-import javax.swing.filechooser.FileSystemView;
-import java.io.File;
-
 public class Framework implements Initialisable
 {
     private final FileManager fileManager;

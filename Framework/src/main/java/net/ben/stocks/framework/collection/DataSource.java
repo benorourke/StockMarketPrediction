@@ -5,11 +5,13 @@ import net.ben.stocks.framework.exception.FailedCollectionException;
 
 import java.util.Collection;
 
-public interface DataSource<T extends Data>
+public abstract class DataSource<T extends Data>
 {
 
-    Class<? extends T> getDataClazz();
+    public abstract Class<? extends T> getDataClass();
 
-    Collection<T> retrieveNext(Query query) throws FailedCollectionException;
+    public abstract Constraint[] getConstraints();
+
+    public abstract Collection<T> retrieveNext(Query query) throws FailedCollectionException;
 
 }
