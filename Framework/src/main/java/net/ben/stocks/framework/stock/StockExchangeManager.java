@@ -3,9 +3,7 @@ package net.ben.stocks.framework.stock;
 import net.ben.stocks.framework.util.Initialisable;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 public class StockExchangeManager implements Initialisable
 {

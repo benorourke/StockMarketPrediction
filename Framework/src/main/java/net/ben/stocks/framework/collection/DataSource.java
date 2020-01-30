@@ -1,5 +1,7 @@
 package net.ben.stocks.framework.collection;
 
+import net.ben.stocks.framework.collection.constraint.Constraint;
+import net.ben.stocks.framework.exception.ConstraintException;
 import net.ben.stocks.framework.series.data.Data;
 import net.ben.stocks.framework.exception.FailedCollectionException;
 
@@ -12,6 +14,14 @@ public abstract class DataSource<T extends Data>
 
     public abstract Constraint[] getConstraints();
 
-    public abstract Collection<T> retrieveNext(Query query) throws FailedCollectionException;
+    public abstract Collection<T> retrieve(Query query) throws ConstraintException, FailedCollectionException;
+
+    public void checkConstraints(final Query query) throws ConstraintException
+    {
+        for (Constraint constraint : getConstraints())
+        {
+            constraint.checkValid(query);
+        }
+    }
 
 }

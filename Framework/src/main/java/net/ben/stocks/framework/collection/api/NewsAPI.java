@@ -1,9 +1,11 @@
 package net.ben.stocks.framework.collection.api;
 
-import net.ben.stocks.framework.collection.Constraint;
+import net.ben.stocks.framework.collection.constraint.Constraint;
 import net.ben.stocks.framework.collection.DataSource;
 import net.ben.stocks.framework.collection.Query;
 import net.ben.stocks.framework.collection.URLConnector;
+import net.ben.stocks.framework.collection.constraint.MaximumAgeConstraint;
+import net.ben.stocks.framework.exception.ConstraintException;
 import net.ben.stocks.framework.series.data.Document;
 import net.ben.stocks.framework.exception.FailedCollectionException;
 
@@ -30,12 +32,17 @@ public class NewsAPI extends DataSource<Document>
     @Override
     public Constraint[] getConstraints()
     {
-        return new Constraint[0];
+        return new Constraint[]
+                {
+                        new MaximumAgeConstraint((int) 28)
+                };
     }
 
     @Override
-    public Collection<Document> retrieveNext(Query query) throws FailedCollectionException
+    public Collection<Document> retrieve(Query query) throws ConstraintException, FailedCollectionException
     {
+        checkConstraints(query);
+
         try
         {
             String result = URLConnector.connect(BASE_URL.concat(buildUrlExtension(query))).read();

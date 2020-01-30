@@ -1,5 +1,6 @@
-package net.ben.stocks.framework.collection;
+package net.ben.stocks.framework.collection.constraint;
 
+import net.ben.stocks.framework.collection.Query;
 import net.ben.stocks.framework.exception.ConstraintException;
 
 public interface Constraint
@@ -12,7 +13,5 @@ public interface Constraint
      * @throws ConstraintException the Exception thrown if it's invalid
      */
     void checkValid(Query query) throws ConstraintException;
-
-    String getExceptionMessage();
 
 }
