@@ -17,15 +17,25 @@ public class FileManager
 
         File defaultDir = FileSystemView.getFileSystemView().getDefaultDirectory(); // Takes about 100ms
         workingDirectory = new File(defaultDir + "/Stocks/");
-        framework.log("Using Directory " + workingDirectory.getPath());
+        framework.debug("Using Directory " + workingDirectory.getPath());
     }
 
-    public File getTimeSeriesInfoFile(File directory)
+    public File getTimeSeriesParentDirectory()
     {
-        return new File(directory, "info.json");
+        return new File(workingDirectory + "/timeseries");
     }
 
-    public File getDirectory()
+    public File getTimeSeriesDirectory(String name)
+    {
+        return new File(getTimeSeriesParentDirectory() + name.toLowerCase());
+    }
+
+    public File getTimeSeriesInfoFile(File seriesDirectory)
+    {
+        return new File(seriesDirectory, "info.json");
+    }
+
+    public File getWorkingDirectory()
     {
         return workingDirectory;
     }

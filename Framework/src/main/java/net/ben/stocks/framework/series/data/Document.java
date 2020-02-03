@@ -8,15 +8,9 @@ public class Document extends Data
 
     public Document(Date date, String content)
     {
-        super(date);
+        super(DataType.DOCUMENT, date);
 
         this.content = content;
-    }
-
-    @Override
-    public DataType getType()
-    {
-        return DataType.DOCUMENT;
     }
 
     @Override

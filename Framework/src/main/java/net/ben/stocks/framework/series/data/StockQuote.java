@@ -9,18 +9,12 @@ public class StockQuote extends Data
 
     public StockQuote(Date date, double open, double close, double high, double low)
     {
-        super(date);
+        super(DataType.STOCK_QUOTE, date);
 
         this.open = open;
         this.close = close;
         this.high = high;
         this.low = low;
-    }
-
-    @Override
-    public DataType getType()
-    {
-        return DataType.STOCK_QUOTE;
     }
 
     @Override

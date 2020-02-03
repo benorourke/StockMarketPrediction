@@ -9,15 +9,25 @@ import net.ben.stocks.framework.series.TimeSeriesManager;
 import net.ben.stocks.framework.stock.Stock;
 import net.ben.stocks.framework.stock.StockExchangeManager;
 import net.ben.stocks.framework.util.Initialisable;
+import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.Logger;
 
 public class Framework implements Initialisable
 {
+    private static final Logger logger;
+
     private final FileManager fileManager;
     private final StockExchangeManager stockExchangeManager;
     private final DataSourceManager dataSourceManager;
     private final TimeSeriesManager timeSeriesManager;
 
     private final Gson gson;
+
+    static
+    {
+        BasicConfigurator.configure();
+        logger = Logger.getLogger(Framework.class);
+    }
 
     public Framework()
     {
@@ -37,10 +47,24 @@ public class Framework implements Initialisable
         stockExchangeManager.initialise();
     }
 
-    public void log(String message)
+    public void info(String message)
     {
-        // TODO - Using log4j or some other means of logging
-        System.out.println(message);
+        logger.info(message);
+    }
+
+    public void debug(String message)
+    {
+        logger.debug(message);
+    }
+
+    public void error(String message)
+    {
+        logger.error(message);
+    }
+
+    public void error(String message, Throwable throwable)
+    {
+        logger.error(message, throwable);
     }
 
     public FileManager getFileManager()

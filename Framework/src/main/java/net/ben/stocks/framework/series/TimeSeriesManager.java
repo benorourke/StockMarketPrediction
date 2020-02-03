@@ -1,7 +1,6 @@
 package net.ben.stocks.framework.series;
 
 import net.ben.stocks.framework.Framework;
-import net.ben.stocks.framework.util.Initialisable;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -16,11 +15,13 @@ public class TimeSeriesManager
     public TimeSeriesManager(Framework framework)
     {
         this.framework = framework;
+
+        LoggerUtil.debug(getStoredTimeSeries().size() + " time series found");
     }
 
     private List<TimeSeries> getStoredTimeSeries()
     {
-        File storageDirectory = framework.getFileManager().getDirectory();
+        File storageDirectory = framework.getFileManager().getTimeSeriesParentDirectory();
 
         if (!storageDirectory.exists())
             storageDirectory.mkdir();
