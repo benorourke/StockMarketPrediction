@@ -8,6 +8,7 @@ import net.ben.stocks.framework.persistence.gson.StockAdapter;
 import net.ben.stocks.framework.series.TimeSeriesManager;
 import net.ben.stocks.framework.stock.Stock;
 import net.ben.stocks.framework.stock.StockExchangeManager;
+import net.ben.stocks.framework.thread.internals.TaskManager;
 import net.ben.stocks.framework.util.Initialisable;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
@@ -20,6 +21,7 @@ public class Framework implements Initialisable
     private final StockExchangeManager stockExchangeManager;
     private final DataSourceManager dataSourceManager;
     private final TimeSeriesManager timeSeriesManager;
+    private final TaskManager taskManager;
 
     private final Gson gson;
 
@@ -35,6 +37,7 @@ public class Framework implements Initialisable
         stockExchangeManager = new StockExchangeManager();
         dataSourceManager = new DataSourceManager();
         timeSeriesManager = new TimeSeriesManager(this);
+        taskManager = new TaskManager(config);
 
         gson = new GsonBuilder()
                         .registerTypeAdapter(Stock.class, new StockAdapter(stockExchangeManager))
@@ -90,6 +93,11 @@ public class Framework implements Initialisable
     public TimeSeriesManager getTimeSeriesManager()
     {
         return timeSeriesManager;
+    }
+
+    public TaskManager getTaskManager()
+    {
+        return taskManager;
     }
 
     public Gson getGson()
