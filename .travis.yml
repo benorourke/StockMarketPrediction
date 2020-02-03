@@ -3,7 +3,7 @@ jdk: oraclejdk8
 
 # before_script:
 script:
-  - cd BackendProject
+  - cd Framework
   - mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V
   - mvn test -B
   - mvn cobertura:cobertura
