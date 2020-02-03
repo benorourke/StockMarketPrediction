@@ -13,6 +13,18 @@ public class Stock
         this.ticker = ticker;
     }
 
+    @Override
+    public String toString()
+    {
+        return ticker + ':' + exchange.toString();
+    }
+
+    @Override
+    public boolean equals(Object obj)
+    {
+        return (obj instanceof Stock) ? obj.toString().equalsIgnoreCase(toString()) : false;
+    }
+
     public StockExchange getExchange()
     {
         return exchange;

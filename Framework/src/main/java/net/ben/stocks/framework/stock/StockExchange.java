@@ -15,6 +15,18 @@ public class StockExchange
         this.stocks = new ArrayList<Stock>();
     }
 
+    @Override
+    public String toString()
+    {
+        return shortName;
+    }
+
+    @Override
+    public boolean equals(Object obj)
+    {
+        return (obj instanceof StockExchange) ? obj.toString().equalsIgnoreCase(toString()) : false;
+    }
+
     public String getName()
     {
         return name;
