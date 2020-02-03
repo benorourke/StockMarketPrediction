@@ -1,24 +1,43 @@
 package net.ben.stocks.framework.task;
 
-public class Task extends Thread
+import com.sun.istack.internal.Nullable;
+
+import java.util.concurrent.ScheduledFuture;
+
+public abstract class Task implements Runnable
 {
-    private volatile boolean stopped;
+    private final TaskType type;
 
-    public Task(Runnable runnable)
+    @Nullable
+    private ScheduledFuture handle;
+
+    public Task(TaskType type)
     {
-        super(runnable);
-
-        stopped = false;
+        this.type = type;
     }
 
-    public boolean isStopped()
+    public void cancel()
     {
-        return stopped;
+        if(hasHandle()) handle.cancel(true);
     }
 
-    public void setStopped(boolean stopped)
+    public TaskType getType()
     {
-        this.stopped = stopped;
+        return type;
     }
 
+    public ScheduledFuture getHandle()
+    {
+        return handle;
+    }
+
+    public boolean hasHandle()
+    {
+        return handle != null;
+    }
+
+    public void setHandle(ScheduledFuture handle)
+    {
+        this.handle = handle;
+    }
 }
