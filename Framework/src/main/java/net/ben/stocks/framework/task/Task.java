@@ -1,6 +1,6 @@
 package net.ben.stocks.framework.task;
 
-import com.sun.istack.internal.Nullable;
+import net.ben.stocks.framework.util.Nullable;
 
 import java.util.concurrent.ScheduledFuture;
 
