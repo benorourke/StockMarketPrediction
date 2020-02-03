@@ -29,9 +29,9 @@ public class Framework implements Initialisable
         logger = Logger.getLogger(Framework.class);
     }
 
-    public Framework()
+    public Framework(Configuration config)
     {
-        fileManager = new FileManager(this);
+        fileManager = new FileManager(config);
         stockExchangeManager = new StockExchangeManager();
         dataSourceManager = new DataSourceManager();
         timeSeriesManager = new TimeSeriesManager(this);
@@ -39,6 +39,11 @@ public class Framework implements Initialisable
         gson = new GsonBuilder()
                         .registerTypeAdapter(Stock.class, new StockAdapter(stockExchangeManager))
                         .create();
+    }
+
+    public Framework()
+    {
+        this(new Configuration());
     }
 
     @Override
@@ -89,6 +94,7 @@ public class Framework implements Initialisable
 
     public Gson getGson()
     {
+        // TODO - Ensure this is thread-safe, it may be used concurrently
         return gson;
     }
 

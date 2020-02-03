@@ -1,5 +1,6 @@
 package net.ben.stocks.framework.persistence.gson;
 
+import net.ben.stocks.framework.Configuration;
 import net.ben.stocks.framework.Framework;
 
 import javax.swing.filechooser.FileSystemView;
@@ -7,37 +8,49 @@ import java.io.File;
 
 public class FileManager
 {
-    private final Framework framework;
+    private final File workingDirectory;
 
-    private File workingDirectory;
-
-    public FileManager(Framework framework)
+    public FileManager(Configuration configuration)
     {
-        this.framework = framework;
-
-        File defaultDir = FileSystemView.getFileSystemView().getDefaultDirectory(); // Takes about 100ms
-        workingDirectory = new File(defaultDir + "/Stocks/");
-        framework.debug("Using Directory " + workingDirectory.getPath());
-    }
-
-    public File getTimeSeriesParentDirectory()
-    {
-        return new File(workingDirectory + "/timeseries");
-    }
-
-    public File getTimeSeriesDirectory(String name)
-    {
-        return new File(getTimeSeriesParentDirectory() + name.toLowerCase());
-    }
-
-    public File getTimeSeriesInfoFile(File seriesDirectory)
-    {
-        return new File(seriesDirectory, "info.json");
+        this.workingDirectory = configuration.getWorkingDirectory();
     }
 
     public File getWorkingDirectory()
     {
         return workingDirectory;
+    }
+
+    //////////////////////////////////////////////////////////////////
+    //      TIME SERIES
+    //////////////////////////////////////////////////////////////////
+
+    /**
+     * Get the parent directory that contains all TimeSeries sub-directories.
+     * @return
+     */
+    public File getTimeSeriesParentDirectory()
+    {
+        return new File(workingDirectory, "timeseries");
+    }
+
+    /**
+     * Get the directory for a given TimeSeries' name.
+     * @return
+     */
+    public File getTimeSeriesDirectory(String name)
+    {
+        return new File(getTimeSeriesParentDirectory(), name.toLowerCase());
+    }
+
+    /**
+     * Get the info file for a given TimeSeries.
+     *
+     * @param directory the directory containing the specific TimeSeries
+     * @return
+     */
+    public File getTimeSeriesInfoFile(File directory)
+    {
+        return new File(directory + File.separator + "info.json");
     }
 
 }

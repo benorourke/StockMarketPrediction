@@ -25,10 +25,10 @@ public class StockExchangeManager implements Initialisable
 
     public StockExchange getByName(String exchangeName)
     {
-        return exchanges
-                .stream()
-                .filter(e -> e.getName().equalsIgnoreCase(exchangeName))
-                .findFirst().orElse(null);
+        return exchanges.stream()
+                    .filter(e -> e.getName().equalsIgnoreCase(exchangeName))
+                    .findFirst()
+                    .orElse(null);
     }
 
     public List<StockExchange> getExchanges()
