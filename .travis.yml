@@ -1,0 +1,12 @@
+language: java
+jdk: oraclejdk8
+dist: trusty
+
+# before_script:
+script:
+  - cd Framework
+  - mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V
+  - mvn test -B
+  - mvn cobertura:cobertura
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
