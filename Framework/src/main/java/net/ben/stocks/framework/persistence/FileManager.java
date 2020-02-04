@@ -1,9 +1,7 @@
-package net.ben.stocks.framework.persistence.gson;
+package net.ben.stocks.framework.persistence;
 
 import net.ben.stocks.framework.Configuration;
-import net.ben.stocks.framework.Framework;
 
-import javax.swing.filechooser.FileSystemView;
 import java.io.File;
 
 public class FileManager

@@ -1,7 +1,5 @@
-package net.ben.stocks.framework.thread.internals;
+package net.ben.stocks.framework.thread;
 
-import net.ben.stocks.framework.thread.ResultCallback;
-import net.ben.stocks.framework.thread.Task;
 import net.ben.stocks.framework.util.Nullable;
 import net.ben.stocks.framework.util.ThreadSynchronised;
 
