@@ -1,6 +1,5 @@
 package net.ben.stocks.framework.thread.internals;
 
-import com.sun.istack.internal.Nullable;
 import net.ben.stocks.framework.thread.ResultCallback;
 import net.ben.stocks.framework.thread.Task;
 import net.ben.stocks.framework.util.ThreadSynchronised;

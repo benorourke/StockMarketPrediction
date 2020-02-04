@@ -16,7 +16,7 @@ public class TaskManager
 {
     @ThreadSynchronised
     private final ScheduledExecutorService executor;
-    @ThreadSynchronised
+    @ThreadSynchronised // TODO - Make this more atomic - maybe split into two?
     private final ConcurrentHashMap<UUID, Tuple<TaskWrapper, Progress>> taskMap;
     /**
      * Callbacks are stored here once tasks are finished.
@@ -25,11 +25,10 @@ public class TaskManager
      * consumed by {@link#consumeCallbacks(Framework)}.
      */
     @ThreadSynchronised
-    private final BlockingQueue<TaskCallback> callbackQueue;
+    private final BlockingQueue<Tuple<TaskWrapper, ResultCallback>> callbackQueue;
 
     public TaskManager(Configuration configuration)
     {
-        // TODO: Make the corePoolSize configurable
         executor = Executors.newScheduledThreadPool(configuration.getTaskPoolSize());
         taskMap = new ConcurrentHashMap<>();
         callbackQueue = new LinkedBlockingQueue<>();
@@ -71,7 +70,8 @@ public class TaskManager
     @ThreadSynchronised
     public void cancel(UUID taskId)
     {
-        // TODO
+        TaskWrapper wrapper = taskMap.get(taskId).getA();
+        if(wrapper.hasHandle()) wrapper.getHandle().cancel(true);
     }
 
     @ThreadSynchronised
@@ -79,7 +79,7 @@ public class TaskManager
     {
         if(wrapper.hasHandle()) wrapper.getHandle().cancel(true);
 
-        callbackQueue.add(wrapper.getTask().getFinishedCallback());
+        callbackQueue.add(new Tuple<>(wrapper, wrapper.getResultCallback()));
     }
 
     /**
@@ -95,9 +95,11 @@ public class TaskManager
         {
             try
             {
-                TaskCallback callback = callbackQueue.take();
-                tasksToRemove.add(callback.getTaskWrapper());
-                callback.onCallback(framework);
+                Tuple<TaskWrapper, ResultCallback> tuple = callbackQueue.take();
+                TaskWrapper wrapper = tuple.getA();
+
+                tasksToRemove.add(wrapper);
+                tuple.getB().onCallback(wrapper.getTask().getResult());
             }
             catch (InterruptedException e)
             {

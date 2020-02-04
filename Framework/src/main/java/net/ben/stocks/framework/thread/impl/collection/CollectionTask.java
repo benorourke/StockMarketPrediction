@@ -2,10 +2,16 @@ package net.ben.stocks.framework.thread.impl.collection;
 
 import net.ben.stocks.framework.thread.Task;
 import net.ben.stocks.framework.thread.Progress;
-import net.ben.stocks.framework.thread.internals.TaskCallback;
 
 public class CollectionTask implements Task<CollectionResult>
 {
+
+    private final String name;
+
+    public CollectionTask(String name)
+    {
+        this.name = name;
+    }
 
     @Override
     public Progress newTaskProgress()
@@ -16,7 +22,7 @@ public class CollectionTask implements Task<CollectionResult>
     @Override
     public void run()
     {
-
+        System.out.println(name + " running");
     }
 
     @Override
@@ -26,15 +32,9 @@ public class CollectionTask implements Task<CollectionResult>
     }
 
     @Override
-    public TaskCallback getFinishedCallback()
-    {
-        return null;
-    }
-
-    @Override
     public CollectionResult getResult()
     {
-        return null;
+        return new CollectionResult();
     }
 
 }
