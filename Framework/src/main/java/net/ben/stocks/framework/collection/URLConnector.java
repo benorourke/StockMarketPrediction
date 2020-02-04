@@ -31,7 +31,8 @@ public class URLConnector
                 new InputStreamReader(connection.getInputStream()));
         String inputLine;
         StringBuffer content = new StringBuffer();
-        while ((inputLine = in.readLine()) != null) {
+        while ((inputLine = in.readLine()) != null)
+        {
             content.append(inputLine);
         }
         in.close();
