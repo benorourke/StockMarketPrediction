@@ -7,9 +7,8 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="Framework" />
-        <module name="FrameworkImpl" />
-        <module name="NaturalLanguageProcessor" />
         <module name="UserInterface" />
+        <module name="NaturalLanguageProcessor" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel target="8">

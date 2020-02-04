@@ -6,7 +6,7 @@ package net.ben.stocks.framework.thread;
 public interface Task<T extends Result> extends Runnable
 {
 
-    Progress newTaskProgress();
+    Progress createTaskProgress();
 
     boolean isFinished();
 

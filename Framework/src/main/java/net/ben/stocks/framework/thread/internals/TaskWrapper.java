@@ -2,6 +2,7 @@ package net.ben.stocks.framework.thread.internals;
 
 import net.ben.stocks.framework.thread.ResultCallback;
 import net.ben.stocks.framework.thread.Task;
+import net.ben.stocks.framework.util.Nullable;
 import net.ben.stocks.framework.util.ThreadSynchronised;
 
 import java.util.UUID;
@@ -84,4 +85,5 @@ public class TaskWrapper implements Runnable
     {
         return resultCallback;
     }
+
 }

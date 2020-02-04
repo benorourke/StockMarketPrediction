@@ -16,8 +16,14 @@ public class TaskManager
 {
     @ThreadSynchronised
     private final ScheduledExecutorService executor;
-    @ThreadSynchronised // TODO - Make this more atomic - maybe split into two?
-    private final ConcurrentHashMap<UUID, Tuple<TaskWrapper, Progress>> taskMap;
+    /**
+     * Stores currently on-going Tasks, along with finished tasks (until they are consumed by
+     * {@link#consumeCallbacks(Framework})
+     */
+    @ThreadSynchronised
+    private final ConcurrentHashMap<UUID, TaskWrapper> taskMap;
+    @ThreadSynchronised
+    private final ConcurrentHashMap<UUID, Progress> progressMap;
     /**
      * Callbacks are stored here once tasks are finished.
      *
@@ -31,6 +37,7 @@ public class TaskManager
     {
         executor = Executors.newScheduledThreadPool(configuration.getTaskPoolSize());
         taskMap = new ConcurrentHashMap<>();
+        progressMap = new ConcurrentHashMap<>();
         callbackQueue = new LinkedBlockingQueue<>();
     }
 
@@ -49,7 +56,8 @@ public class TaskManager
                                                      long initialDelay, long period, TimeUnit timeUnit)
     {
         TaskWrapper wrapper = new TaskWrapper(this, task, onFinished);
-        taskMap.put(wrapper.getId(), new Tuple<>(wrapper, task.newTaskProgress()));
+        taskMap.put(wrapper.getId(), wrapper);
+        progressMap.put(wrapper.getId(), task.createTaskProgress());
 
         final ScheduledFuture<?> handle =
                 executor.scheduleAtFixedRate(wrapper,
@@ -57,20 +65,24 @@ public class TaskManager
                                              period,
                                              timeUnit);
         wrapper.setHandle(handle);
-
         return wrapper.getId();
     }
 
+    /**
+     * Do not regularly call - instead maintain a reference; the members are volatile anyway
+     * @param taskId
+     * @return
+     */
     @ThreadSynchronised
-    public double getProgress(UUID taskId)
+    public Progress getProgress(UUID taskId)
     {
-        return taskMap.get(taskId).getB().getProgress();
+        return progressMap.get(taskId);
     }
 
     @ThreadSynchronised
     public void cancel(UUID taskId)
     {
-        TaskWrapper wrapper = taskMap.get(taskId).getA();
+        TaskWrapper wrapper = taskMap.get(taskId);
         if(wrapper.hasHandle()) wrapper.getHandle().cancel(true);
     }
 
@@ -86,7 +98,7 @@ public class TaskManager
      * Only to be called by a single, main thread in order to get the results / callbacks of tasks.
      */
     @ThreadSynchronised
-    public void consumeCallbacks(Framework framework)
+    public void consumeCallbacks()
     {
         // Store them here and remove once we've got them all in case of a deadlock
         Queue<TaskWrapper> tasksToRemove = new LinkedList<TaskWrapper>();
@@ -107,12 +119,15 @@ public class TaskManager
             }
         }
 
-        // Remove the Task from the taskMap
+        // Remove the Task from the taskMap and progressMap
         while (!tasksToRemove.isEmpty())
         {
             TaskWrapper wrapper = tasksToRemove.peek();
-            wrapper.getResultCallback().onCallback(wrapper.getTask().getResult());
             taskMap.remove(tasksToRemove.poll().getId());
+            /**
+             *  TODO: Is this thread-safe? Could cause deadlocks - should I clone the tasks and do this separately?
+             */
+            progressMap.remove(wrapper.getId());
         }
     }
 

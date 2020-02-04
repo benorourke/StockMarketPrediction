@@ -5,7 +5,7 @@ public class Progress
     /**
      * Between 0 and 100.
      */
-    private double progress;
+    private volatile double progress;
 
     public Progress()
     {

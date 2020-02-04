@@ -3,9 +3,11 @@ package net.ben.stocks.framework.thread.impl.collection;
 import net.ben.stocks.framework.thread.Task;
 import net.ben.stocks.framework.thread.Progress;
 
+import java.util.Random;
+
 public class CollectionTask implements Task<CollectionResult>
 {
-
+    private Progress progress;
     private final String name;
 
     public CollectionTask(String name)
@@ -14,21 +16,22 @@ public class CollectionTask implements Task<CollectionResult>
     }
 
     @Override
-    public Progress newTaskProgress()
+    public Progress createTaskProgress()
     {
-        return new Progress();
+        return progress = new Progress();
     }
 
     @Override
     public void run()
     {
         System.out.println(name + " running");
+        progress.setProgress(new Random().nextInt());
     }
 
     @Override
     public boolean isFinished()
     {
-        return false;
+        return true;
     }
 
     @Override
