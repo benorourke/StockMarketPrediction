@@ -8,7 +8,7 @@ import net.ben.stocks.framework.persistence.gson.StockAdapter;
 import net.ben.stocks.framework.series.TimeSeriesManager;
 import net.ben.stocks.framework.stock.Stock;
 import net.ben.stocks.framework.stock.StockExchangeManager;
-import net.ben.stocks.framework.thread.internals.TaskManager;
+import net.ben.stocks.framework.thread.TaskManager;
 import net.ben.stocks.framework.util.Initialisable;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;

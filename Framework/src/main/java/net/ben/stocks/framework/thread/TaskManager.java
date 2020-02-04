@@ -1,17 +1,15 @@
-package net.ben.stocks.framework.thread.internals;
+package net.ben.stocks.framework.thread;
 
 import net.ben.stocks.framework.Configuration;
-import net.ben.stocks.framework.Framework;
-import net.ben.stocks.framework.thread.Result;
-import net.ben.stocks.framework.thread.ResultCallback;
-import net.ben.stocks.framework.thread.Task;
-import net.ben.stocks.framework.thread.Progress;
 import net.ben.stocks.framework.util.ThreadSynchronised;
 import net.ben.stocks.framework.util.Tuple;
 
 import java.util.*;
 import java.util.concurrent.*;
 
+/**
+ *
+ */
 public class TaskManager
 {
     @ThreadSynchronised

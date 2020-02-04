@@ -1,4 +1,4 @@
-package net.ben.stocks.framework.thread.impl.collection;
+package net.ben.stocks.framework.thread.collection;
 
 import net.ben.stocks.framework.thread.Task;
 import net.ben.stocks.framework.thread.Progress;
