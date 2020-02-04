@@ -1,8 +1,10 @@
 package net.ben.stocks.framework.collection.api;
 
+import net.ben.stocks.framework.collection.CollectionSession;
 import net.ben.stocks.framework.collection.constraint.Constraint;
 import net.ben.stocks.framework.collection.DataSource;
 import net.ben.stocks.framework.collection.Query;
+import net.ben.stocks.framework.collection.constraint.OrderingConstraint;
 import net.ben.stocks.framework.exception.ConstraintException;
 import net.ben.stocks.framework.series.data.StockQuote;
 import net.ben.stocks.framework.exception.FailedCollectionException;
@@ -29,7 +31,16 @@ public class AlphaVantage extends DataSource<StockQuote>
     @Override
     public Constraint[] getConstraints()
     {
-        return new Constraint[0];
+        return new Constraint[]
+                {
+                        new OrderingConstraint()
+                };
+    }
+
+    @Override
+    public CollectionSession newSession(Query completeQuery)
+    {
+        return null;
     }
 
     @Override

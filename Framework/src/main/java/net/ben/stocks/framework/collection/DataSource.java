@@ -14,6 +14,8 @@ public abstract class DataSource<T extends Data>
 
     public abstract Constraint[] getConstraints();
 
+    public abstract CollectionSession newSession(Query completeQuery);
+
     public abstract Collection<T> retrieve(Query query) throws ConstraintException, FailedCollectionException;
 
     public void checkConstraints(final Query query) throws ConstraintException

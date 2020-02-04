@@ -1,8 +1,23 @@
 package net.ben.stocks.framework.thread.impl.collection;
 
+import net.ben.stocks.framework.series.data.Data;
 import net.ben.stocks.framework.thread.Result;
 
-public class CollectionResult extends Result
+import java.util.ArrayList;
+import java.util.List;
+
+public class CollectionResult<T extends Data> extends Result
 {
+    private final List<T> data;
+
+    public CollectionResult()
+    {
+        data = new ArrayList<T>();
+    }
+
+    public List<T> getData()
+    {
+        return data;
+    }
 
 }

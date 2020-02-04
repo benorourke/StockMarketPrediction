@@ -3,7 +3,6 @@ package net.benorourke.nlp.mining;
 import java.util.List;
 
 public class Document {
-
     public enum DocumentType {NEWS_HEADLINE, TWEET}
 
     private DocumentType type;

@@ -1,10 +1,9 @@
 package net.ben.stocks.framework.collection.api;
 
+import net.ben.stocks.framework.collection.*;
 import net.ben.stocks.framework.collection.constraint.Constraint;
-import net.ben.stocks.framework.collection.DataSource;
-import net.ben.stocks.framework.collection.Query;
-import net.ben.stocks.framework.collection.URLConnector;
 import net.ben.stocks.framework.collection.constraint.MaximumAgeConstraint;
+import net.ben.stocks.framework.collection.constraint.OrderingConstraint;
 import net.ben.stocks.framework.exception.ConstraintException;
 import net.ben.stocks.framework.series.data.Document;
 import net.ben.stocks.framework.exception.FailedCollectionException;
@@ -34,8 +33,15 @@ public class NewsAPI extends DataSource<Document>
     {
         return new Constraint[]
                 {
+                        new OrderingConstraint(),
                         new MaximumAgeConstraint((int) 28)
                 };
+    }
+
+    @Override
+    public CollectionSession newSession(Query completeQuery)
+    {
+        return new DailyCollectionSession(completeQuery);
     }
 
     @Override

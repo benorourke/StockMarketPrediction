@@ -55,22 +55,22 @@ public class Framework implements Initialisable
         stockExchangeManager.initialise();
     }
 
-    public void info(String message)
+    public static void info(String message)
     {
         logger.info(message);
     }
 
-    public void debug(String message)
+    public static void debug(String message)
     {
         logger.debug(message);
     }
 
-    public void error(String message)
+    public static void error(String message)
     {
         logger.error(message);
     }
 
-    public void error(String message, Throwable throwable)
+    public static void error(String message, Throwable throwable)
     {
         logger.error(message, throwable);
     }

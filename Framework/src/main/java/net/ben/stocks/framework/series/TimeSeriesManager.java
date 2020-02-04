@@ -1,6 +1,5 @@
 package net.ben.stocks.framework.series;
 
-import com.google.gson.GsonBuilder;
 import net.ben.stocks.framework.Framework;
 import net.ben.stocks.framework.persistence.gson.FileManager;
 import net.ben.stocks.framework.stock.Stock;
@@ -19,8 +18,8 @@ public class TimeSeriesManager
         this.framework = framework;
         fileManager = framework.getFileManager();
 
-        framework.debug("Time Series Dir: " + fileManager.getTimeSeriesParentDirectory());
-        framework.debug("Time Series Found: " + getStoredTimeSeries().size());
+        Framework.debug("Time Series Dir: " + fileManager.getTimeSeriesParentDirectory());
+        Framework.debug("Time Series Found: " + getStoredTimeSeries().size());
     }
 
     public boolean create(String name, Stock stock)
@@ -38,7 +37,7 @@ public class TimeSeriesManager
             }
             catch (IOException exception)
             {
-                framework.error("Unable to Create TimeSeries Info File", exception);
+                Framework.error("Unable to Create TimeSeries Info File", exception);
                 return false;
             }
         }
@@ -46,13 +45,13 @@ public class TimeSeriesManager
         try (Writer writer = new FileWriter(info))
         {
             framework.getGson().toJson(stock, writer);
-            framework.debug("Time Series Created: " + name + " for stock " + stock);
+            Framework.debug("Time Series Created: " + name + " for stock " + stock);
             writer.close();
             return true;
         }
         catch (IOException error)
         {
-            framework.error("Unable to Create TimeSeries " + name + " for stock " + stock, error);
+            Framework.error("Unable to Create TimeSeries " + name + " for stock " + stock, error);
             return false;
         }
     }
