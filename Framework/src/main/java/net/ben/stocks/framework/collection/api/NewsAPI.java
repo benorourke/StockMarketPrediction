@@ -1,9 +1,13 @@
 package net.ben.stocks.framework.collection.api;
 
+import net.ben.stocks.framework.Framework;
 import net.ben.stocks.framework.collection.*;
 import net.ben.stocks.framework.collection.constraint.Constraint;
 import net.ben.stocks.framework.collection.constraint.MaximumAgeConstraint;
 import net.ben.stocks.framework.collection.constraint.OrderingConstraint;
+import net.ben.stocks.framework.collection.session.CollectionSession;
+import net.ben.stocks.framework.collection.session.DailyCollectionSession;
+import net.ben.stocks.framework.collection.session.api.NewsAPICollectionSession;
 import net.ben.stocks.framework.exception.ConstraintException;
 import net.ben.stocks.framework.series.data.Document;
 import net.ben.stocks.framework.exception.FailedCollectionException;
@@ -41,7 +45,7 @@ public class NewsAPI extends DataSource<Document>
     @Override
     public CollectionSession newSession(Query completeQuery)
     {
-        return new DailyCollectionSession(completeQuery);
+        return new NewsAPICollectionSession(completeQuery);
     }
 
     @Override
@@ -51,9 +55,22 @@ public class NewsAPI extends DataSource<Document>
 
         try
         {
-            String result = URLConnector.connect(BASE_URL.concat(buildUrlExtension(query))).read();
-            System.out.println(result);
-            return Arrays.asList(new Document(new Date(), result));
+            String url = BASE_URL.concat(buildUrlExtension(query));
+            Framework.info("Connecting to " + url);
+
+            URLConnector connector = URLConnector.connect(url);
+            String result = connector.read();
+
+            if(connector.getResponseCode() != URLConnector.RESPONSE_OK)
+            {
+                throw new FailedCollectionException(connector.getResponseCode());
+            }
+            else
+            {
+                // TODO: Parse response and return
+                System.out.println(result);
+                return Arrays.asList(new Document(new Date(), result));
+            }
         }
         catch (IOException e)
         {
@@ -77,7 +94,7 @@ public class NewsAPI extends DataSource<Document>
                                 + "-" + calendar.get(Calendar.DAY_OF_MONTH);
 
         return "v2/everything"
-                    .concat("?q=" + query.getStock().getCompanyName())
+                    .concat("?q=" + query.getStock().getCompanyName().replace(" ", "%20"))
                     .concat("&from=".concat(strFrom))
                     .concat("&to=".concat(strTo))
                     .concat("&sortBy=popularity")

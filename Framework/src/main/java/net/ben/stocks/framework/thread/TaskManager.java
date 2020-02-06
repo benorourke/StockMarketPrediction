@@ -1,6 +1,7 @@
 package net.ben.stocks.framework.thread;
 
 import net.ben.stocks.framework.Configuration;
+import net.ben.stocks.framework.Framework;
 import net.ben.stocks.framework.util.ThreadSynchronised;
 import net.ben.stocks.framework.util.Tuple;
 
@@ -33,6 +34,8 @@ public class TaskManager
 
     public TaskManager(Configuration configuration)
     {
+        Framework.info("Creating task thread pool [" +configuration.getTaskPoolSize() + "]");
+
         executor = Executors.newScheduledThreadPool(configuration.getTaskPoolSize());
         taskMap = new ConcurrentHashMap<>();
         progressMap = new ConcurrentHashMap<>();
@@ -109,7 +112,6 @@ public class TaskManager
                 TaskWrapper wrapper = tuple.getA();
 
                 tasksToRemove.add(wrapper);
-                tuple.getB().onCallback(wrapper.getTask().getResult());
             }
             catch (InterruptedException e)
             {
@@ -121,6 +123,8 @@ public class TaskManager
         while (!tasksToRemove.isEmpty())
         {
             TaskWrapper wrapper = tasksToRemove.peek();
+            wrapper.getResultCallback().onCallback(wrapper.getTask().getResult());
+
             taskMap.remove(tasksToRemove.poll().getId());
             /**
              *  TODO: Is this thread-safe? Could cause deadlocks - should I clone the tasks and do this separately?

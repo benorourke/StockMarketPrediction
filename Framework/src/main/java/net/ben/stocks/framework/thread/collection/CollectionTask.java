@@ -1,7 +1,7 @@
 package net.ben.stocks.framework.thread.collection;
 
 import net.ben.stocks.framework.Framework;
-import net.ben.stocks.framework.collection.CollectionSession;
+import net.ben.stocks.framework.collection.session.api.APICollectionSession;
 import net.ben.stocks.framework.collection.DataSource;
 import net.ben.stocks.framework.collection.Query;
 import net.ben.stocks.framework.exception.ConstraintException;
@@ -11,12 +11,11 @@ import net.ben.stocks.framework.thread.Task;
 import net.ben.stocks.framework.thread.Progress;
 
 import java.util.Collection;
-import java.util.Random;
 
 public class CollectionTask<T extends Data> implements Task<CollectionResult>
 {
     private final DataSource<T> dataSource;
-    private final CollectionSession session;
+    private final APICollectionSession session;
     /**
      * Elements are appended to the list as collected
      */
@@ -24,7 +23,7 @@ public class CollectionTask<T extends Data> implements Task<CollectionResult>
 
     private Progress progress;
 
-    public CollectionTask(DataSource<T> dataSource, CollectionSession session)
+    public CollectionTask(DataSource<T> dataSource, APICollectionSession session)
     {
         this.dataSource = dataSource;
         this.session = session;
@@ -44,17 +43,18 @@ public class CollectionTask<T extends Data> implements Task<CollectionResult>
         try
         {
             Collection<T> retrieved = dataSource.retrieve(next);
-            result.getData().addAll(retrieved);
+            session.onCollected(retrieved);
 
+            result.getData().addAll(retrieved);
             Framework.info("Collected " + retrieved.size() + " data for " + next.toString());
         }
         catch (ConstraintException e)
         {
-            e.printStackTrace();
+            session.onConstraintException(e);
         }
         catch (FailedCollectionException e)
         {
-            e.printStackTrace();
+            session.onCollectionException(e);
         }
 
         int total = session.completed() + session.remaining();

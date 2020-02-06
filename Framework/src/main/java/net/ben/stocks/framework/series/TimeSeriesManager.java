@@ -1,7 +1,7 @@
 package net.ben.stocks.framework.series;
 
 import net.ben.stocks.framework.Framework;
-import net.ben.stocks.framework.persistence.gson.FileManager;
+import net.ben.stocks.framework.persistence.FileManager;
 import net.ben.stocks.framework.stock.Stock;
 
 import java.io.*;

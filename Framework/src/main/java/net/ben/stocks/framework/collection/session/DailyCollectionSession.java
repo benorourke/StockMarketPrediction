@@ -1,13 +1,16 @@
-package net.ben.stocks.framework.collection;
+package net.ben.stocks.framework.collection.session;
 
-import net.ben.stocks.framework.collection.CollectionSession;
 import net.ben.stocks.framework.collection.Query;
-import net.ben.stocks.framework.util.Nullable;
+import net.ben.stocks.framework.exception.ConstraintException;
+import net.ben.stocks.framework.exception.FailedCollectionException;
+import net.ben.stocks.framework.series.data.Data;
 
+import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
-public class DailyCollectionSession implements CollectionSession
+public class DailyCollectionSession<T extends Data> implements CollectionSession<T>
 {
     private final Query completeQuery;
     private Date currentDate;
@@ -32,7 +35,11 @@ public class DailyCollectionSession implements CollectionSession
         completed ++;
 
         Date prev = new Date(currentDate.getTime());
-        currentDate = new Date(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(1));
+
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(currentDate);
+        cal.add(Calendar.DAY_OF_MONTH, 1);
+        currentDate = cal.getTime();
 
         return new Query(prev, prev, completeQuery.getStock());
     }
@@ -46,8 +53,7 @@ public class DailyCollectionSession implements CollectionSession
     @Override
     public int remaining()
     {
-        int days = (int) ((completeQuery.getTo().getTime() - currentDate.getTime()) / TimeUnit.DAYS.toMillis(1));
-        return 1 + days;
+        return (int) ((completeQuery.getTo().getTime() - currentDate.getTime()) / TimeUnit.DAYS.toMillis(1));
     }
 
 }

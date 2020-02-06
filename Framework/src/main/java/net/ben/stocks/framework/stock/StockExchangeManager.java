@@ -18,7 +18,7 @@ public class StockExchangeManager implements Initialisable
     public void initialise()
     {
         StockExchange nyse = new StockExchange("New York Stock Exchange", "NYSE");
-        nyse.getStocks().add(new Stock(nyse, "Amazon", "AMZN"));
+        nyse.getStocks().add(new Stock(nyse, "Apple", "AAPL"));
 
         exchanges.add(nyse);
     }

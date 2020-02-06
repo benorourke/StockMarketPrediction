@@ -1,6 +1,6 @@
 package net.ben.stocks.framework.collection.api;
 
-import net.ben.stocks.framework.collection.CollectionSession;
+import net.ben.stocks.framework.collection.session.CollectionSession;
 import net.ben.stocks.framework.collection.constraint.Constraint;
 import net.ben.stocks.framework.collection.DataSource;
 import net.ben.stocks.framework.collection.Query;

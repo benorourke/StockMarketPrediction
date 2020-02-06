@@ -1,6 +1,7 @@
 package net.ben.stocks.framework.collection;
 
 import net.ben.stocks.framework.collection.constraint.Constraint;
+import net.ben.stocks.framework.collection.session.CollectionSession;
 import net.ben.stocks.framework.exception.ConstraintException;
 import net.ben.stocks.framework.series.data.Data;
 import net.ben.stocks.framework.exception.FailedCollectionException;

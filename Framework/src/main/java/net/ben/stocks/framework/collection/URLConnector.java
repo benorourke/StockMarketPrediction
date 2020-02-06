@@ -8,6 +8,8 @@ import java.net.URL;
 
 public class URLConnector
 {
+    public static final int RESPONSE_OK = 200;
+
     private static final int CONNECT_TIMEOUT = 5000;
     private static final int READ_TIMEOUT = 5000;
 
