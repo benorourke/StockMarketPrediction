@@ -1,7 +1,7 @@
-package net.ben.stocks.framework.collection;
+package net.ben.stocks.framework.collection.datasource;
 
-import net.ben.stocks.framework.collection.api.AlphaVantage;
-import net.ben.stocks.framework.collection.api.NewsAPI;
+import net.ben.stocks.framework.collection.datasource.alphavantage.AlphaVantage;
+import net.ben.stocks.framework.collection.datasource.newsapi.NewsAPI;
 import net.ben.stocks.framework.series.data.Data;
 
 import java.util.ArrayList;

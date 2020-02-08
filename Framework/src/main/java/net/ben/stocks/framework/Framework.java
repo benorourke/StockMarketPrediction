@@ -2,7 +2,7 @@ package net.ben.stocks.framework;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import net.ben.stocks.framework.collection.DataSourceManager;
+import net.ben.stocks.framework.collection.datasource.DataSourceManager;
 import net.ben.stocks.framework.persistence.FileManager;
 import net.ben.stocks.framework.persistence.gson.StockAdapter;
 import net.ben.stocks.framework.series.TimeSeriesManager;

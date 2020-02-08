@@ -1,16 +1,15 @@
 package net.ben.stocks.framework.thread.collection;
 
 import net.ben.stocks.framework.Framework;
-import net.ben.stocks.framework.collection.session.api.APICollectionSession;
-import net.ben.stocks.framework.collection.DataSource;
+import net.ben.stocks.framework.collection.ConnectionResponse;
+import net.ben.stocks.framework.collection.session.APICollectionSession;
+import net.ben.stocks.framework.collection.datasource.DataSource;
 import net.ben.stocks.framework.collection.Query;
 import net.ben.stocks.framework.exception.ConstraintException;
 import net.ben.stocks.framework.exception.FailedCollectionException;
 import net.ben.stocks.framework.series.data.Data;
 import net.ben.stocks.framework.thread.Task;
 import net.ben.stocks.framework.thread.Progress;
-
-import java.util.Collection;
 
 public class CollectionTask<T extends Data> implements Task<CollectionResult>
 {
@@ -42,11 +41,9 @@ public class CollectionTask<T extends Data> implements Task<CollectionResult>
         Query next = session.nextQuery();
         try
         {
-            Collection<T> retrieved = dataSource.retrieve(next);
-            session.onCollected(retrieved);
-
-            result.getData().addAll(retrieved);
-            Framework.info("Collected " + retrieved.size() + " data for " + next.toString());
+            ConnectionResponse<T> response = dataSource.retrieve(next);
+            result.getData().addAll(response.getData());
+            Framework.info("Collected " + response.getData().size() + " data for " + next.toString());
         }
         catch (ConstraintException e)
         {

@@ -4,8 +4,9 @@ import java.util.Date;
 
 public class StockQuote extends Data
 {
-    private double open, close;
-    private double high, low;
+    private final double open, close;
+    private final double high, low;
+    // TODO - Add volume?
 
     public StockQuote(Date date, double open, double close, double high, double low)
     {
@@ -20,7 +21,27 @@ public class StockQuote extends Data
     @Override
     public boolean isProcessed()
     {
+        // TODO - Normalisation? Research whether this is better
         return true;
     }
 
+    public double getOpen()
+    {
+        return open;
+    }
+
+    public double getClose()
+    {
+        return close;
+    }
+
+    public double getHigh()
+    {
+        return high;
+    }
+
+    public double getLow()
+    {
+        return low;
+    }
 }
