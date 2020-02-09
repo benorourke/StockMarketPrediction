@@ -1,12 +1,40 @@
 package net.ben.stocks.framework.util;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
 public class DateUtil
 {
+    private static final DateFormat SIMPLE_UK_DATE_FORMAT = new SimpleDateFormat("dd-MM-yyyy");
+    private static final DateFormat DETAILED_UK_DATE_FORMAT = new SimpleDateFormat("ddd/MM/YYYY hh:mm:ss");
 
     private DateUtil() {}
+
+    public static String formatSimpleUK(Date date)
+    {
+        return SIMPLE_UK_DATE_FORMAT.format(date);
+    }
+
+    public static String formatDetailedUK(Date date)
+    {
+        return DETAILED_UK_DATE_FORMAT.format(date);
+    }
+
+    public static Date parseDetailedUK(String strDate)
+    {
+        try
+        {
+            return DETAILED_UK_DATE_FORMAT.parse(strDate);
+        }
+        catch (ParseException e)
+        {
+            e.printStackTrace();
+            return null;
+        }
+    }
 
     public static boolean sameDay(Date a, Date b)
     {

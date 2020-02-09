@@ -118,7 +118,8 @@ public class AlphaVantage extends DataSource<StockQuote>
                 double high = datapoint.getAsJsonPrimitive("2. high").getAsDouble();
                 double low = datapoint.getAsJsonPrimitive("3. low").getAsDouble();
                 double close = datapoint.getAsJsonPrimitive("4. close").getAsDouble();
-                quotes.add(new StockQuote(date, open, close, high, low));
+                long volume = datapoint.getAsJsonPrimitive("5. volume").getAsLong();
+                quotes.add(new StockQuote(date, open, close, high, low, volume));
             }
         }
         return quotes;

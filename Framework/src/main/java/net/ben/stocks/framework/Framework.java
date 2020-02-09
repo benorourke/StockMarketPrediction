@@ -5,7 +5,12 @@ import com.google.gson.GsonBuilder;
 import net.ben.stocks.framework.collection.datasource.DataSourceManager;
 import net.ben.stocks.framework.persistence.FileManager;
 import net.ben.stocks.framework.persistence.gson.StockAdapter;
+import net.ben.stocks.framework.persistence.gson.TimeSeriesAdapter;
+import net.ben.stocks.framework.persistence.gson.data.DocumentAdapter;
+import net.ben.stocks.framework.persistence.gson.data.StockQuoteAdapter;
 import net.ben.stocks.framework.series.TimeSeriesManager;
+import net.ben.stocks.framework.series.data.Document;
+import net.ben.stocks.framework.series.data.StockQuote;
 import net.ben.stocks.framework.stock.Stock;
 import net.ben.stocks.framework.stock.StockExchangeManager;
 import net.ben.stocks.framework.thread.TaskManager;
@@ -13,6 +18,9 @@ import net.ben.stocks.framework.util.Initialisable;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
 
+/**
+ * The Framework should only be accessed via a single thread.
+ */
 public class Framework implements Initialisable
 {
     private static final Logger logger;
@@ -33,7 +41,7 @@ public class Framework implements Initialisable
 
     public Framework(Configuration config)
     {
-        fileManager = new FileManager(config);
+        fileManager = new FileManager(this, config);
         stockExchangeManager = new StockExchangeManager();
         dataSourceManager = new DataSourceManager();
         timeSeriesManager = new TimeSeriesManager(this);
@@ -41,6 +49,9 @@ public class Framework implements Initialisable
 
         gson = new GsonBuilder()
                         .registerTypeAdapter(Stock.class, new StockAdapter(stockExchangeManager))
+                        .registerTypeAdapter(TimeSeriesAdapter.class, new TimeSeriesAdapter())
+                        .registerTypeAdapter(Document.class, new DocumentAdapter())
+                        .registerTypeAdapter(StockQuote.class, new StockQuoteAdapter())
                         .create();
     }
 
@@ -53,6 +64,7 @@ public class Framework implements Initialisable
     public void initialise()
     {
         stockExchangeManager.initialise();
+        timeSeriesManager.initialise();
     }
 
     public static void info(String message)

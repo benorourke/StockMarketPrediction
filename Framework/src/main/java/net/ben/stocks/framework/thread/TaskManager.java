@@ -95,6 +95,9 @@ public class TaskManager
         callbackQueue.add(new Tuple<>(wrapper, wrapper.getResultCallback()));
     }
 
+    // TODO - Add a function to get a brief description of ongoing tasks:
+    // STORE THESE IN A SEPARATE CONCURRENT MAP
+
     /**
      * Only to be called by a single, main thread in order to get the results / callbacks of tasks.
      */

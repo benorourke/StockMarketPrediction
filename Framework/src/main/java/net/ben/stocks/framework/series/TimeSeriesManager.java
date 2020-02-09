@@ -2,63 +2,72 @@ package net.ben.stocks.framework.series;
 
 import net.ben.stocks.framework.Framework;
 import net.ben.stocks.framework.persistence.FileManager;
+import net.ben.stocks.framework.persistence.store.DataStore;
 import net.ben.stocks.framework.stock.Stock;
+import net.ben.stocks.framework.util.Initialisable;
 
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TimeSeriesManager
+public class TimeSeriesManager implements Initialisable
 {
     private final Framework framework;
     private final FileManager fileManager;
+
+    private List<TimeSeries> timeSeries;
 
     public TimeSeriesManager(Framework framework)
     {
         this.framework = framework;
         fileManager = framework.getFileManager();
+        timeSeries = new ArrayList<TimeSeries>();
+    }
+
+    @Override
+    public void initialise()
+    {
+        timeSeries.addAll(loadStoredTimeSeries());
 
         Framework.debug("Time Series Dir: " + fileManager.getTimeSeriesParentDirectory());
-        Framework.debug("Time Series Found: " + getStoredTimeSeries().size());
+        Framework.debug("Time Series Found: " + timeSeries.size());
     }
 
     public boolean create(String name, Stock stock)
     {
         TimeSeries series = new TimeSeries(name, stock);
-        File info = fileManager.getTimeSeriesInfoFile(fileManager.getTimeSeriesDirectory(name));
+        File info = fileManager.getTimeSeriesInfoFile(series);
 
-        if(!info.getParentFile().exists())
-            info.getParentFile().mkdirs();
-        if(!info.exists())
+        if(fileManager.writeJson(info, stock))
         {
-            try
-            {
-                info.createNewFile();
-            }
-            catch (IOException exception)
-            {
-                Framework.error("Unable to Create TimeSeries Info File", exception);
-                return false;
-            }
-        }
-
-        try (Writer writer = new FileWriter(info))
-        {
-            framework.getGson().toJson(stock, writer);
             Framework.debug("Time Series Created: " + name + " for stock " + stock);
-            writer.close();
             return true;
         }
-        catch (IOException error)
+        else
         {
-            Framework.error("Unable to Create TimeSeries " + name + " for stock " + stock, error);
+            Framework.error("Unable to Create TimeSeries " + name + " for stock " + stock);
             return false;
         }
     }
 
     public TimeSeries getByName(String name)
     {
-        return getStoredTimeSeries().stream()
+        for(TimeSeries series : timeSeries)
+        {
+            if(series == null) {
+                Framework.debug("TimeSeries itself is null");
+            } else {
+                if(series.getName() == null) {
+                    Framework.debug("TimeSeries name is null");
+                } else {
+                    if(series.getStock() == null) {
+                        Framework.debug("TimeSeries stock is null");
+                    }
+                }
+            }
+        }
+
+        return timeSeries.stream()
                         .filter(t -> t.getName().equalsIgnoreCase(name))
                         .findFirst()
                         .orElse(null);
@@ -66,11 +75,10 @@ public class TimeSeriesManager
 
     public boolean exists(String name)
     {
-        return getStoredTimeSeries().stream()
-                        .anyMatch(t -> t.getName().equalsIgnoreCase(name));
+        return getByName(name) == null;
     }
 
-    private List<TimeSeries> getStoredTimeSeries()
+    private List<TimeSeries> loadStoredTimeSeries()
     {
         File storageDirectory = fileManager.getTimeSeriesParentDirectory();
 
@@ -89,7 +97,9 @@ public class TimeSeriesManager
             File infoFile = fileManager.getTimeSeriesInfoFile(file);
             try
             {
-                result.add(framework.getGson().fromJson(new FileReader(infoFile), TimeSeries.class));
+                TimeSeries loaded = framework.getGson().fromJson(new FileReader(infoFile), TimeSeries.class);
+                Framework.debug("Loaded null: " + (loaded == null));
+                result.add(loaded);
             }
             catch (FileNotFoundException e)
             {
@@ -97,6 +107,11 @@ public class TimeSeriesManager
             }
         }
         return result;
+    }
+
+    public DataStore getDataStore(TimeSeries timeSeries)
+    {
+        return new DataStore(framework, timeSeries);
     }
 
 }

@@ -14,6 +14,7 @@ import net.ben.stocks.framework.collection.session.CollectionSession;
 import net.ben.stocks.framework.exception.ConstraintException;
 import net.ben.stocks.framework.series.data.Document;
 import net.ben.stocks.framework.exception.FailedCollectionException;
+import net.ben.stocks.framework.series.data.DocumentType;
 
 import java.io.*;
 import java.text.ParseException;
@@ -104,7 +105,7 @@ public class NewsAPI extends DataSource<Document>
             Date date = parseDate(article.getAsJsonPrimitive("publishedAt").getAsString());
             String content = article.get("title").getAsString();
 
-            documents.add(new Document(date, content));
+            documents.add(new Document(date, content, DocumentType.NEWS_HEADLINE));
         }
         return documents;
     }

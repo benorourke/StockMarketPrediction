@@ -1,7 +1,7 @@
 package net.ben.stocks.framework.collection;
 
 import net.ben.stocks.framework.stock.Stock;
-import net.ben.stocks.framework.util.StringUtil;
+import net.ben.stocks.framework.util.DateUtil;
 
 import java.util.Date;
 
@@ -20,8 +20,8 @@ public class Query
     @Override
     public String toString()
     {
-        return "[" + stock.toString() + ", " + StringUtil.formatDate(from)
-                    + "->" + StringUtil.formatDate(to) + ']';
+        return "[" + stock.toString() + ", " + DateUtil.formatSimpleUK(from)
+                    + "->" + DateUtil.formatSimpleUK(to) + ']';
     }
 
     public Date getTo()
