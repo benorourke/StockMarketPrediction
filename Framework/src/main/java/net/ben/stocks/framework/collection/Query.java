@@ -1,6 +1,7 @@
 package net.ben.stocks.framework.collection;
 
 import net.ben.stocks.framework.stock.Stock;
+import net.ben.stocks.framework.util.DateUtil;
 
 import java.util.Date;
 
@@ -14,6 +15,13 @@ public class Query
         this.to = to;
         this.from = from;
         this.stock = stock;
+    }
+
+    @Override
+    public String toString()
+    {
+        return "[" + stock.toString() + ", " + DateUtil.formatSimple(from)
+                    + "->" + DateUtil.formatSimple(to) + ']';
     }
 
     public Date getTo()

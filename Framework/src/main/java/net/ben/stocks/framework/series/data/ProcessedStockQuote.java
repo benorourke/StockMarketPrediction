@@ -2,21 +2,23 @@ package net.ben.stocks.framework.series.data;
 
 import java.util.Date;
 
-public class StockQuote extends Data
+/**
+ * TODO
+ */
+public class ProcessedStockQuote extends Data
 {
     private final double open, close;
     private final double high, low;
-    private final long volume;
+    // TODO - Add volume?
 
-    public StockQuote(Date date, double open, double close, double high, double low, long volume)
+    public ProcessedStockQuote(Date date, double open, double close, double high, double low)
     {
-        super(DataType.STOCK_QUOTE, date);
+        super(DataType.PROCESSED_STOCK_QUOTE, date);
 
         this.open = open;
         this.close = close;
         this.high = high;
         this.low = low;
-        this.volume = volume;
     }
 
     @Override
@@ -45,10 +47,4 @@ public class StockQuote extends Data
     {
         return low;
     }
-
-    public long getVolume()
-    {
-        return volume;
-    }
-
 }

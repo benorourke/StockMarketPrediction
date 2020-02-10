@@ -3,14 +3,17 @@ package net.ben.stocks.framework.series.data;
 import java.util.Date;
 
 /**
- * TODO Finish class & add processing
+ * TODO
  */
-public class ProcessedDocument extends Document
+public class ProcessedDocument extends Data
 {
+    private final String content;
 
     public ProcessedDocument(Date date, String content)
     {
-        super(date, content);
+        super(DataType.PROCESSED_DOCUMENT, date);
+
+        this.content = content;
     }
 
     @Override
@@ -19,4 +22,8 @@ public class ProcessedDocument extends Document
         return true;
     }
 
+    public String getContent()
+    {
+        return content;
+    }
 }

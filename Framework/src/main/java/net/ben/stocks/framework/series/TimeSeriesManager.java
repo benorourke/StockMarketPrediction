@@ -1,65 +1,60 @@
 package net.ben.stocks.framework.series;
 
-import com.google.gson.GsonBuilder;
 import net.ben.stocks.framework.Framework;
-import net.ben.stocks.framework.persistence.gson.FileManager;
+import net.ben.stocks.framework.persistence.FileManager;
+import net.ben.stocks.framework.persistence.store.DataStore;
 import net.ben.stocks.framework.stock.Stock;
+import net.ben.stocks.framework.util.Initialisable;
 
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
-public class TimeSeriesManager
+public class TimeSeriesManager implements Initialisable
 {
     private final Framework framework;
     private final FileManager fileManager;
+
+    private List<TimeSeries> timeSeries;
 
     public TimeSeriesManager(Framework framework)
     {
         this.framework = framework;
         fileManager = framework.getFileManager();
+        timeSeries = new ArrayList<TimeSeries>();
+    }
 
-        framework.debug("Time Series Dir: " + fileManager.getTimeSeriesParentDirectory());
-        framework.debug("Time Series Found: " + getStoredTimeSeries().size());
+    @Override
+    public void initialise()
+    {
+        timeSeries.addAll(loadStoredTimeSeries());
+
+        Framework.debug("Time Series Dir: " + fileManager.getTimeSeriesParentDirectory());
+        Framework.debug("Time Series Found: " + timeSeries.size());
     }
 
     public boolean create(String name, Stock stock)
     {
         TimeSeries series = new TimeSeries(name, stock);
-        File info = fileManager.getTimeSeriesInfoFile(fileManager.getTimeSeriesDirectory(name));
+        File info = fileManager.getTimeSeriesInfoFile(series);
+        timeSeries.add(series);
 
-        if(!info.getParentFile().exists())
-            info.getParentFile().mkdirs();
-        if(!info.exists())
+        if(fileManager.writeJson(info, series))
         {
-            try
-            {
-                info.createNewFile();
-            }
-            catch (IOException exception)
-            {
-                framework.error("Unable to Create TimeSeries Info File", exception);
-                return false;
-            }
-        }
-
-        try (Writer writer = new FileWriter(info))
-        {
-            framework.getGson().toJson(stock, writer);
-            framework.debug("Time Series Created: " + name + " for stock " + stock);
-            writer.close();
+            Framework.debug("Time Series Created: " + name + " for stock " + stock);
             return true;
         }
-        catch (IOException error)
+        else
         {
-            framework.error("Unable to Create TimeSeries " + name + " for stock " + stock, error);
+            Framework.error("Unable to Create TimeSeries " + name + " for stock " + stock);
             return false;
         }
     }
 
     public TimeSeries getByName(String name)
     {
-        return getStoredTimeSeries().stream()
+        return timeSeries.stream()
                         .filter(t -> t.getName().equalsIgnoreCase(name))
                         .findFirst()
                         .orElse(null);
@@ -67,11 +62,10 @@ public class TimeSeriesManager
 
     public boolean exists(String name)
     {
-        return getStoredTimeSeries().stream()
-                        .anyMatch(t -> t.getName().equalsIgnoreCase(name));
+        return getByName(name) != null;
     }
 
-    private List<TimeSeries> getStoredTimeSeries()
+    private List<TimeSeries> loadStoredTimeSeries()
     {
         File storageDirectory = fileManager.getTimeSeriesParentDirectory();
 
@@ -88,16 +82,29 @@ public class TimeSeriesManager
             if (!file.isDirectory()) continue;
 
             File infoFile = fileManager.getTimeSeriesInfoFile(file);
-            try
+
+            if(!infoFile.exists()) // There's a TimeSeries directory but the info file is missing
             {
-                result.add(framework.getGson().fromJson(new FileReader(infoFile), TimeSeries.class));
+                Framework.info("Timeseries info.json " + infoFile.getPath() + " is missing! Unable to load");
+                continue;
             }
-            catch (FileNotFoundException e)
+
+            Optional<TimeSeries> timeSeries = fileManager.loadJson(infoFile, TimeSeries.class);
+            if(timeSeries != null)
             {
-                framework.error("Unable to load time series ", e);
+                result.add(timeSeries.get());
+            }
+            else
+            {
+                framework.error("Unable to load time series meta at " + infoFile.getPath());
             }
         }
         return result;
+    }
+
+    public DataStore getDataStore(TimeSeries timeSeries)
+    {
+        return new DataStore(framework, timeSeries);
     }
 
 }

@@ -10,7 +10,7 @@ import java.lang.reflect.Type;
  * Stock contains a cyclic reference to it's member and containing object; StockExchange, so a custom adapter must be
  * specified and registered to Gson.
  */
-public class StockAdapter implements JsonSerializer<Stock>, JsonDeserializer<Stock>
+public class StockAdapter implements JsonAdapter<Stock>
 {
     private final StockExchangeManager exchangeManager;
 
@@ -30,7 +30,8 @@ public class StockAdapter implements JsonSerializer<Stock>, JsonDeserializer<Sto
     }
 
     @Override
-    public Stock deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException
+    public Stock deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
+            throws JsonParseException
     {
         JsonObject object = json.getAsJsonObject();
 

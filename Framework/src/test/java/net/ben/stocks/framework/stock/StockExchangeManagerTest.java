@@ -8,7 +8,8 @@ public class StockExchangeManagerTest
 {
 
     @Test
-    public void equalsMethod_DifferingStockExchangeInstances_ShouldReturnTrue() {
+    public void equalsMethod_DifferingStockExchangeInstances_ShouldReturnTrue()
+    {
         StockExchange exchange1 = new StockExchange("New York Stock Exchange", "NYSE");
         StockExchange exchange2 = new StockExchange("New York Stock Exchange", "NYSE");
 
@@ -16,7 +17,8 @@ public class StockExchangeManagerTest
     }
 
     @Test
-    public void equalsMethod_DifferingStockInstances_ShouldReturnTrue() {
+    public void equalsMethod_DifferingStockInstances_ShouldReturnTrue()
+    {
         StockExchange exchange = new StockExchange("New York Stock Exchange", "NYSE");
         Stock stock1 = new Stock(exchange, "Amazon", "AMZN");
         Stock stock2 = new Stock(exchange, "Amazon", "AMZN");
