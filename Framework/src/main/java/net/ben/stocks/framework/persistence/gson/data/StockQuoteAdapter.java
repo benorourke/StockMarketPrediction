@@ -15,7 +15,7 @@ public class StockQuoteAdapter implements JsonAdapter<StockQuote>
     public JsonElement serialize(StockQuote quote, Type typeOfSrc, JsonSerializationContext context)
     {
         JsonObject result = new JsonObject();
-        result.add("date", new JsonPrimitive(DateUtil.formatDetailedUK(quote.getDate())));
+        result.add("date", new JsonPrimitive(DateUtil.formatDetailed(quote.getDate())));
         result.add("open", new JsonPrimitive(quote.getOpen()));
         result.add("close", new JsonPrimitive(quote.getClose()));
         result.add("high", new JsonPrimitive(quote.getHigh()));

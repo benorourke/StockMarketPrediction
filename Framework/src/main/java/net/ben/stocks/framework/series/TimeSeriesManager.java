@@ -9,6 +9,7 @@ import net.ben.stocks.framework.util.Initialisable;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class TimeSeriesManager implements Initialisable
 {
@@ -37,8 +38,9 @@ public class TimeSeriesManager implements Initialisable
     {
         TimeSeries series = new TimeSeries(name, stock);
         File info = fileManager.getTimeSeriesInfoFile(series);
+        timeSeries.add(series);
 
-        if(fileManager.writeJson(info, stock))
+        if(fileManager.writeJson(info, series))
         {
             Framework.debug("Time Series Created: " + name + " for stock " + stock);
             return true;
@@ -52,21 +54,6 @@ public class TimeSeriesManager implements Initialisable
 
     public TimeSeries getByName(String name)
     {
-        for(TimeSeries series : timeSeries)
-        {
-            if(series == null) {
-                Framework.debug("TimeSeries itself is null");
-            } else {
-                if(series.getName() == null) {
-                    Framework.debug("TimeSeries name is null");
-                } else {
-                    if(series.getStock() == null) {
-                        Framework.debug("TimeSeries stock is null");
-                    }
-                }
-            }
-        }
-
         return timeSeries.stream()
                         .filter(t -> t.getName().equalsIgnoreCase(name))
                         .findFirst()
@@ -75,7 +62,7 @@ public class TimeSeriesManager implements Initialisable
 
     public boolean exists(String name)
     {
-        return getByName(name) == null;
+        return getByName(name) != null;
     }
 
     private List<TimeSeries> loadStoredTimeSeries()
@@ -95,15 +82,21 @@ public class TimeSeriesManager implements Initialisable
             if (!file.isDirectory()) continue;
 
             File infoFile = fileManager.getTimeSeriesInfoFile(file);
-            try
+
+            if(!infoFile.exists()) // There's a TimeSeries directory but the info file is missing
             {
-                TimeSeries loaded = framework.getGson().fromJson(new FileReader(infoFile), TimeSeries.class);
-                Framework.debug("Loaded null: " + (loaded == null));
-                result.add(loaded);
+                Framework.info("Timeseries info.json " + infoFile.getPath() + " is missing! Unable to load");
+                continue;
             }
-            catch (FileNotFoundException e)
+
+            Optional<TimeSeries> timeSeries = fileManager.loadJson(infoFile, TimeSeries.class);
+            if(timeSeries != null)
             {
-                framework.error("Unable to load time series ", e);
+                result.add(timeSeries.get());
+            }
+            else
+            {
+                framework.error("Unable to load time series meta at " + infoFile.getPath());
             }
         }
         return result;

@@ -4,7 +4,6 @@ import com.google.gson.*;
 import net.ben.stocks.framework.persistence.gson.JsonAdapter;
 import net.ben.stocks.framework.series.data.Document;
 import net.ben.stocks.framework.series.data.DocumentType;
-import net.ben.stocks.framework.series.data.StockQuote;
 import net.ben.stocks.framework.util.DateUtil;
 
 import java.lang.reflect.Type;
@@ -17,7 +16,7 @@ public class DocumentAdapter implements JsonAdapter<Document>
     public JsonElement serialize(Document document, Type typeOfSrc, JsonSerializationContext context)
     {
         JsonObject result = new JsonObject();
-        result.add("date", new JsonPrimitive(DateUtil.formatDetailedUK(document.getDate())));
+        result.add("date", new JsonPrimitive(DateUtil.formatDetailed(document.getDate())));
         result.add("content", new JsonPrimitive(document.getContent()));
         result.add("type", new JsonPrimitive(document.getDocumentType().toString()));
         return result;

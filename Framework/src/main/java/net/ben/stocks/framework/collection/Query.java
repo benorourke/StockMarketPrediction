@@ -20,8 +20,8 @@ public class Query
     @Override
     public String toString()
     {
-        return "[" + stock.toString() + ", " + DateUtil.formatSimpleUK(from)
-                    + "->" + DateUtil.formatSimpleUK(to) + ']';
+        return "[" + stock.toString() + ", " + DateUtil.formatSimple(from)
+                    + "->" + DateUtil.formatSimple(to) + ']';
     }
 
     public Date getTo()

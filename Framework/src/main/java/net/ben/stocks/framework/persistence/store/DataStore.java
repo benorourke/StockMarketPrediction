@@ -56,30 +56,18 @@ public class DataStore
                                                  Collection<T> data)
     {
         File file = fileManager.getRawDataFile(timeSeries, source);
-        file.mkdirs();
+        file.getParentFile().mkdirs();
 
         if(!file.exists()) file.delete(); // TODO- Maybe append?
 
-        try
+        if(fileManager.writeJson(file, data))
         {
-            file.createNewFile();
-
-            try (Writer writer = new FileWriter(file))
-            {
-                framework.getGson().toJson(data, writer);
-                Framework.debug("Wrote " + data.size() + ": raw data to " + file.toString());
-                writer.close();
-                return true;
-            }
-            catch (IOException innerException)
-            {
-                Framework.error("Unable to write raw data to " + file.toString(), innerException);
-                return false;
-            }
+            Framework.debug("Wrote " + data.size() + ": raw data to " + file.toString());
+            return true;
         }
-        catch (IOException outerException)
+        else
         {
-            Framework.error("Unable to create raw data file", outerException);
+            Framework.error("Unable to write raw data to " + file.toString());
             return false;
         }
     }

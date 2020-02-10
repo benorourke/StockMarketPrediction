@@ -9,16 +9,16 @@ import java.util.Date;
 public class DateUtil
 {
     private static final DateFormat SIMPLE_UK_DATE_FORMAT = new SimpleDateFormat("dd-MM-yyyy");
-    private static final DateFormat DETAILED_UK_DATE_FORMAT = new SimpleDateFormat("ddd/MM/YYYY hh:mm:ss");
+    private static final DateFormat DETAILED_UK_DATE_FORMAT = new SimpleDateFormat("dd/MM/YYYY hh:mm:ss");
 
     private DateUtil() {}
 
-    public static String formatSimpleUK(Date date)
+    public static String formatSimple(Date date)
     {
         return SIMPLE_UK_DATE_FORMAT.format(date);
     }
 
-    public static String formatDetailedUK(Date date)
+    public static String formatDetailed(Date date)
     {
         return DETAILED_UK_DATE_FORMAT.format(date);
     }

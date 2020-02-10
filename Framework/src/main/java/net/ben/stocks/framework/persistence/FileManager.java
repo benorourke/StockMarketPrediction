@@ -6,10 +6,9 @@ import net.ben.stocks.framework.Framework;
 import net.ben.stocks.framework.collection.datasource.DataSource;
 import net.ben.stocks.framework.series.TimeSeries;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.Writer;
+import java.io.*;
+import java.lang.reflect.Type;
+import java.util.Optional;
 
 public class FileManager
 {
@@ -53,9 +52,33 @@ public class FileManager
             writer.close();
             return true;
         }
-        catch (IOException error)
+        catch (IOException e)
         {
+            Framework.error("Unable to write " + object.getClass().getSimpleName() + " to json", e);
             return false;
+        }
+    }
+
+    /**
+     * Returns an Optional with null inside if it the object couldn't be loaded
+     * @param file
+     * @param classOfType
+     * @param <T>
+     * @return
+     */
+    public <T> Optional<T> loadJson(File file, Class<T> classOfType)
+    {
+        if(!file.exists()) Optional.empty();
+
+        try
+        {
+            return Optional.of(framework.getGson().fromJson(new FileReader(file), classOfType));
+        }
+        catch (FileNotFoundException e)
+        {
+            Framework.error("Unable to load " + classOfType.getSimpleName()
+                                        + " from json file (" + file.toString() + ")", e);
+            return Optional.empty();
         }
     }
 
@@ -108,14 +131,9 @@ public class FileManager
         return new File(getTimeSeriesDirectory(timeSeries) + File.separator + "info.json");
     }
 
-    public File getDataStoreDirectory(TimeSeries timeSeries)
-    {
-        return new File(getTimeSeriesDirectory(timeSeries), "store");
-    }
-
     public File getRawDataStoreDirectory(TimeSeries timeSeries)
     {
-        return new File(getDataStoreDirectory(timeSeries), "raw");
+        return new File(getTimeSeriesDirectory(timeSeries), "raw");
     }
 
     public File getRawDataFile(TimeSeries timeSeries, Class<? extends DataSource> clazz)
