@@ -4,6 +4,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import net.ben.stocks.userinterface.exception.SceneCreationDataException;
+import net.ben.stocks.userinterface.util.ResourceUtil;
 
 import java.io.IOException;
 import java.lang.reflect.Constructor;
@@ -39,8 +40,7 @@ public class SceneFactory
 		}
 
 		// Attempt to load the FXML
-		FXMLLoader loader = new FXMLLoader(type.getControllerClazz()
-													.getResource(type.getFXMLName()));
+		FXMLLoader loader = new FXMLLoader(ResourceUtil.getResource(type.getFXMLName()));
 		loader.setController(controller);
 		
 		Parent root;
@@ -55,9 +55,8 @@ public class SceneFactory
 		}
 
 		Scene scene = new Scene(root);
-        String sheet = type.getControllerClazz().getResource(type.getCssName()).toExternalForm();
+        String sheet = ResourceUtil.getResource(type.getCssName()).toExternalForm();
         scene.getStylesheets().add(sheet);
-        
 		return scene;
 	}
 	
