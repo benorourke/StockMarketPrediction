@@ -14,7 +14,8 @@ public class StockApplication extends Application
     public void start(Stage stage) throws Exception
     {
         SceneHelper.modifyStage(stage, APPLICATION_NAME,
-                        true, true,
+                                APPLICATION_WIDTH, APPLICATION_HEIGHT,
+                       true, true,
                                 SceneType.DIRECTORY_SELECTION);
     }
 
