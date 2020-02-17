@@ -1,13 +1,16 @@
 package net.benorourke.stocks.framework.series;
 
 import net.benorourke.stocks.framework.Framework;
+import net.benorourke.stocks.framework.collection.datasource.DataSource;
 import net.benorourke.stocks.framework.persistence.FileManager;
 import net.benorourke.stocks.framework.persistence.store.DataStore;
+import net.benorourke.stocks.framework.series.data.Data;
 import net.benorourke.stocks.framework.stock.Stock;
 import net.benorourke.stocks.framework.util.Initialisable;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -30,24 +33,42 @@ public class TimeSeriesManager implements Initialisable
     {
         timeSeries.addAll(loadStoredTimeSeries());
 
-        Framework.debug("Time Series Dir: " + fileManager.getTimeSeriesParentDirectory());
-        Framework.debug("Time Series Found: " + timeSeries.size());
+        Framework.info("Time Series Dir: " + fileManager.getTimeSeriesParentDirectory());
+        Framework.info("Time Series Found: " + timeSeries.size());
     }
+
+    //////////////////////////////////////////////////////////////////
+    //      TIMESERIES MANAGEMENT
+    //////////////////////////////////////////////////////////////////
 
     public boolean create(String name, Stock stock)
     {
         TimeSeries series = new TimeSeries(name, stock);
-        File info = fileManager.getTimeSeriesInfoFile(series);
         timeSeries.add(series);
 
-        if(fileManager.writeJson(info, series))
+        if(save(series))
         {
-            Framework.debug("Time Series Created: " + name + " for stock " + stock);
+            Framework.info("Time Series Created: " + series.toString());
             return true;
         }
         else
         {
-            Framework.error("Unable to Create TimeSeries " + name + " for stock " + stock);
+            Framework.error("Unable to Create TimeSeries " + series.toString());
+            return false;
+        }
+    }
+
+    public boolean save(TimeSeries series)
+    {
+        File info = fileManager.getTimeSeriesInfoFile(series);
+        if(fileManager.writeJson(info, series))
+        {
+            Framework.info("Time Series Saved: " + series.toString());
+            return true;
+        }
+        else
+        {
+            Framework.error("Unable to Create TimeSeries " + series.toString());
             return false;
         }
     }
@@ -102,9 +123,30 @@ public class TimeSeriesManager implements Initialisable
         return result;
     }
 
+    //////////////////////////////////////////////////////////////////
+    //      DATA COLLECTION / PRE-PROCESSING
+    //////////////////////////////////////////////////////////////////
+
     public DataStore getDataStore(TimeSeries timeSeries)
     {
         return new DataStore(framework, timeSeries);
+    }
+
+    public void onDataCollected(TimeSeries series, Class<? extends DataSource> dataSourceClass,
+                                Collection<Data> data)
+    {
+        if (getDataStore(series).writeRawData(dataSourceClass, data))
+        {
+            // Save the TimeSeries with the updated data counts
+            series.getRawDataCounts().put(dataSourceClass, data.size());
+            save(series);
+
+            framework.info("Wrote raw data to TimeSeries " + series.toString());
+        }
+        else
+        {
+            framework.error("Unable to write raw data to TimeSeries " + series.toString());
+        }
     }
 
 }

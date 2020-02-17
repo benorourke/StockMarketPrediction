@@ -2,5 +2,6 @@ package net.benorourke.stocks.framework.thread;
 
 public enum TaskType
 {
-    COLLECTION;
+    COLLECTION,
+    PRE_PROCESSING;
 }
