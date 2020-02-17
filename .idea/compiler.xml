@@ -1,6 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="CompilerConfiguration">
+    <wildcardResourcePatterns>
+      <entry name="!?*.java" />
+      <entry name="!?*.form" />
+      <entry name="!?*.class" />
+      <entry name="!?*.groovy" />
+      <entry name="!?*.scala" />
+      <entry name="!?*.flex" />
+      <entry name="!?*.kt" />
+      <entry name="!?*.clj" />
+      <entry name="!?*.aj" />
+      <entry name="!?*.fxml" />
+      <entry name="!?*.css" />
+    </wildcardResourcePatterns>
     <annotationProcessing>
       <profile name="Maven default annotation processors profile" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
@@ -8,12 +21,10 @@
         <outputRelativeToContentRoot value="true" />
         <module name="Framework" />
         <module name="UserInterface" />
-        <module name="NaturalLanguageProcessor" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel target="8">
       <module name="Framework" target="1.8" />
-      <module name="NaturalLanguageProcessor" target="1.8" />
       <module name="UserInterface" target="1.8" />
     </bytecodeTargetLevel>
   </component>
