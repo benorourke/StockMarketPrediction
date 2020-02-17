@@ -100,8 +100,8 @@ public class TaskManager
      * @return the taskId
      */
     @ThreadSynchronised
-    public <T extends Result> UUID scheduleRepeating(Task<TaskDescription, T> task,
-                                                     ResultCallback<T> onFinished,
+    public <S extends TaskDescription,
+            U extends Result> UUID scheduleRepeating(Task<S, U> task, ResultCallback<U> onFinished,
                                                      long initialDelay, long period, TimeUnit timeUnit)
             throws TaskAlreadyPresentException
     {

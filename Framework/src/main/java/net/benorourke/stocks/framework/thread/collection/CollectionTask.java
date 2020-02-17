@@ -12,7 +12,7 @@ import net.benorourke.stocks.framework.thread.Task;
 import net.benorourke.stocks.framework.thread.Progress;
 import net.benorourke.stocks.framework.thread.TaskType;
 
-public class CollectionTask<T extends Data> implements Task<CollectionDescription, CollectionResult>
+public class CollectionTask<T extends Data> implements Task<CollectionDescription, CollectionResult<T>>
 {
     private final DataSource<T> dataSource;
     private final APICollectionSession session;
