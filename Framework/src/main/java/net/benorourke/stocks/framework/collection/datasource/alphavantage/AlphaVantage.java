@@ -11,7 +11,8 @@ import net.benorourke.stocks.framework.collection.datasource.DataSource;
 import net.benorourke.stocks.framework.collection.Query;
 import net.benorourke.stocks.framework.collection.constraint.OrderingConstraint;
 import net.benorourke.stocks.framework.exception.ConstraintException;
-import net.benorourke.stocks.framework.series.data.StockQuote;
+import net.benorourke.stocks.framework.series.data.DataType;
+import net.benorourke.stocks.framework.series.data.impl.StockQuote;
 import net.benorourke.stocks.framework.exception.FailedCollectionException;
 import net.benorourke.stocks.framework.util.DateUtil;
 
@@ -38,6 +39,12 @@ public class AlphaVantage extends DataSource<StockQuote>
     public Class<? extends StockQuote> getDataClass()
     {
         return StockQuote.class;
+    }
+
+    @Override
+    public DataType getDataType()
+    {
+        return DataType.STOCK_QUOTE;
     }
 
     @Override

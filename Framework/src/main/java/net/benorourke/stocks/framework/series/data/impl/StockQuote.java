@@ -1,4 +1,7 @@
-package net.benorourke.stocks.framework.series.data;
+package net.benorourke.stocks.framework.series.data.impl;
+
+import net.benorourke.stocks.framework.series.data.Data;
+import net.benorourke.stocks.framework.series.data.DataType;
 
 import java.util.Date;
 
@@ -17,13 +20,6 @@ public class StockQuote extends Data
         this.high = high;
         this.low = low;
         this.volume = volume;
-    }
-
-    @Override
-    public boolean isProcessed()
-    {
-        // TODO - Normalisation? Research whether this is better
-        return true;
     }
 
     public double getOpen()

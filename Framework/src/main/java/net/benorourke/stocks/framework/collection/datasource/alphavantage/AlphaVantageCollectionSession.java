@@ -4,7 +4,7 @@ import net.benorourke.stocks.framework.collection.Query;
 import net.benorourke.stocks.framework.collection.session.APICollectionSession;
 import net.benorourke.stocks.framework.exception.ConstraintException;
 import net.benorourke.stocks.framework.exception.FailedCollectionException;
-import net.benorourke.stocks.framework.series.data.StockQuote;
+import net.benorourke.stocks.framework.series.data.impl.StockQuote;
 
 /**
  * Session only runs once since AlphaVantage returns enough data in one API call.

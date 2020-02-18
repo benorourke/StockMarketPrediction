@@ -5,13 +5,16 @@ import net.benorourke.stocks.framework.collection.Query;
 import net.benorourke.stocks.framework.collection.constraint.Constraint;
 import net.benorourke.stocks.framework.collection.session.CollectionSession;
 import net.benorourke.stocks.framework.exception.ConstraintException;
-import net.benorourke.stocks.framework.series.data.Data;
 import net.benorourke.stocks.framework.exception.FailedCollectionException;
+import net.benorourke.stocks.framework.series.data.Data;
+import net.benorourke.stocks.framework.series.data.DataType;
 
 public abstract class DataSource<T extends Data>
 {
 
     public abstract Class<? extends T> getDataClass();
+
+    public abstract DataType getDataType();
 
     public abstract Constraint[] getConstraints();
 

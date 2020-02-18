@@ -1,5 +1,6 @@
 package net.benorourke.stocks.framework.series;
 
+import net.benorourke.stocks.framework.Framework;
 import net.benorourke.stocks.framework.collection.datasource.DataSource;
 import net.benorourke.stocks.framework.stock.Stock;
 
@@ -8,18 +9,23 @@ import java.util.Map;
 
 public class TimeSeries
 {
-    private final String name;
-    private final Stock stock;
+    private String name;
+    private Stock stock;
     /**
      * Stores the number of raw data for DataSources that have been collected.
      */
-    private final Map<Class<? extends DataSource>, Integer> rawDataCounts;
+    private Map<Class<? extends DataSource>, Integer> rawDataCounts;
 
-    public TimeSeries(String name, Stock stock)
+    public TimeSeries(String name, Stock stock, Map<Class<? extends DataSource>, Integer> rawDataCounts)
     {
         this.name = name;
         this.stock = stock;
-        rawDataCounts = new HashMap<>();
+        this.rawDataCounts = rawDataCounts;
+    }
+
+    public TimeSeries(String name, Stock stock)
+    {
+        this(name, stock, new HashMap<>());
     }
 
     @Override
@@ -40,6 +46,7 @@ public class TimeSeries
 
     public Map<Class<? extends DataSource>, Integer> getRawDataCounts()
     {
+        Framework.debug("Raw data counts null: " + (rawDataCounts == null));
         return rawDataCounts;
     }
 

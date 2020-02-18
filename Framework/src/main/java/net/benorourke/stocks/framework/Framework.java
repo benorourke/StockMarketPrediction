@@ -8,9 +8,10 @@ import net.benorourke.stocks.framework.persistence.gson.StockAdapter;
 import net.benorourke.stocks.framework.persistence.gson.TimeSeriesAdapter;
 import net.benorourke.stocks.framework.persistence.gson.data.DocumentAdapter;
 import net.benorourke.stocks.framework.persistence.gson.data.StockQuoteAdapter;
+import net.benorourke.stocks.framework.series.TimeSeries;
 import net.benorourke.stocks.framework.series.TimeSeriesManager;
-import net.benorourke.stocks.framework.series.data.Document;
-import net.benorourke.stocks.framework.series.data.StockQuote;
+import net.benorourke.stocks.framework.series.data.impl.Document;
+import net.benorourke.stocks.framework.series.data.impl.StockQuote;
 import net.benorourke.stocks.framework.stock.Stock;
 import net.benorourke.stocks.framework.stock.StockExchangeManager;
 import net.benorourke.stocks.framework.thread.TaskManager;
@@ -49,7 +50,7 @@ public class Framework implements Initialisable
 
         gson = new GsonBuilder()
                         .registerTypeAdapter(Stock.class, new StockAdapter(stockExchangeManager))
-                        .registerTypeAdapter(TimeSeriesAdapter.class, new TimeSeriesAdapter())
+                        .registerTypeAdapter(TimeSeries.class, new TimeSeriesAdapter())
                         .registerTypeAdapter(Document.class, new DocumentAdapter())
                         .registerTypeAdapter(StockQuote.class, new StockQuoteAdapter())
                         .create();

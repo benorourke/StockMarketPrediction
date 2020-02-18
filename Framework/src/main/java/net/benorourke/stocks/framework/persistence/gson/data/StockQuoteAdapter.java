@@ -2,7 +2,7 @@ package net.benorourke.stocks.framework.persistence.gson.data;
 
 import com.google.gson.*;
 import net.benorourke.stocks.framework.persistence.gson.JsonAdapter;
-import net.benorourke.stocks.framework.series.data.StockQuote;
+import net.benorourke.stocks.framework.series.data.impl.StockQuote;
 import net.benorourke.stocks.framework.util.DateUtil;
 
 import java.lang.reflect.Type;

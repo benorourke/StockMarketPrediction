@@ -28,7 +28,20 @@ public class DataSourceManager
         return dataSources;
     }
 
-    public <T extends Data> List<DataSource<T>> getDataSourcesByClass(Class<T> clazz)
+    public <T extends DataSource> DataSource getDataSourceByClass(Class<T> clazz)
+    {
+        return dataSources.stream()
+                    .filter(s -> s.getClass().equals(clazz))
+                    .findFirst()
+                    .orElse(null);
+    }
+
+    public <T extends DataSource> boolean dataSourceExists(Class<T> clazz)
+    {
+        return getDataSourceByClass(clazz) != null;
+    }
+
+    public <T extends Data> List<DataSource<T>> getDataSourcesByData(Class<T> clazz)
     {
         return getDataSources()
                     .stream()

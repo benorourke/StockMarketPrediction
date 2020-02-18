@@ -11,7 +11,8 @@ import net.benorourke.stocks.framework.collection.constraint.MaximumAgeConstrain
 import net.benorourke.stocks.framework.collection.constraint.OrderingConstraint;
 import net.benorourke.stocks.framework.collection.session.CollectionSession;
 import net.benorourke.stocks.framework.exception.ConstraintException;
-import net.benorourke.stocks.framework.series.data.Document;
+import net.benorourke.stocks.framework.series.data.DataType;
+import net.benorourke.stocks.framework.series.data.impl.Document;
 import net.benorourke.stocks.framework.exception.FailedCollectionException;
 import net.benorourke.stocks.framework.series.data.DocumentType;
 import net.benorourke.stocks.framework.collection.ConnectionResponse;
@@ -40,6 +41,12 @@ public class NewsAPI extends DataSource<Document>
     public Class<? extends Document> getDataClass()
     {
         return Document.class;
+    }
+
+    @Override
+    public DataType getDataType()
+    {
+        return DataType.DOCUMENT;
     }
 
     @Override

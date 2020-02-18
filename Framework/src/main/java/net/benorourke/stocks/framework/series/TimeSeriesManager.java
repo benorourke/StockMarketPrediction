@@ -8,11 +8,8 @@ import net.benorourke.stocks.framework.series.data.Data;
 import net.benorourke.stocks.framework.stock.Stock;
 import net.benorourke.stocks.framework.util.Initialisable;
 
-import java.io.*;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
+import java.io.File;
+import java.util.*;
 
 public class TimeSeriesManager implements Initialisable
 {
@@ -147,6 +144,17 @@ public class TimeSeriesManager implements Initialisable
         {
             framework.error("Unable to write raw data to TimeSeries " + series.toString());
         }
+    }
+
+    public Map<DataSource, Integer> getCollectedDataCounts(TimeSeries series)
+    {
+        Map<DataSource, Integer> counts = new HashMap<>();
+        for (Map.Entry<Class<? extends DataSource>, Integer> entry : series.getRawDataCounts().entrySet())
+        {
+            DataSource src = framework.getDataSourceManager().getDataSourceByClass(entry.getKey());
+            counts.put(src, entry.getValue());
+        }
+        return counts;
     }
 
 }

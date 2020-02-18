@@ -3,6 +3,10 @@ package net.benorourke.stocks.framework.series.data;
 import net.benorourke.stocks.framework.persistence.gson.JsonAdapter;
 import net.benorourke.stocks.framework.persistence.gson.data.DocumentAdapter;
 import net.benorourke.stocks.framework.persistence.gson.data.StockQuoteAdapter;
+import net.benorourke.stocks.framework.series.data.impl.Document;
+import net.benorourke.stocks.framework.series.data.impl.ProcessedDocument;
+import net.benorourke.stocks.framework.series.data.impl.ProcessedStockQuote;
+import net.benorourke.stocks.framework.series.data.impl.StockQuote;
 
 public interface DataType<T extends Data>
 {

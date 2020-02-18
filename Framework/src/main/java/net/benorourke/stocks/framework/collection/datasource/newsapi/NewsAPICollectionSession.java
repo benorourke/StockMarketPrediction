@@ -5,7 +5,7 @@ import net.benorourke.stocks.framework.collection.session.APICollectionSession;
 import net.benorourke.stocks.framework.collection.session.DailyCollectionSession;
 import net.benorourke.stocks.framework.exception.ConstraintException;
 import net.benorourke.stocks.framework.exception.FailedCollectionException;
-import net.benorourke.stocks.framework.series.data.Document;
+import net.benorourke.stocks.framework.series.data.impl.Document;
 
 public class NewsAPICollectionSession implements APICollectionSession<Document>
 {
