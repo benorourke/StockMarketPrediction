@@ -7,10 +7,7 @@ import net.benorourke.stocks.framework.series.TimeSeries;
 import net.benorourke.stocks.framework.series.data.Data;
 
 import java.io.File;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class DataStore
 {
@@ -25,11 +22,6 @@ public class DataStore
         this.timeSeries = timeSeries;
     }
 
-    private String sourceToString(Class<? extends DataSource> source)
-    {
-        return source.getSimpleName().toLowerCase();
-    }
-
     //////////////////////////////////////////////////////////////////
     //      RAW DATA
     //////////////////////////////////////////////////////////////////
@@ -41,8 +33,8 @@ public class DataStore
     //        - newsapi.json
     //        - alphavantage.json
     //    - processed
-    //        - processeddocument.json
-    //        - processedstockquote.json
+    //        - processeddocuments.json
+    //        - processedstockquotes.json
 
     public boolean rawDataExists(Class<? extends DataSource> source)
     {
@@ -69,20 +61,19 @@ public class DataStore
         }
     }
 
-    public List<Data> loadRawData(Class<? extends DataSource>... source)
+    public <T extends Data> List<T> loadRawData(Class<? extends DataSource<T>> source,
+                                                Class<T> classOfData)
     {
-        // TODO
-        return null;
-    }
+        List<T> data = new ArrayList<T>();
 
-    public Map<Class<? extends DataSource>, List<Data>> getAllRawData(
-                Class<? extends DataSource>... sources)
-    {
-        Map<Class<? extends DataSource>, List<Data>> data = new HashMap<>();
-        for (Class<? extends DataSource> clazz : sources)
+        File file = fileManager.getRawDataFile(timeSeries, source);
+        file.getParentFile().mkdirs();
+
+        if (file.exists())
         {
-            data.put(clazz, loadRawData(sources));
+            data.addAll(fileManager.loadJsonList(file, classOfData).get());
         }
+
         return data;
     }
 

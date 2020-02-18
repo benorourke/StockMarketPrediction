@@ -75,6 +75,7 @@ public class CollectionTask<T extends Data> implements Task<CollectionDescriptio
     @Override
     public boolean isFinished()
     {
+        Framework.debug("Finished: " + session.isFinished());
         return session.isFinished();
     }
 

@@ -107,6 +107,7 @@ public class TaskManager
     {
         if (isTaskPresent(task))
             throw new TaskAlreadyPresentException(task);
+        // TODO - ADD A CHECK TO SEE IF ANYTHING ELSE IS RUNNING BEFORE BEGINNING PRE-PROCESSINGS
 
         TaskWrapper wrapper = new TaskWrapper(this, task, onFinished);
         taskMap.put(wrapper.getId(), wrapper);

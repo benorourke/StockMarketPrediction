@@ -13,6 +13,12 @@ public interface DataType<T extends Data>
     DataType<StockQuote> STOCK_QUOTE = new DataType<StockQuote>()
     {
         @Override
+        public String getName()
+        {
+            return "Stock Quote";
+        }
+
+        @Override
         public JsonAdapter<StockQuote> getAdapter()
         {
             return new StockQuoteAdapter();
@@ -20,6 +26,12 @@ public interface DataType<T extends Data>
     };
     DataType<Document> DOCUMENT = new DataType<Document>()
     {
+        @Override
+        public String getName()
+        {
+            return "Document";
+        }
+
         @Override
         public JsonAdapter<Document> getAdapter()
         {
@@ -29,6 +41,12 @@ public interface DataType<T extends Data>
     DataType<ProcessedStockQuote> PROCESSED_STOCK_QUOTE = new DataType<ProcessedStockQuote>()
     {
         @Override
+        public String getName()
+        {
+            return "ProcessedStock Quote";
+        }
+
+        @Override
         public JsonAdapter<ProcessedStockQuote> getAdapter()
         {
             return null;
@@ -37,11 +55,19 @@ public interface DataType<T extends Data>
     DataType<ProcessedDocument> PROCESSED_DOCUMENT = new DataType<ProcessedDocument>()
     {
         @Override
+        public String getName()
+        {
+            return "Processed Document";
+        }
+
+        @Override
         public JsonAdapter<ProcessedDocument> getAdapter()
         {
             return null;
         }
     }; // TODO
+
+    String getName();
 
     JsonAdapter<T> getAdapter();
 

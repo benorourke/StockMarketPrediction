@@ -8,6 +8,7 @@ import net.benorourke.stocks.framework.persistence.gson.StockAdapter;
 import net.benorourke.stocks.framework.persistence.gson.TimeSeriesAdapter;
 import net.benorourke.stocks.framework.persistence.gson.data.DocumentAdapter;
 import net.benorourke.stocks.framework.persistence.gson.data.StockQuoteAdapter;
+import net.benorourke.stocks.framework.persistence.gson.ListAdapter;
 import net.benorourke.stocks.framework.series.TimeSeries;
 import net.benorourke.stocks.framework.series.TimeSeriesManager;
 import net.benorourke.stocks.framework.series.data.impl.Document;
@@ -18,6 +19,10 @@ import net.benorourke.stocks.framework.thread.TaskManager;
 import net.benorourke.stocks.framework.util.Initialisable;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
+
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * The Framework should only be accessed via a single thread.
@@ -49,10 +54,13 @@ public class Framework implements Initialisable
         taskManager = new TaskManager(config);
 
         gson = new GsonBuilder()
+                        .registerTypeAdapter(List.class, new ListAdapter())
+                        .registerTypeAdapter(ArrayList.class, new ListAdapter())
+                        .registerTypeAdapter(LinkedList.class, new ListAdapter())
                         .registerTypeAdapter(Stock.class, new StockAdapter(stockExchangeManager))
                         .registerTypeAdapter(TimeSeries.class, new TimeSeriesAdapter())
-                        .registerTypeAdapter(Document.class, new DocumentAdapter())
                         .registerTypeAdapter(StockQuote.class, new StockQuoteAdapter())
+                        .registerTypeAdapter(Document.class, new DocumentAdapter())
                         .create();
     }
 

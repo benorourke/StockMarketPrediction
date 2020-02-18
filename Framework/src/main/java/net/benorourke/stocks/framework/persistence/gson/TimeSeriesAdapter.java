@@ -53,7 +53,7 @@ public class TimeSeriesAdapter implements JsonAdapter<TimeSeries>
                 Framework.error("Unable to deserialize DataSource Class " + entry.getKey(), e);
             }
         }
-        return new TimeSeries(name, stock);
+        return new TimeSeries(name, stock, typedMap);
     }
 
 

@@ -14,7 +14,7 @@ public class ProcessedStockQuote extends ProcessedData
     private final double high, low;
     // TODO - Add volume?
 
-    // TODO - Normalise the data
+    // TODO - Normalise the data?
 
     public ProcessedStockQuote(Date date, double open, double close, double high, double low)
     {

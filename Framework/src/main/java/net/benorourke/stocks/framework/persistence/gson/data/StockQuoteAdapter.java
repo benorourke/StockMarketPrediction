@@ -1,6 +1,7 @@
 package net.benorourke.stocks.framework.persistence.gson.data;
 
 import com.google.gson.*;
+import net.benorourke.stocks.framework.Framework;
 import net.benorourke.stocks.framework.persistence.gson.JsonAdapter;
 import net.benorourke.stocks.framework.series.data.impl.StockQuote;
 import net.benorourke.stocks.framework.util.DateUtil;
@@ -35,6 +36,9 @@ public class StockQuoteAdapter implements JsonAdapter<StockQuote>
         double high = object.getAsJsonPrimitive("high").getAsDouble();
         double low = object.getAsJsonPrimitive("low").getAsDouble();
         long volume = object.getAsJsonPrimitive("volume").getAsLong();
+
+        Framework.debug("Deserialized Quote");
+
         return new StockQuote(date, open, close, high, low, volume);
     }
 
