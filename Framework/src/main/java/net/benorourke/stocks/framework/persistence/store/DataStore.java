@@ -1,13 +1,17 @@
 package net.benorourke.stocks.framework.persistence.store;
 
+import com.google.gson.reflect.TypeToken;
 import net.benorourke.stocks.framework.Framework;
 import net.benorourke.stocks.framework.collection.datasource.DataSource;
 import net.benorourke.stocks.framework.persistence.FileManager;
 import net.benorourke.stocks.framework.series.TimeSeries;
 import net.benorourke.stocks.framework.series.data.Data;
+import net.benorourke.stocks.framework.series.data.impl.StockQuote;
 
 import java.io.File;
+import java.lang.reflect.Type;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class DataStore
 {
@@ -61,17 +65,18 @@ public class DataStore
         }
     }
 
-    public <T extends Data> List<T> loadRawData(Class<? extends DataSource<T>> source,
-                                                Class<T> classOfData)
+    public List<StockQuote> loadRawStockQuotes(Class<? extends DataSource<StockQuote>> source)
     {
-        List<T> data = new ArrayList<T>();
 
         File file = fileManager.getRawDataFile(timeSeries, source);
         file.getParentFile().mkdirs();
 
+        List<StockQuote> data = new ArrayList<StockQuote>();
         if (file.exists())
         {
-            data.addAll(fileManager.loadJsonList(file, classOfData).get());
+            TypeToken typeToken = new TypeToken<List<StockQuote>>(){};
+            Collection<Object> loaded = fileManager.loadJsonList(file, typeToken).get();
+            data.addAll(loaded.stream().map(o -> (StockQuote) o).collect(Collectors.toList()));
         }
 
         return data;

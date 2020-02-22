@@ -5,7 +5,6 @@ import edu.stanford.nlp.ling.CoreLabel;
 import edu.stanford.nlp.pipeline.Annotation;
 import edu.stanford.nlp.pipeline.StanfordCoreNLP;
 import edu.stanford.nlp.util.CoreMap;
-import net.benorourke.stocks.framework.preprocessor.Preprocess;
 import net.benorourke.stocks.framework.preprocessor.Preprocessor;
 import net.benorourke.stocks.framework.series.data.Data;
 import net.benorourke.stocks.framework.series.data.ProcessedData;
@@ -19,6 +18,11 @@ import java.util.stream.Collectors;
 
 public class StanfordPreprocessor implements Preprocessor<Document, ProcessedDocument>
 {
+    public enum Preprocess
+    {
+        STOPWORD_REMOVAL,
+        LEMMATISATION;
+    }
 
     @Override
     public void initialise()
@@ -27,7 +31,7 @@ public class StanfordPreprocessor implements Preprocessor<Document, ProcessedDoc
     }
 
     @Override
-    public ProcessedDocument preprocess(Document data)
+    public List<ProcessedDocument> preprocess(List<Document> data)
     {
         return null;
     }

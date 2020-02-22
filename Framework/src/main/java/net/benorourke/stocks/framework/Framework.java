@@ -8,7 +8,6 @@ import net.benorourke.stocks.framework.persistence.gson.StockAdapter;
 import net.benorourke.stocks.framework.persistence.gson.TimeSeriesAdapter;
 import net.benorourke.stocks.framework.persistence.gson.data.DocumentAdapter;
 import net.benorourke.stocks.framework.persistence.gson.data.StockQuoteAdapter;
-import net.benorourke.stocks.framework.persistence.gson.ListAdapter;
 import net.benorourke.stocks.framework.series.TimeSeries;
 import net.benorourke.stocks.framework.series.TimeSeriesManager;
 import net.benorourke.stocks.framework.series.data.impl.Document;
@@ -17,12 +16,8 @@ import net.benorourke.stocks.framework.stock.Stock;
 import net.benorourke.stocks.framework.stock.StockExchangeManager;
 import net.benorourke.stocks.framework.thread.TaskManager;
 import net.benorourke.stocks.framework.util.Initialisable;
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.Logger;
-
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The Framework should only be accessed via a single thread.
@@ -41,8 +36,7 @@ public class Framework implements Initialisable
 
     static
     {
-        BasicConfigurator.configure();
-        logger = Logger.getLogger(Framework.class);
+        logger = LoggerFactory.getLogger(Framework.class);
     }
 
     public Framework(Configuration config)
@@ -54,9 +48,6 @@ public class Framework implements Initialisable
         taskManager = new TaskManager(config);
 
         gson = new GsonBuilder()
-                        .registerTypeAdapter(List.class, new ListAdapter())
-                        .registerTypeAdapter(ArrayList.class, new ListAdapter())
-                        .registerTypeAdapter(LinkedList.class, new ListAdapter())
                         .registerTypeAdapter(Stock.class, new StockAdapter(stockExchangeManager))
                         .registerTypeAdapter(TimeSeries.class, new TimeSeriesAdapter())
                         .registerTypeAdapter(StockQuote.class, new StockQuoteAdapter())

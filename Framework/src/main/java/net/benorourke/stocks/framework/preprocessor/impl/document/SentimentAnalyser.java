@@ -1,4 +1,4 @@
-package net.benorourke.stocks.framework.preprocessor;
+package net.benorourke.stocks.framework.preprocessor.impl.document;
 
 import java.util.LinkedHashMap;
 

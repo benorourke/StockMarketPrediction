@@ -11,6 +11,7 @@ import net.benorourke.stocks.framework.series.TimeSeries;
 import java.io.*;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -86,25 +87,21 @@ public class FileManager
         }
     }
 
-    public <T> Optional<List<T>> loadJsonList(File file, Class<T> classOfBoundType)
+    public <T> Optional<Collection<T>> loadJsonList(File file, TypeToken token)
     {
         if(!file.exists()) Optional.empty();
 
-        // TODO - Add a JsonAdapter to the GSON instance for any type that can be used for this
+        Type type = token.getType();
         try
         {
-            Framework.debug("Loaded");
-            Type type = new TypeToken<List<T>>(){}.getType();
-            Framework.debug("Loaded 2");
             JsonReader reader = new JsonReader(new FileReader(file));
-            Framework.debug("Loaded 3");
-            List<T> data = framework.getGson().fromJson(reader, type);
-            Framework.debug("Loaded 4");
+            Collection<T> data = framework.getGson().fromJson(reader, type);
+
             return Optional.of(data);
         }
         catch (FileNotFoundException e)
         {
-            Framework.error("Unable to load list of " + classOfBoundType.getSimpleName()
+            Framework.error("Unable to load list of " + type.toString()
                     + " from json file (" + file.toString() + ")", e);
             return Optional.empty();
         }

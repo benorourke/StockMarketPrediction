@@ -3,6 +3,7 @@ package net.benorourke.stocks.framework.thread.preprocessing;
 public enum PreprocessingStage
 {
     INITIALISE_PREPROCESSORS,
+    // TODO - Cleaning here
     LOADING_QUOTES,
     PROCESSING_QUOTES,
     DONE;

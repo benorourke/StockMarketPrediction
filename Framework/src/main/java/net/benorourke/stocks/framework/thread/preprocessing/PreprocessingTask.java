@@ -4,7 +4,6 @@ import net.benorourke.stocks.framework.Framework;
 import net.benorourke.stocks.framework.collection.datasource.DataSource;
 import net.benorourke.stocks.framework.exception.InsuficcientRawDataException;
 import net.benorourke.stocks.framework.persistence.store.DataStore;
-import net.benorourke.stocks.framework.preprocessor.Preprocess;
 import net.benorourke.stocks.framework.preprocessor.Preprocessor;
 import net.benorourke.stocks.framework.series.data.Data;
 import net.benorourke.stocks.framework.series.data.DataType;
@@ -15,7 +14,10 @@ import net.benorourke.stocks.framework.thread.Progress;
 import net.benorourke.stocks.framework.thread.Task;
 import net.benorourke.stocks.framework.thread.TaskDescription;
 import net.benorourke.stocks.framework.thread.TaskType;
+import net.benorourke.stocks.framework.util.DateUtil;
 import net.benorourke.stocks.framework.util.Nullable;
+
+import static net.benorourke.stocks.framework.util.DateUtil.getDayStart;
 
 import java.util.*;
 
@@ -38,7 +40,7 @@ public class PreprocessingTask implements Task<TaskDescription, PreprocessingRes
     @Nullable
     private List<StockQuote> quotes;
     @Nullable
-    private List<ProcessedStockQuote> processedQuotes;
+    private Map<Date, ProcessedStockQuote> processedQuotes;
 
     public PreprocessingTask(DataStore store,
                              Map<Class<? extends Data>, Preprocessor> preprocessors,
@@ -144,28 +146,21 @@ public class PreprocessingTask implements Task<TaskDescription, PreprocessingRes
     {
         Class<? extends DataSource<StockQuote>> stockQuoteSourceClazz
                 = (Class<? extends DataSource<StockQuote>>) stockQuoteSource.getClass();
-        quotes = store.loadRawData(stockQuoteSourceClazz, StockQuote.class);
+        quotes = store.loadRawStockQuotes(stockQuoteSourceClazz);
         Framework.info("Loaded " + quotes.size() + " quotes to pre-process");
-
-        for (StockQuote quote : quotes)
-        {
-            Framework.debug("Quote " + quote.toString());
-        }
     }
 
     private void executeProcessQuotes()
     {
-        processedQuotes = new ArrayList<ProcessedStockQuote>();
-        Preprocessor preprocessor = preprocessors.get(StockQuote.class);
+        processedQuotes = new HashMap<>();
+        Preprocessor<StockQuote, ProcessedStockQuote> preprocessor = preprocessors.get(StockQuote.class);
         Framework.info("Using Preprocessor " + preprocessor.getClass().getSimpleName()
                                 + " to process " + quotes.size() + " quotes");
 
-        Framework.debug("Test 1: quotes null=" + (quotes == null));
-        for (StockQuote quote : quotes)
+        for (ProcessedStockQuote processed : preprocessor.preprocess(quotes))
         {
-            Framework.debug("Test 2");
-            processedQuotes.add((ProcessedStockQuote) preprocessor.preprocess(quote));
-            Framework.debug("Test 3");
+            Date date = getDayStart(processed.getDate());
+            processedQuotes.put(date, processed);
         }
 
         Framework.info("Processed " + quotes.size() + " quotes");
@@ -180,7 +175,6 @@ public class PreprocessingTask implements Task<TaskDescription, PreprocessingRes
     @Override
     public PreprocessingResult getResult()
     {
-        // TODO
         return new PreprocessingResult();
     }
 
