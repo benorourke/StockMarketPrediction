@@ -74,7 +74,7 @@ public class Framework implements Initialisable
 
     public static void debug(String message)
     {
-        logger.debug(message);
+        logger.info("Debug: " + message);
     }
 
     public static void error(String message)

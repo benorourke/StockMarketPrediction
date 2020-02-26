@@ -6,6 +6,7 @@ import net.benorourke.stocks.framework.collection.datasource.DataSource;
 import net.benorourke.stocks.framework.persistence.FileManager;
 import net.benorourke.stocks.framework.series.TimeSeries;
 import net.benorourke.stocks.framework.series.data.Data;
+import net.benorourke.stocks.framework.series.data.impl.Document;
 import net.benorourke.stocks.framework.series.data.impl.StockQuote;
 
 import java.io.File;
@@ -67,7 +68,6 @@ public class DataStore
 
     public List<StockQuote> loadRawStockQuotes(Class<? extends DataSource<StockQuote>> source)
     {
-
         File file = fileManager.getRawDataFile(timeSeries, source);
         file.getParentFile().mkdirs();
 
@@ -77,6 +77,22 @@ public class DataStore
             TypeToken typeToken = new TypeToken<List<StockQuote>>(){};
             Collection<Object> loaded = fileManager.loadJsonList(file, typeToken).get();
             data.addAll(loaded.stream().map(o -> (StockQuote) o).collect(Collectors.toList()));
+        }
+
+        return data;
+    }
+
+    public List<Document> loadRawDocuments(Class<? extends DataSource<Document>> source)
+    {
+        File file = fileManager.getRawDataFile(timeSeries, source);
+        file.getParentFile().mkdirs();
+
+        List<Document> data = new ArrayList<Document>();
+        if (file.exists())
+        {
+            TypeToken typeToken = new TypeToken<List<Document>>(){};
+            Collection<Object> loaded = fileManager.loadJsonList(file, typeToken).get();
+            data.addAll(loaded.stream().map(o -> (Document) o).collect(Collectors.toList()));
         }
 
         return data;

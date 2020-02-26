@@ -4,7 +4,7 @@ import net.benorourke.stocks.framework.persistence.gson.JsonAdapter;
 import net.benorourke.stocks.framework.persistence.gson.data.DocumentAdapter;
 import net.benorourke.stocks.framework.persistence.gson.data.StockQuoteAdapter;
 import net.benorourke.stocks.framework.series.data.impl.Document;
-import net.benorourke.stocks.framework.series.data.impl.ProcessedDocument;
+import net.benorourke.stocks.framework.series.data.impl.CleanedDocument;
 import net.benorourke.stocks.framework.series.data.impl.ProcessedStockQuote;
 import net.benorourke.stocks.framework.series.data.impl.StockQuote;
 
@@ -43,7 +43,7 @@ public interface DataType<T extends Data>
         @Override
         public String getName()
         {
-            return "ProcessedStock Quote";
+            return "Processed Stock Quote";
         }
 
         @Override
@@ -51,8 +51,22 @@ public interface DataType<T extends Data>
         {
             return null;
         }
-    }; // TODO
-    DataType<ProcessedDocument> PROCESSED_DOCUMENT = new DataType<ProcessedDocument>()
+    };
+    DataType<CleanedDocument> CLEANED_DOCUMENT = new DataType<CleanedDocument>()
+    {
+        @Override
+        public String getName()
+        {
+            return "Cleaned Document";
+        }
+
+        @Override
+        public JsonAdapter<CleanedDocument> getAdapter()
+        {
+            return null;
+        }
+    };
+    DataType<CleanedDocument> PROCESSED_DOCUMENT = new DataType<CleanedDocument>()
     {
         @Override
         public String getName()
@@ -61,11 +75,11 @@ public interface DataType<T extends Data>
         }
 
         @Override
-        public JsonAdapter<ProcessedDocument> getAdapter()
+        public JsonAdapter<CleanedDocument> getAdapter()
         {
             return null;
         }
-    }; // TODO
+    };
 
     String getName();
 

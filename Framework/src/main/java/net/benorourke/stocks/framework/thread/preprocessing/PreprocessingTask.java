@@ -4,17 +4,17 @@ import net.benorourke.stocks.framework.Framework;
 import net.benorourke.stocks.framework.collection.datasource.DataSource;
 import net.benorourke.stocks.framework.exception.InsuficcientRawDataException;
 import net.benorourke.stocks.framework.persistence.store.DataStore;
-import net.benorourke.stocks.framework.preprocessor.Preprocessor;
-import net.benorourke.stocks.framework.series.data.Data;
+import net.benorourke.stocks.framework.preprocess.Preprocess;
+import net.benorourke.stocks.framework.preprocess.ProgressCallback;
+import net.benorourke.stocks.framework.preprocess.impl.StockQuoteProcess;
+import net.benorourke.stocks.framework.preprocess.impl.document.DocumentCleaner;
+import net.benorourke.stocks.framework.preprocess.impl.document.CorpusProcessor;
+import net.benorourke.stocks.framework.preprocess.impl.document.ProcessedCorpus;
 import net.benorourke.stocks.framework.series.data.DataType;
-import net.benorourke.stocks.framework.series.data.impl.Document;
-import net.benorourke.stocks.framework.series.data.impl.ProcessedStockQuote;
-import net.benorourke.stocks.framework.series.data.impl.StockQuote;
-import net.benorourke.stocks.framework.thread.Progress;
+import net.benorourke.stocks.framework.series.data.impl.*;
 import net.benorourke.stocks.framework.thread.Task;
 import net.benorourke.stocks.framework.thread.TaskDescription;
 import net.benorourke.stocks.framework.thread.TaskType;
-import net.benorourke.stocks.framework.util.DateUtil;
 import net.benorourke.stocks.framework.util.Nullable;
 
 import static net.benorourke.stocks.framework.util.DateUtil.getDayStart;
@@ -28,27 +28,41 @@ import java.util.*;
 public class PreprocessingTask implements Task<TaskDescription, PreprocessingResult>
 {
     private final DataStore store;
-    private final Map<Class<? extends Data>, Preprocessor> preprocessors;
+    private final Map<DataSource, Integer> collectedDataCounts;
+
+    private final Preprocess<List<StockQuote>, List<ProcessedStockQuote>> stockQuoteProcessor;
+    private final Preprocess<List<Document>, List<CleanedDocument>> corpusCleaner;
+    private final Preprocess<Map<Date, List<CleanedDocument>>, ProcessedCorpus> corpusProcessor;
+    private final Preprocess[] preprocesses;
 
     private PreprocessingStage stage;
     private DataSource<StockQuote> stockQuoteSource;
     private List<DataSource<Document>> documentSources;
 
-    private Progress progress;
+    private PreprocessingProgress progress;
 
     // Data that's loaded/processed progressively:
     @Nullable
-    private List<StockQuote> quotes;
-    @Nullable
+    private List<StockQuote> loadedQuotes;
     private Map<Date, ProcessedStockQuote> processedQuotes;
+    @Nullable
+    private List<Document> loadedCorpus;
+    @Nullable
+    private Map<Date, List<CleanedDocument>> cleanDocuments;
+    private ProcessedCorpus processedCorpus;
 
     public PreprocessingTask(DataStore store,
-                             Map<Class<? extends Data>, Preprocessor> preprocessors,
                              Map<DataSource, Integer> collectedDataCounts)
             throws InsuficcientRawDataException
     {
         this.store = store;
-        this.preprocessors = preprocessors;
+        this.collectedDataCounts = collectedDataCounts;
+
+        // Processes
+        stockQuoteProcessor = new StockQuoteProcess();
+        corpusCleaner = new DocumentCleaner();
+        corpusProcessor = new CorpusProcessor(processedQuotes);
+        preprocesses = new Preprocess[]{stockQuoteProcessor, corpusCleaner, corpusProcessor};
 
         stage = PreprocessingStage.first();
 
@@ -60,6 +74,9 @@ public class PreprocessingTask implements Task<TaskDescription, PreprocessingRes
         documentSources = new ArrayList<>();
         for (DataSource source : grouped.get(DataType.DOCUMENT))
             documentSources.add( (DataSource<Document>) source);
+
+        processedQuotes = new HashMap<>();
+        cleanDocuments = new HashMap<>();
     }
 
     private void checkSufficiency(Map<DataType, List<DataSource>> grouped)
@@ -96,19 +113,22 @@ public class PreprocessingTask implements Task<TaskDescription, PreprocessingRes
     }
 
     @Override
-    public Progress createTaskProgress()
+    public PreprocessingProgress createTaskProgress()
     {
-        return progress = new Progress();
+        return progress = new PreprocessingProgress(preprocesses);
     }
 
     @Override
     public void run()
     {
-        Framework.debug("Executing stage " + stage.toString());
+        Framework.info("Executing stage " + stage.toString());
         if (executeStage())
+        {
+            progress.onStageCompleted(stage);
             stage = stage.next();
+        }
 
-        Framework.debug("Next stage: " + stage.toString());
+        Framework.info("Next stage: " + stage.toString());
     }
 
     /**
@@ -118,8 +138,8 @@ public class PreprocessingTask implements Task<TaskDescription, PreprocessingRes
     {
         switch (stage)
         {
-            case INITIALISE_PREPROCESSORS:
-                initialisePreprocessors();
+            case INITIALISE_PREPROCESSES:
+                initialisePreprocesses();
                 return true;
             case LOADING_QUOTES:
                 executeLoadQuotes();
@@ -127,43 +147,123 @@ public class PreprocessingTask implements Task<TaskDescription, PreprocessingRes
             case PROCESSING_QUOTES:
                 executeProcessQuotes();
                 return true;
-
+            case LOADING_CORPUS:
+                executeLoadCorpus();
+                return true;
+            case CLEAN_CORPUS:
+                executeCleanCorpus();
+                return true;
+            case PROCESS_CORPUS:
+                executeProcessCorpus();
+                return true;
             case DONE:
                 break;
         }
         return false;
     }
 
-    private void initialisePreprocessors()
+    private void initialisePreprocesses()
     {
-        for (Preprocessor preprocessor : preprocessors.values())
-            preprocessor.initialise();
+        for (int i = 0; i < preprocesses.length; i ++)
+        {
+            final int finalI = i;
+            Preprocess preprocess = preprocesses[i];
+            preprocess.initialise();
+            preprocess.addProgressCallback(new ProgressCallback()
+            {
+                @Override
+                public void onProgressUpdate(double percentageProgress)
+                {
+                    progress.onPreprocessorPercentageChanged(finalI, percentageProgress);
+                }
+            });
+        }
 
-        Framework.info("Initialised " + preprocessors.size() + " preprocessors");
+        Framework.info("Initialised " + preprocesses.length + " preprocesses");
     }
 
     private void executeLoadQuotes()
     {
         Class<? extends DataSource<StockQuote>> stockQuoteSourceClazz
                 = (Class<? extends DataSource<StockQuote>>) stockQuoteSource.getClass();
-        quotes = store.loadRawStockQuotes(stockQuoteSourceClazz);
-        Framework.info("Loaded " + quotes.size() + " quotes to pre-process");
+        loadedQuotes = store.loadRawStockQuotes(stockQuoteSourceClazz);
+        Framework.info("Loaded " + loadedQuotes.size() + " quotes to pre-process");
     }
 
     private void executeProcessQuotes()
     {
-        processedQuotes = new HashMap<>();
-        Preprocessor<StockQuote, ProcessedStockQuote> preprocessor = preprocessors.get(StockQuote.class);
-        Framework.info("Using Preprocessor " + preprocessor.getClass().getSimpleName()
-                                + " to process " + quotes.size() + " quotes");
+        Framework.info("Using Preprocess " + stockQuoteProcessor.getClass().getSimpleName()
+                                + " to process " + loadedQuotes.size() + " quotes");
 
-        for (ProcessedStockQuote processed : preprocessor.preprocess(quotes))
+        for (ProcessedStockQuote processed : stockQuoteProcessor.preprocess(loadedQuotes))
         {
             Date date = getDayStart(processed.getDate());
             processedQuotes.put(date, processed);
         }
 
-        Framework.info("Processed " + quotes.size() + " quotes");
+        Framework.info("Processed " + loadedQuotes.size() + " quotes. Dumping unprocessed quotes.");
+        loadedQuotes.clear();
+        loadedQuotes = null;
+    }
+
+    private void executeLoadCorpus()
+    {
+        loadedCorpus = new ArrayList<>();
+
+        int totalSources = documentSources.size(), currentSource = 1;
+        int totalDocuments = documentSources.stream()
+                                    .mapToInt(s -> (s.getDataType().equals(DataType.DOCUMENT))
+                                                        ? collectedDataCounts.get(s)
+                                                        : 0)
+                                    .sum();
+
+        Framework.info("Expecting " + totalDocuments + " Documents to be loaded");
+
+        int documentsLoaded = 0;
+        for (DataSource<Document> source : documentSources)
+        {
+            Framework.info("Loading from DocumentSource " + source.getClass().getSimpleName()
+                                + " (" + currentSource + '/' + totalSources + ")");
+
+            Class<? extends DataSource<Document>> documentSourceClazz
+                    = (Class<? extends DataSource<Document>>) source.getClass();
+            loadedCorpus.addAll(store.loadRawDocuments(documentSourceClazz));
+            int loaded = loadedCorpus.size() - documentsLoaded;
+
+            currentSource ++;
+            documentsLoaded = loadedCorpus.size();
+            double percentage = ((double) documentsLoaded / (double) totalDocuments) * 100;
+            Framework.info("Loaded from DocumentSource " + source.getClass().getSimpleName()
+                                + " (" + loaded +" loaded, " + percentage + "% complete)");
+        }
+    }
+
+    private void executeCleanCorpus()
+    {
+        // TODO: Make the next step it's own stage as inserting this many values could
+        //       take a long time
+        for (CleanedDocument processed : corpusCleaner.preprocess(loadedCorpus))
+        {
+            Date date = getDayStart(processed.getDate());
+
+            if (!cleanDocuments.containsKey(date))
+                cleanDocuments.put(date, new ArrayList<>());
+
+            cleanDocuments.get(date).add(processed);
+        }
+
+        Framework.info("Cleaned " + loadedCorpus.size() + " documents across "
+                            + cleanDocuments.size() + " days. Dumping uncleaned corpus.");
+        loadedCorpus.clear();
+        loadedCorpus = null;
+    }
+
+    private void executeProcessCorpus()
+    {
+        processedCorpus = corpusProcessor.preprocess(cleanDocuments);
+        Framework.info("Processed entire corpus.");
+        cleanDocuments.clear();
+        cleanDocuments = null;
     }
 
     @Override
