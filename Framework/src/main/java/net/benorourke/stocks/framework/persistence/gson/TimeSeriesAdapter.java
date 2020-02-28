@@ -21,12 +21,14 @@ public class TimeSeriesAdapter implements JsonAdapter<TimeSeries>
         result.add("name", context.serialize(series.getName()));
         result.add("stock", context.serialize(series.getStock()));
 
-        Map<String, Integer> dataCountMap = new HashMap<>();
+        // Serialize the data count map
+        JsonObject rawDataCounts = new JsonObject();
         for (Map.Entry<Class<? extends DataSource>, Integer> entry : series.getRawDataCounts().entrySet())
         {
-            dataCountMap.put(entry.getKey().getName(), entry.getValue());
+            rawDataCounts.add(entry.getKey().getName(), new JsonPrimitive(entry.getValue()));
+            Framework.debug("Injected " + entry.getKey().getName() + ": " + entry.getValue());
         }
-        result.add("rawDataCounts", context.serialize(dataCountMap));
+        result.add("rawDataCounts", rawDataCounts);
         return result;
     }
 
@@ -38,19 +40,21 @@ public class TimeSeriesAdapter implements JsonAdapter<TimeSeries>
         String name = object.getAsJsonPrimitive("name").getAsString();
         Stock stock = context.deserialize(object.getAsJsonObject("stock"), Stock.class);
 
-        Map<Object, Object> genericMap = context.deserialize(object.getAsJsonObject("rawDataCounts"), Map.class);
+        // Deserialize the data count map
         Map<Class<? extends DataSource>, Integer> typedMap = new HashMap<>();
-        for (Map.Entry<Object, Object> entry : genericMap.entrySet())
+        JsonObject rawDataCounts = object.getAsJsonObject("rawDataCounts");
+        for (String key : rawDataCounts.keySet())
         {
             try
             {
-                Class<?> srcClass = Class.forName((String) entry.getKey());
-                double count = (Double) entry.getValue();
-                typedMap.put((Class<? extends DataSource>) srcClass, (int) count);
+                Class<?> srcClass = Class.forName(key);
+                int count = rawDataCounts.getAsJsonPrimitive(key).getAsInt();
+                typedMap.put((Class<? extends DataSource>) srcClass, count);
+                Framework.debug("Deserialized " + key + ": " + count);
             }
             catch (ClassNotFoundException e)
             {
-                Framework.error("Unable to deserialize DataSource Class " + entry.getKey(), e);
+                Framework.error("Unable to deserialize DataSource Class " + key, e);
             }
         }
         return new TimeSeries(name, stock, typedMap);

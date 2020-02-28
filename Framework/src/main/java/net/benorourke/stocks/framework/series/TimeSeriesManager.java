@@ -58,9 +58,12 @@ public class TimeSeriesManager implements Initialisable
     public boolean save(TimeSeries series)
     {
         File info = fileManager.getTimeSeriesInfoFile(series);
+
+        if(info.exists()) info.delete();
+
         if(fileManager.writeJson(info, series))
         {
-            Framework.info("Time Series Saved: " + series.toString());
+            Framework.info("Time Series Saved: " + series.toString() + " to " + info.toString());
             return true;
         }
         else
@@ -114,7 +117,7 @@ public class TimeSeriesManager implements Initialisable
             }
             else
             {
-                framework.error("Unable to load time series meta at " + infoFile.getPath());
+                Framework.error("Unable to load time series meta at " + infoFile.getPath());
             }
         }
         return result;
@@ -138,11 +141,16 @@ public class TimeSeriesManager implements Initialisable
             series.getRawDataCounts().put(dataSourceClass, data.size());
             save(series);
 
-            framework.info("Wrote raw data to TimeSeries " + series.toString());
+            Framework.info("Wrote raw data to TimeSeries " + series.toString());
+            Framework.debug("Raw data counts:");
+            for (Map.Entry<Class<? extends DataSource>, Integer> rawDataCount : series.getRawDataCounts().entrySet())
+            {
+                Framework.debug(rawDataCount.getKey().getName() + ": " + rawDataCount.getValue());
+            }
         }
         else
         {
-            framework.error("Unable to write raw data to TimeSeries " + series.toString());
+            Framework.error("Unable to write raw data to TimeSeries " + series.toString());
         }
     }
 

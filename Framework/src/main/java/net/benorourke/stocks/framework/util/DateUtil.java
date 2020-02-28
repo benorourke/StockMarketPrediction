@@ -48,6 +48,15 @@ public class DateUtil
                     && calA.get(Calendar.YEAR) == calB.get(Calendar.YEAR);
     }
 
+    public static boolean isWeekend(Date date)
+    {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(date);
+
+        return cal.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY
+                    || cal.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY;
+    }
+
     /**
      * Get the time at 00:01 (midnight) on any day.
      *

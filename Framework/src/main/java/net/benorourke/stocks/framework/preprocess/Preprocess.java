@@ -1,11 +1,8 @@
 package net.benorourke.stocks.framework.preprocess;
 
-import net.benorourke.stocks.framework.series.data.Data;
-import net.benorourke.stocks.framework.series.data.ProcessedData;
 import net.benorourke.stocks.framework.util.Initialisable;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 public abstract class Preprocess<S, U> implements Initialisable

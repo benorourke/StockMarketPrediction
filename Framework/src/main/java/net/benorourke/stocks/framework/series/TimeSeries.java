@@ -1,6 +1,5 @@
 package net.benorourke.stocks.framework.series;
 
-import net.benorourke.stocks.framework.Framework;
 import net.benorourke.stocks.framework.collection.datasource.DataSource;
 import net.benorourke.stocks.framework.stock.Stock;
 
@@ -46,7 +45,6 @@ public class TimeSeries
 
     public Map<Class<? extends DataSource>, Integer> getRawDataCounts()
     {
-        Framework.debug("Raw data counts null: " + (rawDataCounts == null));
         return rawDataCounts;
     }
 

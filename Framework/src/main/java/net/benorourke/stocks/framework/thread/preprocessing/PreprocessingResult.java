@@ -5,4 +5,5 @@ import net.benorourke.stocks.framework.thread.Result;
 public class PreprocessingResult extends Result
 {
 
+
 }

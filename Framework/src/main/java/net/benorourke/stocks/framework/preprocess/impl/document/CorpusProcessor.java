@@ -9,6 +9,7 @@ import edu.stanford.nlp.trees.Tree;
 import edu.stanford.nlp.util.CoreMap;
 import net.benorourke.stocks.framework.Framework;
 import net.benorourke.stocks.framework.preprocess.Preprocess;
+import net.benorourke.stocks.framework.series.data.DatasetHelper;
 import net.benorourke.stocks.framework.series.data.impl.CleanedDocument;
 import net.benorourke.stocks.framework.series.data.impl.ProcessedDocument;
 import net.benorourke.stocks.framework.series.data.impl.ProcessedStockQuote;
@@ -41,8 +42,15 @@ public class CorpusProcessor extends Preprocess<Map<Date, List<CleanedDocument>>
         ProcessedCorpus corpus = new ProcessedCorpus(new HashMap<>());
         Map<Date, List<ProcessedDocument>> docs = corpus.getDocuments();
 
+        Framework.info("Combining Saturday/Sunday Documents with Monday");
+        int dataSizePreCombination = data.size();
+        data = DatasetHelper.handleWeekends(data);
+        Framework.info("Combined Saturday/Sunday Documents with Monday ("
+                            + (dataSizePreCombination - data.size()) + " weekend days removed)");
+
         for (Map.Entry<Date, List<CleanedDocument>> entry : data.entrySet())
         {
+            docs.put(entry.getKey(), new ArrayList<ProcessedDocument>());
             for (CleanedDocument doc : entry.getValue())
             {
 
