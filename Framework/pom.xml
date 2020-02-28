@@ -60,6 +60,11 @@
             <version>1.7.25</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.deeplearning4j</groupId>
+            <artifactId>deeplearning4j-core</artifactId>
+            <version>1.0.0-beta6</version>
+        </dependency>
     </dependencies>
 
     <build>
