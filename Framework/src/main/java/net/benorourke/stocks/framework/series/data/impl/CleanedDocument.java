@@ -11,15 +11,22 @@ import java.util.Date;
  */
 public class CleanedDocument extends ProcessedData
 {
+    private final String originalContent;
     private final String cleanedContent;
     private final DocumentType documentType;
 
-    public CleanedDocument(Date date, String content, DocumentType documentType)
+    public CleanedDocument(Date date, String originalContent, String cleanedContent, DocumentType documentType)
     {
         super(DataType.CLEANED_DOCUMENT, date);
 
-        this.cleanedContent = content;
+        this.originalContent = originalContent;
+        this.cleanedContent = cleanedContent;
         this.documentType = documentType;
+    }
+
+    public String getOriginalContent()
+    {
+        return originalContent;
     }
 
     public String getCleanedContent()
@@ -31,4 +38,5 @@ public class CleanedDocument extends ProcessedData
     {
         return documentType;
     }
+
 }

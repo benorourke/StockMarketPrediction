@@ -275,7 +275,7 @@ public class PreprocessingTask implements Task<TaskDescription, PreprocessingRes
     @Override
     public PreprocessingResult getResult()
     {
-        return new PreprocessingResult();
+        return new PreprocessingResult(processedCorpus);
     }
 
     private Map<DataType, List<DataSource>> group(Collection<DataSource> sources)
