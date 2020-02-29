@@ -44,7 +44,7 @@ public class DocumentCleaner extends Preprocess<List<Document>, List<CleanedDocu
         for (Document document : data)
         {
             String cleaned = clean(document.getContent());
-            res.add(new CleanedDocument(document.getDate(), cleaned, document.getDocumentType()));
+            res.add(new CleanedDocument(document.getDate(), document.getContent(), cleaned, document.getDocumentType()));
 
             count ++;
             if(count % PROGRESS_ITERATIONS == 0)

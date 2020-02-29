@@ -8,13 +8,25 @@ import java.util.Date;
 
 public class ProcessedDocument extends ProcessedData
 {
-    private String cleanedText;
-    private Sentiment sentiment;
-    private double bagOfWordsScore;
+    private final String cleanedContent;
+    private final Sentiment sentiment;
 
-    public ProcessedDocument(Date date)
+    public ProcessedDocument(Date date, String cleanedText, Sentiment sentiment)
     {
         super(DataType.PROCESSED_DOCUMENT, date);
+
+        this.cleanedContent = cleanedText;
+        this.sentiment = sentiment;
+    }
+
+    public String getCleanedContent()
+    {
+        return cleanedContent;
+    }
+
+    public Sentiment getSentiment()
+    {
+        return sentiment;
     }
 
 }
