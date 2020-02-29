@@ -27,7 +27,7 @@ public class PreprocessingProgress extends Progress
     /**
      *
      * @param preprocessIndex
-     * @param percentage the Data it's converting from
+     * @param percentage the ModelData it's converting from
      */
     public void onPreprocessorPercentageChanged(int preprocessIndex, double percentage)
     {

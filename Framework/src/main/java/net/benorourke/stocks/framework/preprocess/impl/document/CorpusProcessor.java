@@ -6,11 +6,12 @@ import edu.stanford.nlp.pipeline.StanfordCoreNLP;
 import edu.stanford.nlp.sentiment.SentimentCoreAnnotations;
 import edu.stanford.nlp.util.CoreMap;
 import net.benorourke.stocks.framework.Framework;
+import net.benorourke.stocks.framework.model.data.ProcessedCorpus;
 import net.benorourke.stocks.framework.preprocess.Preprocess;
 import net.benorourke.stocks.framework.series.data.DatasetHelper;
 import net.benorourke.stocks.framework.series.data.impl.CleanedDocument;
 import net.benorourke.stocks.framework.series.data.impl.ProcessedDocument;
-import net.benorourke.stocks.framework.series.data.impl.ProcessedStockQuote;
+import net.benorourke.stocks.framework.series.data.impl.NormalisedStockQuote;
 
 import java.util.*;
 
@@ -18,10 +19,10 @@ public class CorpusProcessor extends Preprocess<Map<Date, List<CleanedDocument>>
 {
     private static final int PROGRESS_ITERATIONS = 50;
 
-    private final Map<Date, ProcessedStockQuote> labels;
+    private final Map<Date, NormalisedStockQuote> labels;
     private StanfordCoreNLP pipeline;
 
-    public CorpusProcessor(Map<Date, ProcessedStockQuote> labels)
+    public CorpusProcessor(Map<Date, NormalisedStockQuote> labels)
     {
         this.labels = labels;
     }
@@ -37,7 +38,7 @@ public class CorpusProcessor extends Preprocess<Map<Date, List<CleanedDocument>>
     @Override
     public ProcessedCorpus preprocess(Map<Date, List<CleanedDocument>> data)
     {
-        Framework.debug("Data size: " + data.size());
+        Framework.debug("ModelData size: " + data.size());
 
         // TODO: Update Percentages
         Map<Date, List<ProcessedDocument>> docs = new HashMap<>();
@@ -52,7 +53,7 @@ public class CorpusProcessor extends Preprocess<Map<Date, List<CleanedDocument>>
         TF_IDF tf_idf = TF_IDF.generate(data);
         Framework.info("TODO: Generated TF_IDF");
 
-        Framework.debug("Data size2: " + data.size());
+        Framework.debug("ModelData size2: " + data.size());
         Framework.info("Processing individual documents");
         for (Map.Entry<Date, List<CleanedDocument>> entry : data.entrySet())
         {
@@ -66,7 +67,8 @@ public class CorpusProcessor extends Preprocess<Map<Date, List<CleanedDocument>>
         Framework.info("Processed individual documents");
 
         onProgressChanged(100.0D);
-        return new ProcessedCorpus(docs);
+//        return new ProcessedCorpus(docs);
+        return new ProcessedCorpus(new ArrayList<>());
     }
 
     public ProcessedDocument process(CleanedDocument document)

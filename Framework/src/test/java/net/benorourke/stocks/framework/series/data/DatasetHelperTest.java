@@ -1,6 +1,8 @@
 package net.benorourke.stocks.framework.series.data;
 
+import net.benorourke.stocks.framework.Framework;
 import net.benorourke.stocks.framework.series.data.impl.CleanedDocument;
+import net.benorourke.stocks.framework.util.DateUtil;
 import org.junit.Test;
 
 import java.util.*;

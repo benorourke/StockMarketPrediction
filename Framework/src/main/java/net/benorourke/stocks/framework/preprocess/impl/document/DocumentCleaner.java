@@ -9,7 +9,6 @@ import net.benorourke.stocks.framework.Framework;
 import net.benorourke.stocks.framework.preprocess.Preprocess;
 import net.benorourke.stocks.framework.series.data.impl.Document;
 import net.benorourke.stocks.framework.series.data.impl.CleanedDocument;
-import net.benorourke.stocks.framework.series.data.impl.ProcessedStockQuote;
 
 import java.util.*;
 import java.util.stream.Collectors;

@@ -1,17 +1,24 @@
 package net.benorourke.stocks.framework.series.data.impl;
 
-import net.benorourke.stocks.framework.series.data.Data;
 import net.benorourke.stocks.framework.series.data.DataType;
+import net.benorourke.stocks.framework.series.data.ProcessedData;
 
 import java.util.Date;
 
-public class StockQuote extends Data
+public class NormalisedStockQuote extends ProcessedData
 {
     private final double[] data;
 
-    public StockQuote(Date date, double open, double close, double high, double low, long volume)
+    public NormalisedStockQuote(Date date, double[] data)
     {
-        super(DataType.STOCK_QUOTE, date);
+        super(DataType.NORMALISED_STOCK_QUOTE, date);
+
+        this.data = data;
+    }
+
+    public NormalisedStockQuote(Date date, double open, double close, double high, double low, long volume)
+    {
+        super(DataType.NORMALISED_STOCK_QUOTE, date);
 
         data = new double[StockQuoteCategory.count()];
 
@@ -22,14 +29,14 @@ public class StockQuote extends Data
         data[StockQuoteCategory.VOLUME.index()] = (double) volume;
     }
 
-    public double getOpen()
-    {
-        return data[StockQuoteCategory.OPEN.index()];
-    }
-
     public double[] getData()
     {
         return data;
+    }
+
+    public double getOpen()
+    {
+        return data[StockQuoteCategory.OPEN.index()];
     }
 
     public double getClose()

@@ -3,9 +3,9 @@ package net.benorourke.stocks.framework.thread.preprocessing;
 public enum PreprocessingStage
 {
     INITIALISE_PREPROCESSES,
-    LOADING_QUOTES,
-    PROCESSING_QUOTES,
-    LOADING_CORPUS,
+    LOAD_QUOTES,
+    NORMALISE_QUOTES,
+    LOAD_CORPUS,
     CLEAN_CORPUS,
     PROCESS_CORPUS,
     DONE;
@@ -23,14 +23,14 @@ public enum PreprocessingStage
         switch (this)
         {
             case INITIALISE_PREPROCESSES:
-                return LOADING_QUOTES;
+                return LOAD_QUOTES;
 
-            case LOADING_QUOTES:
-                return PROCESSING_QUOTES;
-            case PROCESSING_QUOTES:
-                return LOADING_CORPUS;
+            case LOAD_QUOTES:
+                return NORMALISE_QUOTES;
+            case NORMALISE_QUOTES:
+                return LOAD_CORPUS;
 
-            case LOADING_CORPUS:
+            case LOAD_CORPUS:
                 return CLEAN_CORPUS;
             case CLEAN_CORPUS:
                 return PROCESS_CORPUS;

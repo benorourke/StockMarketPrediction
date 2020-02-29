@@ -6,10 +6,10 @@ import net.benorourke.stocks.framework.exception.InsuficcientRawDataException;
 import net.benorourke.stocks.framework.persistence.store.DataStore;
 import net.benorourke.stocks.framework.preprocess.Preprocess;
 import net.benorourke.stocks.framework.preprocess.ProgressCallback;
-import net.benorourke.stocks.framework.preprocess.impl.StockQuoteProcess;
+import net.benorourke.stocks.framework.preprocess.impl.StockQuoteNormaliser;
 import net.benorourke.stocks.framework.preprocess.impl.document.DocumentCleaner;
 import net.benorourke.stocks.framework.preprocess.impl.document.CorpusProcessor;
-import net.benorourke.stocks.framework.preprocess.impl.document.ProcessedCorpus;
+import net.benorourke.stocks.framework.model.data.ProcessedCorpus;
 import net.benorourke.stocks.framework.series.data.DataType;
 import net.benorourke.stocks.framework.series.data.impl.*;
 import net.benorourke.stocks.framework.thread.Task;
@@ -30,7 +30,7 @@ public class PreprocessingTask implements Task<TaskDescription, PreprocessingRes
     private final DataStore store;
     private final Map<DataSource, Integer> collectedDataCounts;
 
-    private final Preprocess<List<StockQuote>, List<ProcessedStockQuote>> stockQuoteProcessor;
+    private final Preprocess<List<StockQuote>, List<NormalisedStockQuote>> stockQuoteProcessor;
     private final Preprocess<List<Document>, List<CleanedDocument>> corpusCleaner;
     private final Preprocess<Map<Date, List<CleanedDocument>>, ProcessedCorpus> corpusProcessor;
     private final Preprocess[] preprocesses;
@@ -41,10 +41,10 @@ public class PreprocessingTask implements Task<TaskDescription, PreprocessingRes
 
     private PreprocessingProgress progress;
 
-    // Data that's loaded/processed progressively:
+    // ModelData that's loaded/processed progressively:
     @Nullable
     private List<StockQuote> loadedQuotes;
-    private Map<Date, ProcessedStockQuote> processedQuotes;
+    private Map<Date, NormalisedStockQuote> normalisedQuotes;
     @Nullable
     private List<Document> loadedCorpus;
     @Nullable
@@ -59,9 +59,9 @@ public class PreprocessingTask implements Task<TaskDescription, PreprocessingRes
         this.collectedDataCounts = collectedDataCounts;
 
         // Processes
-        stockQuoteProcessor = new StockQuoteProcess();
+        stockQuoteProcessor = new StockQuoteNormaliser();
         corpusCleaner = new DocumentCleaner();
-        corpusProcessor = new CorpusProcessor(processedQuotes);
+        corpusProcessor = new CorpusProcessor(normalisedQuotes);
         preprocesses = new Preprocess[]{stockQuoteProcessor, corpusCleaner, corpusProcessor};
 
         stage = PreprocessingStage.first();
@@ -75,7 +75,7 @@ public class PreprocessingTask implements Task<TaskDescription, PreprocessingRes
         for (DataSource source : grouped.get(DataType.DOCUMENT))
             documentSources.add( (DataSource<Document>) source);
 
-        processedQuotes = new HashMap<>();
+        normalisedQuotes = new HashMap<>();
         cleanDocuments = new HashMap<>();
     }
 
@@ -141,13 +141,13 @@ public class PreprocessingTask implements Task<TaskDescription, PreprocessingRes
             case INITIALISE_PREPROCESSES:
                 initialisePreprocesses();
                 return true;
-            case LOADING_QUOTES:
+            case LOAD_QUOTES:
                 executeLoadQuotes();
                 return true;
-            case PROCESSING_QUOTES:
-                executeProcessQuotes();
+            case NORMALISE_QUOTES:
+                executeNormaliseQuotes();
                 return true;
-            case LOADING_CORPUS:
+            case LOAD_CORPUS:
                 executeLoadCorpus();
                 return true;
             case CLEAN_CORPUS:
@@ -190,18 +190,18 @@ public class PreprocessingTask implements Task<TaskDescription, PreprocessingRes
         Framework.info("Loaded " + loadedQuotes.size() + " quotes to pre-process");
     }
 
-    private void executeProcessQuotes()
+    private void executeNormaliseQuotes()
     {
         Framework.info("Using Preprocess " + stockQuoteProcessor.getClass().getSimpleName()
-                                + " to process " + loadedQuotes.size() + " quotes");
+                                + " to normalise " + loadedQuotes.size() + " quotes");
 
-        for (ProcessedStockQuote processed : stockQuoteProcessor.preprocess(loadedQuotes))
+        for (NormalisedStockQuote processed : stockQuoteProcessor.preprocess(loadedQuotes))
         {
             Date date = getDayStart(processed.getDate());
-            processedQuotes.put(date, processed);
+            normalisedQuotes.put(date, processed);
         }
 
-        Framework.info("Processed " + loadedQuotes.size() + " quotes. Dumping unprocessed quotes.");
+        Framework.info("Normalised " + loadedQuotes.size() + " quotes. Dumping unprocessed quotes.");
         loadedQuotes.clear();
         loadedQuotes = null;
     }

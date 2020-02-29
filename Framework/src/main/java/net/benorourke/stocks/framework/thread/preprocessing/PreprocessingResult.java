@@ -1,6 +1,6 @@
 package net.benorourke.stocks.framework.thread.preprocessing;
 
-import net.benorourke.stocks.framework.preprocess.impl.document.ProcessedCorpus;
+import net.benorourke.stocks.framework.model.data.ProcessedCorpus;
 import net.benorourke.stocks.framework.thread.Result;
 
 public class PreprocessingResult extends Result
