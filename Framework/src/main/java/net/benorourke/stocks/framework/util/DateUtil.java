@@ -6,6 +6,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.concurrent.TimeUnit;
 
 public class DateUtil
 {
@@ -22,19 +23,6 @@ public class DateUtil
     public static String formatDetailed(Date date)
     {
         return DETAILED_UK_DATE_FORMAT.format(date);
-    }
-
-    public static Date parseDetailedUK(String strDate)
-    {
-        try
-        {
-            return DETAILED_UK_DATE_FORMAT.parse(strDate);
-        }
-        catch (ParseException e)
-        {
-            e.printStackTrace();
-            return null;
-        }
     }
 
     public static boolean sameDay(Date a, Date b)
@@ -72,6 +60,14 @@ public class DateUtil
         calendar.set(Calendar.SECOND, 0);
         calendar.set(Calendar.MILLISECOND, 0);
         return calendar.getTime();
+    }
+
+    public static boolean isMidnight(Date date)
+    {
+        Calendar calendar = new GregorianCalendar();
+        calendar.setTime(date);
+        return calendar.get(Calendar.MINUTE) == 0
+                    && calendar.get(Calendar.HOUR_OF_DAY) == 0;
     }
 
 }

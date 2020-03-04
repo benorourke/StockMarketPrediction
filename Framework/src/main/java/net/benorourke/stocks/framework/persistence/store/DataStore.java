@@ -8,6 +8,7 @@ import net.benorourke.stocks.framework.series.TimeSeries;
 import net.benorourke.stocks.framework.series.data.Data;
 import net.benorourke.stocks.framework.series.data.impl.Document;
 import net.benorourke.stocks.framework.series.data.impl.StockQuote;
+import net.benorourke.stocks.framework.util.DateUtil;
 
 import java.io.File;
 import java.lang.reflect.Type;
@@ -93,6 +94,13 @@ public class DataStore
             TypeToken typeToken = new TypeToken<List<Document>>(){};
             Collection<Object> loaded = fileManager.loadJsonList(file, typeToken).get();
             data.addAll(loaded.stream().map(o -> (Document) o).collect(Collectors.toList()));
+        }
+
+        // TODO: Remove
+        Framework.debug("Looping");
+        for ( Document document : data)
+        {
+            Framework.debug("Loaded document on " + DateUtil.formatDetailed(document.getDate()));
         }
 
         return data;

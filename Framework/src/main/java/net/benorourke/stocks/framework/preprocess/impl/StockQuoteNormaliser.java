@@ -4,7 +4,7 @@ import net.benorourke.stocks.framework.Framework;
 import net.benorourke.stocks.framework.preprocess.Preprocess;
 import net.benorourke.stocks.framework.series.data.impl.NormalisedStockQuote;
 import net.benorourke.stocks.framework.series.data.impl.StockQuote;
-import net.benorourke.stocks.framework.series.data.impl.StockQuoteCategory;
+import net.benorourke.stocks.framework.series.data.impl.StockQuoteDataType;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -12,7 +12,7 @@ import java.util.List;
 
 public class StockQuoteNormaliser extends Preprocess<List<StockQuote>, List<NormalisedStockQuote>>
 {
-    private static final int CATEGORIES = StockQuoteCategory.count();
+    private static final int CATEGORIES = StockQuoteDataType.count();
     private static final int PROGRESS_ITERATIONS = 50;
 
     @Override
@@ -60,7 +60,7 @@ public class StockQuoteNormaliser extends Preprocess<List<StockQuote>, List<Norm
                 normalised[i] = (unnormalisedValue - minimums[i]) / (maximums[i] - minimums[i]);
             }
 
-            res.add(new NormalisedStockQuote(quote.getDate(), normalised));
+            res.add(new NormalisedStockQuote(quote.getDate(), quote.getData(), normalised));
 
             Framework.debug(Arrays.toString(quote.getData()) + " -> " + Arrays.toString(normalised));
 

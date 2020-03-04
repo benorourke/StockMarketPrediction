@@ -8,6 +8,10 @@ import net.benorourke.stocks.framework.series.data.impl.CleanedDocument;
 import net.benorourke.stocks.framework.series.data.impl.NormalisedStockQuote;
 import net.benorourke.stocks.framework.series.data.impl.StockQuote;
 
+/**
+ * Interface rather than enum so custom DataTypes can be injected by future users.
+ * @param <T>
+ */
 public interface DataType<T extends Data>
 {
     DataType<StockQuote> STOCK_QUOTE = new DataType<StockQuote>()

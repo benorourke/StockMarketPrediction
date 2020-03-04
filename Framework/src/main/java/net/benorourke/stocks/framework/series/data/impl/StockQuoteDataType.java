@@ -1,6 +1,6 @@
 package net.benorourke.stocks.framework.series.data.impl;
 
-public enum StockQuoteCategory
+public enum StockQuoteDataType
 {
     OPEN(0),
     CLOSE(1),
@@ -10,7 +10,7 @@ public enum StockQuoteCategory
 
     private final int index;
 
-    StockQuoteCategory(int index)
+    StockQuoteDataType(int index)
     {
         this.index = index;
     }

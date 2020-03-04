@@ -9,6 +9,7 @@ import net.benorourke.stocks.framework.Framework;
 import net.benorourke.stocks.framework.preprocess.Preprocess;
 import net.benorourke.stocks.framework.series.data.impl.Document;
 import net.benorourke.stocks.framework.series.data.impl.CleanedDocument;
+import net.benorourke.stocks.framework.util.DateUtil;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -42,8 +43,12 @@ public class DocumentCleaner extends Preprocess<List<Document>, List<CleanedDocu
         int total = data.size(), count = 0;
         for (Document document : data)
         {
-            String cleaned = clean(document.getContent());
-            res.add(new CleanedDocument(document.getDate(), document.getContent(), cleaned, document.getDocumentType()));
+            Framework.debug("Cleaning document on " + DateUtil.formatDetailed(document.getDate()));
+
+            String contentCleaned = clean(document.getContent());
+            CleanedDocument cleaned = new CleanedDocument(document.getDate(), document.getContent(),
+                                                          contentCleaned, document.getDocumentType());
+            res.add(cleaned);
 
             count ++;
             if(count % PROGRESS_ITERATIONS == 0)

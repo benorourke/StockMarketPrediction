@@ -6,12 +6,14 @@ import edu.stanford.nlp.pipeline.StanfordCoreNLP;
 import edu.stanford.nlp.sentiment.SentimentCoreAnnotations;
 import edu.stanford.nlp.util.CoreMap;
 import net.benorourke.stocks.framework.Framework;
+import net.benorourke.stocks.framework.model.data.ModelData;
 import net.benorourke.stocks.framework.model.data.ProcessedCorpus;
 import net.benorourke.stocks.framework.preprocess.Preprocess;
 import net.benorourke.stocks.framework.series.data.DatasetHelper;
 import net.benorourke.stocks.framework.series.data.impl.CleanedDocument;
 import net.benorourke.stocks.framework.series.data.impl.ProcessedDocument;
 import net.benorourke.stocks.framework.series.data.impl.NormalisedStockQuote;
+import net.benorourke.stocks.framework.util.DateUtil;
 
 import java.util.*;
 
@@ -67,8 +69,22 @@ public class CorpusProcessor extends Preprocess<Map<Date, List<CleanedDocument>>
         Framework.info("Processed individual documents");
 
         onProgressChanged(100.0D);
-//        return new ProcessedCorpus(docs);
-        return new ProcessedCorpus(new ArrayList<>());
+//        return new ProcessedCorpus(docs); //TODO
+
+        // TODO: Delete from here down and replace with working
+        Framework.debug("Creating fake corpus");
+        ProcessedCorpus corpus = new ProcessedCorpus();
+        int idx = 1;
+        for (Map.Entry<Date, NormalisedStockQuote> entry : labels.entrySet())
+        {
+            Framework.debug("Added " + (idx ++) + entry.getKey().toString());
+            corpus.getData().add(new ModelData(DateUtil.getDayStart(entry.getKey()),
+                                               entry.getValue().getNormalisedData(),
+                                               entry.getValue().getUnnormalisedData()));
+        }
+
+        Framework.debug("Created fake corpus");
+        return corpus;
     }
 
     public ProcessedDocument process(CleanedDocument document)
@@ -100,7 +116,7 @@ public class CorpusProcessor extends Preprocess<Map<Date, List<CleanedDocument>>
                 cardinality = entry.getValue();
             }
         }
-        Framework.info("Mode sentiment for '" + document.getOriginalContent() + "': " + mode);
+//        Framework.info("Mode sentiment for '" + document.getOriginalContent() + "': " + mode);
         return new ProcessedDocument(document.getDate(), document.getCleanedContent(), mode);
     }
 

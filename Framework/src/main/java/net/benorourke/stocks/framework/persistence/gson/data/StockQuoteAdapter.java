@@ -16,7 +16,7 @@ public class StockQuoteAdapter implements JsonAdapter<StockQuote>
     public JsonElement serialize(StockQuote quote, Type typeOfSrc, JsonSerializationContext context)
     {
         JsonObject result = new JsonObject();
-        result.add("date", new JsonPrimitive(DateUtil.formatDetailed(quote.getDate())));
+        result.add("date", new JsonPrimitive(quote.getDate().getTime()));
         result.add("open", new JsonPrimitive(quote.getOpen()));
         result.add("close", new JsonPrimitive(quote.getClose()));
         result.add("high", new JsonPrimitive(quote.getHigh()));
@@ -30,7 +30,7 @@ public class StockQuoteAdapter implements JsonAdapter<StockQuote>
             throws JsonParseException
     {
         JsonObject object = json.getAsJsonObject();
-        Date date = DateUtil.parseDetailedUK(object.getAsJsonPrimitive("date").getAsString());
+        Date date = new Date(object.getAsJsonPrimitive("date").getAsLong());
         double open = object.getAsJsonPrimitive("open").getAsDouble();
         double close = object.getAsJsonPrimitive("close").getAsDouble();
         double high = object.getAsJsonPrimitive("high").getAsDouble();

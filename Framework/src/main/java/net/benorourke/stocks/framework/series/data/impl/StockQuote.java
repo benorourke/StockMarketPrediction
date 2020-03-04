@@ -13,18 +13,18 @@ public class StockQuote extends Data
     {
         super(DataType.STOCK_QUOTE, date);
 
-        data = new double[StockQuoteCategory.count()];
+        data = new double[StockQuoteDataType.count()];
 
-        data[StockQuoteCategory.OPEN.index()] = open;
-        data[StockQuoteCategory.CLOSE.index()] = close;
-        data[StockQuoteCategory.HIGH.index()] = high;
-        data[StockQuoteCategory.LOW.index()] = low;
-        data[StockQuoteCategory.VOLUME.index()] = (double) volume;
+        data[StockQuoteDataType.OPEN.index()] = open;
+        data[StockQuoteDataType.CLOSE.index()] = close;
+        data[StockQuoteDataType.HIGH.index()] = high;
+        data[StockQuoteDataType.LOW.index()] = low;
+        data[StockQuoteDataType.VOLUME.index()] = (double) volume;
     }
 
     public double getOpen()
     {
-        return data[StockQuoteCategory.OPEN.index()];
+        return data[StockQuoteDataType.OPEN.index()];
     }
 
     public double[] getData()
@@ -34,22 +34,22 @@ public class StockQuote extends Data
 
     public double getClose()
     {
-        return data[StockQuoteCategory.CLOSE.index()];
+        return data[StockQuoteDataType.CLOSE.index()];
     }
 
     public double getHigh()
     {
-        return data[StockQuoteCategory.HIGH.index()];
+        return data[StockQuoteDataType.HIGH.index()];
     }
 
     public double getLow()
     {
-        return data[StockQuoteCategory.LOW.index()];
+        return data[StockQuoteDataType.LOW.index()];
     }
 
     public double getVolume()
     {
-        return data[StockQuoteCategory.VOLUME.index()];
+        return data[StockQuoteDataType.VOLUME.index()];
     }
 
 }

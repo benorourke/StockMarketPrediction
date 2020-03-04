@@ -15,6 +15,7 @@ import net.benorourke.stocks.framework.series.data.impl.*;
 import net.benorourke.stocks.framework.thread.Task;
 import net.benorourke.stocks.framework.thread.TaskDescription;
 import net.benorourke.stocks.framework.thread.TaskType;
+import net.benorourke.stocks.framework.util.DateUtil;
 import net.benorourke.stocks.framework.util.Nullable;
 
 import static net.benorourke.stocks.framework.util.DateUtil.getDayStart;
@@ -58,6 +59,9 @@ public class PreprocessingTask implements Task<TaskDescription, PreprocessingRes
         this.store = store;
         this.collectedDataCounts = collectedDataCounts;
 
+        normalisedQuotes = new HashMap<>();
+        cleanDocuments = new HashMap<>();
+
         // Processes
         stockQuoteProcessor = new StockQuoteNormaliser();
         corpusCleaner = new DocumentCleaner();
@@ -74,9 +78,6 @@ public class PreprocessingTask implements Task<TaskDescription, PreprocessingRes
         documentSources = new ArrayList<>();
         for (DataSource source : grouped.get(DataType.DOCUMENT))
             documentSources.add( (DataSource<Document>) source);
-
-        normalisedQuotes = new HashMap<>();
-        cleanDocuments = new HashMap<>();
     }
 
     private void checkSufficiency(Map<DataType, List<DataSource>> grouped)
@@ -246,8 +247,14 @@ public class PreprocessingTask implements Task<TaskDescription, PreprocessingRes
         {
             Date date = getDayStart(processed.getDate());
 
+//            Framework.debug("Received processed document on " + DateUtil.formatDetailed(date));
+
             if (!cleanDocuments.containsKey(date))
+            {
+                Framework.debug("[Clean] Date added: " + DateUtil.formatDetailed(date)
+                                    + " (" + DateUtil.formatDetailed(processed.getDate()) + ")");
                 cleanDocuments.put(date, new ArrayList<>());
+            }
 
             cleanDocuments.get(date).add(processed);
         }

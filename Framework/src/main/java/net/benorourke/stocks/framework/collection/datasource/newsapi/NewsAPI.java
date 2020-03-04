@@ -18,11 +18,13 @@ import net.benorourke.stocks.framework.series.data.DocumentType;
 import net.benorourke.stocks.framework.collection.ConnectionResponse;
 import net.benorourke.stocks.framework.collection.Query;
 import net.benorourke.stocks.framework.collection.URLConnector;
+import net.benorourke.stocks.framework.util.DateUtil;
 
 import java.io.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 public class NewsAPI extends DataSource<Document>
 {
@@ -121,14 +123,15 @@ public class NewsAPI extends DataSource<Document>
 
     /**
      * Example: "publishedAt": "2020-02-04T18:45:00Z"
-     * @param date
+     * @param strDate
      * @return
      */
-    private Date parseDate(String date)
+    private Date parseDate(String strDate)
     {
         try
         {
-            return DATE_FORMAT.parse(date);
+            Date date = DATE_FORMAT.parse(strDate);
+            return date;
         }
         catch (ParseException e)
         {

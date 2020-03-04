@@ -1,22 +1,25 @@
 package net.benorourke.stocks.framework.persistence;
 
-import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import net.benorourke.stocks.framework.Configuration;
 import net.benorourke.stocks.framework.Framework;
 import net.benorourke.stocks.framework.collection.datasource.DataSource;
+import net.benorourke.stocks.framework.model.data.ModelData;
+import net.benorourke.stocks.framework.model.data.ProcessedCorpus;
 import net.benorourke.stocks.framework.series.TimeSeries;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVPrinter;
 
 import java.io.*;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.Optional;
 
 public class FileManager
 {
+    private static final char CSV_SEPARATOR = ',';
+
     private final Framework framework;
     private final File workingDirectory;
 
@@ -31,25 +34,32 @@ public class FileManager
         return workingDirectory;
     }
 
+    private void createFile(File file, boolean deleteIfExists) throws IOException
+    {
+        if(!file.getParentFile().exists())
+            file.getParentFile().mkdirs();
+
+
+        if(deleteIfExists && file.exists())
+            file.delete();
+
+        if(!file.exists())
+        {
+            file.createNewFile();
+        }
+    }
+
     //////////////////////////////////////////////////////////////////
     //      GSON
     //////////////////////////////////////////////////////////////////
 
     public boolean writeJson(File file, Object object)
     {
-        if(!file.getParentFile().exists())
-            file.getParentFile().mkdirs();
-        if(!file.exists())
+        try
         {
-            try
-            {
-                file.createNewFile();
-            }
-            catch (IOException exception)
-            {
-                return false;
-            }
+            createFile(file, true);
         }
+        catch (IOException e) { return false; }
 
         try (Writer writer = new FileWriter(file))
         {
@@ -165,6 +175,58 @@ public class FileManager
     {
         return new File(getRawDataStoreDirectory(timeSeries)
                             + File.separator + clazz.getSimpleName().toLowerCase() + ".json");
+    }
+
+    public File getProcessedDataStoreDirectory(TimeSeries timeSeries)
+    {
+        return new File(getTimeSeriesDirectory(timeSeries), "processed");
+    }
+
+    public File getProcessedCorpusFile(TimeSeries timeSeries)
+    {
+        return new File(getProcessedDataStoreDirectory(timeSeries) + File.separator + "processed.csv");
+    }
+
+    public boolean writeProcessedCorpus(TimeSeries timeSeries, ProcessedCorpus corpus)
+    {
+        File file = getProcessedCorpusFile(timeSeries);
+
+        try
+        {
+            createFile(file, true);
+        }
+        catch (IOException e) { return false; }
+
+        final String[] HEADERS = new String[] {"inOPEN", "inCLOSE", "inHIGH", "inLOW", "inVOLUME",
+                                               "outOPEN", "outCLOSE", "outHIGH", "outLOW", "outVOLUME"}; // TODO make static when done
+        try
+        {
+            FileWriter out = new FileWriter(file);
+            try (CSVPrinter printer = new CSVPrinter(out, CSVFormat.DEFAULT.withHeader(HEADERS)))
+            {
+                corpus.getData().forEach(data ->
+                {
+                    try
+                    {
+                        double[] features = data.getFeatures(); // TODO
+                        double[] labels = data.getLabels(); // TODO
+                        printer.printRecord(features[0],features[1],features[2],features[3],features[4],
+                                            labels[0],labels[1],labels[2],labels[3],labels[4]);
+                    }
+                    catch (IOException e)
+                    {
+                        e.printStackTrace();
+                    }
+                });
+            }
+        }
+        catch (Exception e)
+        {
+            Framework.error("Unable to write process corpus to " + file.toString(), e);
+            return false;
+        }
+
+        return true;
     }
 
 }
