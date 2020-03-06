@@ -1,5 +1,7 @@
 package net.benorourke.stocks.framework.model.feedforward;
 
+import net.benorourke.stocks.framework.Framework;
+import net.benorourke.stocks.framework.model.ModelData;
 import net.benorourke.stocks.framework.model.ModelHandler;
 import net.benorourke.stocks.framework.model.ProcessedCorpus;
 import org.deeplearning4j.datasets.iterator.ExistingDataSetIterator;
@@ -10,8 +12,12 @@ import org.deeplearning4j.nn.conf.layers.DenseLayer;
 import org.deeplearning4j.nn.conf.layers.OutputLayer;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
+import org.nd4j.evaluation.classification.Evaluation;
 import org.nd4j.linalg.activations.Activation;
+import org.nd4j.linalg.api.ndarray.INDArray;
+import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
+import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.learning.config.Adam;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 
@@ -47,7 +53,6 @@ public class FeedForwardModelHandler extends ModelHandler<FeedForwardModel>
                 .layer(1, new OutputLayer.Builder(LossFunctions.LossFunction.MSE)
                         .activation(Activation.IDENTITY)
                         .nIn(nHidden).nOut(nOutput).build())
-                .pretrain(false).backprop(true)
                 .build();
 
         MultiLayerNetwork net = new MultiLayerNetwork(conf);
@@ -76,9 +81,30 @@ public class FeedForwardModelHandler extends ModelHandler<FeedForwardModel>
     }
 
     @Override
-    public void evaluate(FeedForwardModel trainedModel)
+    public void evaluate(FeedForwardModel trainedModel, DataSet dataSet)
     {
+        // TODO
+        Evaluation evaluation = new Evaluation(nOutput);
 
+        INDArray labels = dataSet.getLabels();
+        INDArray features = dataSet.getFeatures();
+        INDArray predicted = predict(trainedModel, features);
+        evaluation.eval(labels, predicted);
+        Framework.debug(evaluation.stats());
+    }
+
+    @Override
+    public double[] predictOne(FeedForwardModel trainedModel, double[] features)
+    {
+        // TODO - Test
+        double[][] inputMatrix = new double[][]{ features };
+        return trainedModel.predict(Nd4j.create(inputMatrix)).getRow(0).toDoubleVector();
+    }
+
+    @Override
+    public INDArray predict(FeedForwardModel trainedModel, INDArray features)
+    {
+        return trainedModel.predict(features);
     }
 
 }

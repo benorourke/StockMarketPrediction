@@ -5,9 +5,10 @@ import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.factory.Nd4j;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
-public class ProcessedCorpus
+public class ProcessedCorpus implements Iterable<ModelData>
 {
     private static final int COUNT_FEATURES = 5;
     private static final int COUNT_LABELS = 5;
@@ -32,6 +33,12 @@ public class ProcessedCorpus
     public int size()
     {
         return data.size();
+    }
+
+    @Override
+    public Iterator<ModelData> iterator()
+    {
+        return data.iterator();
     }
 
     public DataSet toDataSet(long seed)

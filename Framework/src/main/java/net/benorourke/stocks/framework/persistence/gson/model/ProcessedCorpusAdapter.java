@@ -25,7 +25,7 @@ public class ProcessedCorpusAdapter implements JsonAdapter<ProcessedCorpus>
             throws JsonParseException
     {
         JsonObject object = json.getAsJsonObject();
-        List<ModelData> data = context.deserialize(object.getAsJsonObject("data"),
+        List<ModelData> data = context.deserialize(object.getAsJsonArray("data"),
                                                    new TypeToken<List<ModelData>>(){}.getType());
         return new ProcessedCorpus(data);
     }

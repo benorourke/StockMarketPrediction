@@ -128,8 +128,6 @@ public class PreprocessingTask implements Task<TaskDescription, PreprocessingRes
             progress.onStageCompleted(stage);
             stage = stage.next();
         }
-
-        Framework.info("Next stage: " + stage.toString());
     }
 
     /**

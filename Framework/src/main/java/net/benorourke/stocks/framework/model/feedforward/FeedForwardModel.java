@@ -3,6 +3,7 @@ package net.benorourke.stocks.framework.model.feedforward;
 import net.benorourke.stocks.framework.Framework;
 import net.benorourke.stocks.framework.model.PredictionModel;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
+import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
 
 public class FeedForwardModel extends PredictionModel
@@ -18,7 +19,12 @@ public class FeedForwardModel extends PredictionModel
     {
         Framework.debug("DataSet null: " + (set == null));
         Framework.debug("Network null: " + (network == null));
-        network.fit();
+        network.fit(set);
+    }
+
+    public INDArray predict(INDArray input)
+    {
+        return network.output(input);
     }
 
 }
