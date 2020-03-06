@@ -1,4 +1,4 @@
-package net.benorourke.stocks.framework.model.data;
+package net.benorourke.stocks.framework.model;
 
 import java.util.Date;
 
@@ -15,8 +15,8 @@ public class ModelData
      * TODO
      */
     private final Date date;
-    private final double[] features;   // normalised data
-    private final double[] labels; // unnormalised data
+    private final double[] features;   // normalised feedforward
+    private final double[] labels; // unnormalised feedforward
 
     public ModelData(Date date, double[] features, double[] labels)
     {

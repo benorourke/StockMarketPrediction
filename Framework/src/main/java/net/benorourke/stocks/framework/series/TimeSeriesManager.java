@@ -137,12 +137,12 @@ public class TimeSeriesManager implements Initialisable
     {
         if (getDataStore(series).writeRawData(dataSourceClass, data))
         {
-            // Save the TimeSeries with the updated data counts
+            // Save the TimeSeries with the updated feedforward counts
             series.getRawDataCounts().put(dataSourceClass, data.size());
             save(series);
 
-            Framework.info("Wrote raw data to TimeSeries " + series.toString());
-            Framework.debug("Raw data counts:");
+            Framework.info("Wrote raw feedforward to TimeSeries " + series.toString());
+            Framework.debug("Raw feedforward counts:");
             for (Map.Entry<Class<? extends DataSource>, Integer> rawDataCount : series.getRawDataCounts().entrySet())
             {
                 Framework.debug(rawDataCount.getKey().getName() + ": " + rawDataCount.getValue());
@@ -150,7 +150,7 @@ public class TimeSeriesManager implements Initialisable
         }
         else
         {
-            Framework.error("Unable to write raw data to TimeSeries " + series.toString());
+            Framework.error("Unable to write raw feedforward to TimeSeries " + series.toString());
         }
     }
 

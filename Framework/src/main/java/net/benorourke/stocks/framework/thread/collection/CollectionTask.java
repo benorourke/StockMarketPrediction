@@ -56,7 +56,7 @@ public class CollectionTask<T extends Data> implements Task<CollectionDescriptio
         {
             ConnectionResponse<T> response = dataSource.retrieve(next);
             result.getData().addAll(response.getData());
-            Framework.info("Collected " + response.getData().size() + " data for " + next.toString());
+            Framework.info("Collected " + response.getData().size() + " feedforward for " + next.toString());
         }
         catch (ConstraintException e)
         {

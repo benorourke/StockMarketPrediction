@@ -21,10 +21,10 @@ public class StockQuoteNormaliser extends Preprocess<List<StockQuote>, List<Norm
     @Override
     public List<NormalisedStockQuote> preprocess(List<StockQuote> data)
     {
-        // size * 2 because we crawl through data twice
+        // size * 2 because we crawl through feedforward twice
         int total = data.size() * 2, count = 0;
 
-        Framework.debug("Finding min/max for StockQuote data");
+        Framework.debug("Finding min/max for StockQuote feedforward");
         double[] minimums = new double[CATEGORIES];
         Arrays.fill(minimums, Double.MAX_VALUE);
         double[] maximums = new double[CATEGORIES];
@@ -44,7 +44,7 @@ public class StockQuoteNormaliser extends Preprocess<List<StockQuote>, List<Norm
             if(count % PROGRESS_ITERATIONS == 0)
                 onProgressChanged(( (double) count / (double) total) * 100 );
         }
-        Framework.debug("Found min/max for StockQuote data");
+        Framework.debug("Found min/max for StockQuote feedforward");
 
         Framework.debug("Min: " + Arrays.toString(minimums));
         Framework.debug("Max: " + Arrays.toString(maximums));

@@ -29,7 +29,7 @@ import java.util.concurrent.TimeUnit;
 public class NewsAPI extends DataSource<Document>
 {
     private static final String BASE_URL = "https://newsapi.org/";
-    private static final int MAX_PAGE_SIZE = 20; // TODO - Make this larger when the document raw data dumps are split
+    private static final int MAX_PAGE_SIZE = 20; // TODO - Make this larger when the document raw feedforward dumps are split
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
 
     private final String apiKey;

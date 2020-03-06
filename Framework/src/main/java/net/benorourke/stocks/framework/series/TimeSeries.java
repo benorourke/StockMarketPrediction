@@ -11,7 +11,7 @@ public class TimeSeries
     private String name;
     private Stock stock;
     /**
-     * Stores the number of raw data for DataSources that have been collected.
+     * Stores the number of raw feedforward for DataSources that have been collected.
      */
     private Map<Class<? extends DataSource>, Integer> rawDataCounts;
 

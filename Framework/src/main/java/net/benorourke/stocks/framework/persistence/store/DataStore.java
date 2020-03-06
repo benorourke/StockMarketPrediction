@@ -57,12 +57,12 @@ public class DataStore
 
         if(fileManager.writeJson(file, data))
         {
-            Framework.debug("Wrote " + data.size() + ": raw data to " + file.toString());
+            Framework.debug("Wrote " + data.size() + ": raw feedforward to " + file.toString());
             return true;
         }
         else
         {
-            Framework.error("Unable to write raw data to " + file.toString());
+            Framework.error("Unable to write raw feedforward to " + file.toString());
             return false;
         }
     }

@@ -21,7 +21,7 @@ public class TimeSeriesAdapter implements JsonAdapter<TimeSeries>
         result.add("name", context.serialize(series.getName()));
         result.add("stock", context.serialize(series.getStock()));
 
-        // Serialize the data count map
+        // Serialize the feedforward count map
         JsonObject rawDataCounts = new JsonObject();
         for (Map.Entry<Class<? extends DataSource>, Integer> entry : series.getRawDataCounts().entrySet())
         {
@@ -40,7 +40,7 @@ public class TimeSeriesAdapter implements JsonAdapter<TimeSeries>
         String name = object.getAsJsonPrimitive("name").getAsString();
         Stock stock = context.deserialize(object.getAsJsonObject("stock"), Stock.class);
 
-        // Deserialize the data count map
+        // Deserialize the feedforward count map
         Map<Class<? extends DataSource>, Integer> typedMap = new HashMap<>();
         JsonObject rawDataCounts = object.getAsJsonObject("rawDataCounts");
         for (String key : rawDataCounts.keySet())

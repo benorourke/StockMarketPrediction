@@ -7,7 +7,7 @@ import net.benorourke.stocks.framework.exception.FailedCollectionException;
 import net.benorourke.stocks.framework.series.data.impl.StockQuote;
 
 /**
- * Session only runs once since AlphaVantage returns enough data in one API call.
+ * Session only runs once since AlphaVantage returns enough feedforward in one API call.
  *
  * TODO - API key cycling
  */

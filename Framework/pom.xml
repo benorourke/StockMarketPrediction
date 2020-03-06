@@ -85,13 +85,6 @@
             <artifactId>nd4j-native</artifactId>
             <version>${deeplearning4j.version}</version>
         </dependency>
-
-        <!-- https://mvnrepository.com/artifact/org.apache.commons/commons-csv -->
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-csv</artifactId>
-            <version>1.8</version>
-        </dependency>
     </dependencies>
 
     <build>

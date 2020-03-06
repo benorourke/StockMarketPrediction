@@ -9,7 +9,7 @@ import net.benorourke.stocks.framework.preprocess.ProgressCallback;
 import net.benorourke.stocks.framework.preprocess.impl.StockQuoteNormaliser;
 import net.benorourke.stocks.framework.preprocess.impl.document.DocumentCleaner;
 import net.benorourke.stocks.framework.preprocess.impl.document.CorpusProcessor;
-import net.benorourke.stocks.framework.model.data.ProcessedCorpus;
+import net.benorourke.stocks.framework.model.ProcessedCorpus;
 import net.benorourke.stocks.framework.series.data.DataType;
 import net.benorourke.stocks.framework.series.data.impl.*;
 import net.benorourke.stocks.framework.thread.Task;
@@ -71,7 +71,7 @@ public class PreprocessingTask implements Task<TaskDescription, PreprocessingRes
         stage = PreprocessingStage.first();
 
         Map<DataType, List<DataSource>> grouped = group(collectedDataCounts.keySet());
-        // Check there is sufficient data:
+        // Check there is sufficient feedforward:
         checkSufficiency(grouped);
 
         stockQuoteSource = (DataSource<StockQuote>) grouped.get(DataType.STOCK_QUOTE).get(0);

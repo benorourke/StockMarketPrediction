@@ -12,7 +12,7 @@ import java.util.concurrent.*;
 /**
  * Do not call any of these functions from within a Task.
  *
- * Update the Progress/Result objects within Tasks to pass data to the main thread.
+ * Update the Progress/Result objects within Tasks to pass feedforward to the main thread.
  */
 public class TaskManager
 {
