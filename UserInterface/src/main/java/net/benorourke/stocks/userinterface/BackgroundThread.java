@@ -3,19 +3,58 @@ package net.benorourke.stocks.userinterface;
 import net.benorourke.stocks.framework.Configuration;
 import net.benorourke.stocks.framework.Framework;
 
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+
 public class BackgroundThread extends Thread
 {
     private final Framework framework;
+    private final BlockingQueue<BackgroundRunnable> runnables;
+    private final long sleepDelay;
 
-    public BackgroundThread(Configuration configuration)
+    public BackgroundThread(Configuration configuration, long sleepDelay)
     {
         this.framework = new Framework(configuration);
+        this.runnables = new LinkedBlockingQueue<>();
+        this.sleepDelay = sleepDelay;
     }
 
     @Override
     public void run()
     {
+        while (true)
+        {
+            StockApplication.debug("Looping BackgroundThread (size=" + runnables.size() + ")");
 
+            // Loop through all enqueued BackgroundRunnables to be executed on the Framework
+            while (!runnables.isEmpty())
+            {
+                try
+                {
+                    BackgroundRunnable next = runnables.take();
+                    next.run(framework);
+                }
+                catch (InterruptedException e)
+                {
+                    e.printStackTrace();
+                }
+            }
+
+            // Sleep before next thread iteration
+            try
+            {
+                Thread.sleep(sleepDelay);
+            }
+            catch (InterruptedException exception)
+            {
+                exception.printStackTrace();
+            }
+        }
+    }
+
+    public void queueRunnable(BackgroundRunnable runnable)
+    {
+        runnables.add(runnable);
     }
 
 }
