@@ -9,7 +9,8 @@ import net.benorourke.stocks.framework.collection.datasource.DataSource;
 import net.benorourke.stocks.framework.collection.constraint.Constraint;
 import net.benorourke.stocks.framework.collection.constraint.MaximumAgeConstraint;
 import net.benorourke.stocks.framework.collection.constraint.OrderingConstraint;
-import net.benorourke.stocks.framework.collection.session.CollectionSession;
+import net.benorourke.stocks.framework.collection.session.APICollectionSession;
+import net.benorourke.stocks.framework.collection.session.filter.CollectionFilter;
 import net.benorourke.stocks.framework.exception.ConstraintException;
 import net.benorourke.stocks.framework.series.data.DataType;
 import net.benorourke.stocks.framework.series.data.impl.Document;
@@ -18,13 +19,11 @@ import net.benorourke.stocks.framework.series.data.DocumentType;
 import net.benorourke.stocks.framework.collection.ConnectionResponse;
 import net.benorourke.stocks.framework.collection.Query;
 import net.benorourke.stocks.framework.collection.URLConnector;
-import net.benorourke.stocks.framework.util.DateUtil;
 
 import java.io.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 
 public class NewsAPI extends DataSource<Document>
 {
@@ -62,9 +61,9 @@ public class NewsAPI extends DataSource<Document>
     }
 
     @Override
-    public CollectionSession newSession(Query completeQuery)
+    public APICollectionSession<Document> newSession(Query completeQuery, CollectionFilter<Document> collectionFilter)
     {
-        return new NewsAPICollectionSession(completeQuery);
+        return new NewsAPICollectionSession(completeQuery, collectionFilter);
     }
 
     @Override

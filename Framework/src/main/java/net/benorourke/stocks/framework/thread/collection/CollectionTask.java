@@ -15,7 +15,7 @@ import net.benorourke.stocks.framework.thread.TaskType;
 public class CollectionTask<T extends Data> implements Task<CollectionDescription, CollectionResult<T>>
 {
     private final DataSource<T> dataSource;
-    private final APICollectionSession session;
+    private final APICollectionSession<T> session;
     /**
      * Elements are appended to the list as collected
      */
@@ -23,7 +23,7 @@ public class CollectionTask<T extends Data> implements Task<CollectionDescriptio
 
     private Progress progress;
 
-    public CollectionTask(DataSource<T> dataSource, APICollectionSession session)
+    public CollectionTask(DataSource<T> dataSource, APICollectionSession<T> session)
     {
         this.dataSource = dataSource;
         this.session = session;

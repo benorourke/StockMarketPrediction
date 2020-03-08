@@ -5,7 +5,8 @@ import com.google.gson.JsonObject;
 import net.benorourke.stocks.framework.Framework;
 import net.benorourke.stocks.framework.collection.ConnectionResponse;
 import net.benorourke.stocks.framework.collection.URLConnector;
-import net.benorourke.stocks.framework.collection.session.CollectionSession;
+import net.benorourke.stocks.framework.collection.session.APICollectionSession;
+import net.benorourke.stocks.framework.collection.session.filter.CollectionFilter;
 import net.benorourke.stocks.framework.collection.constraint.Constraint;
 import net.benorourke.stocks.framework.collection.datasource.DataSource;
 import net.benorourke.stocks.framework.collection.Query;
@@ -57,9 +58,9 @@ public class AlphaVantage extends DataSource<StockQuote>
     }
 
     @Override
-    public CollectionSession newSession(Query completeQuery)
+    public APICollectionSession<StockQuote> newSession(Query completeQuery, CollectionFilter<StockQuote> collectionFilter)
     {
-        return null;
+        return new AlphaVantageCollectionSession(completeQuery, collectionFilter);
     }
 
     @Override

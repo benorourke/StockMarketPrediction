@@ -2,19 +2,22 @@ package net.benorourke.stocks.framework.collection.datasource.newsapi;
 
 import net.benorourke.stocks.framework.collection.Query;
 import net.benorourke.stocks.framework.collection.session.APICollectionSession;
+import net.benorourke.stocks.framework.collection.session.filter.CollectionFilter;
 import net.benorourke.stocks.framework.collection.session.DailyCollectionSession;
 import net.benorourke.stocks.framework.exception.ConstraintException;
 import net.benorourke.stocks.framework.exception.FailedCollectionException;
 import net.benorourke.stocks.framework.series.data.impl.Document;
 
-public class NewsAPICollectionSession implements APICollectionSession<Document>
+public class NewsAPICollectionSession extends APICollectionSession<Document>
 {
     // Wrap the object here
     private DailyCollectionSession<Document> dailySession;
 
-    public NewsAPICollectionSession(Query completeQuery)
+    public NewsAPICollectionSession(Query completeQuery, CollectionFilter<Document> collectionFilter)
     {
-        dailySession = new DailyCollectionSession<>(completeQuery);
+        super(collectionFilter);
+
+        dailySession = new DailyCollectionSession<>(completeQuery, collectionFilter);
     }
 
     @Override

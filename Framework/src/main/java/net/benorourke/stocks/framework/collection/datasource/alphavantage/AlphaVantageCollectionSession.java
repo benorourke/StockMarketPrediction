@@ -2,6 +2,7 @@ package net.benorourke.stocks.framework.collection.datasource.alphavantage;
 
 import net.benorourke.stocks.framework.collection.Query;
 import net.benorourke.stocks.framework.collection.session.APICollectionSession;
+import net.benorourke.stocks.framework.collection.session.filter.CollectionFilter;
 import net.benorourke.stocks.framework.exception.ConstraintException;
 import net.benorourke.stocks.framework.exception.FailedCollectionException;
 import net.benorourke.stocks.framework.series.data.impl.StockQuote;
@@ -11,13 +12,15 @@ import net.benorourke.stocks.framework.series.data.impl.StockQuote;
  *
  * TODO - API key cycling
  */
-public class AlphaVantageCollectionSession implements APICollectionSession<StockQuote>
+public class AlphaVantageCollectionSession extends APICollectionSession<StockQuote>
 {
     private final Query completeQuery;
     private boolean done;
 
-    public AlphaVantageCollectionSession(Query completeQuery)
+    protected AlphaVantageCollectionSession(Query completeQuery, CollectionFilter<StockQuote> collectionFilter)
     {
+        super(collectionFilter);
+
         this.completeQuery = completeQuery;
         done = false;
     }
