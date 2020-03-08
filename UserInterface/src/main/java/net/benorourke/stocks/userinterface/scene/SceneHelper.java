@@ -19,7 +19,7 @@ public class SceneHelper
 		stage.setWidth(width);
 		stage.setHeight(height);
 		stage.setMinWidth(minWidth);
-		stage.setMinHeight(minWidth);
+		stage.setMinHeight(minHeight);
 		stage.setResizable(resizable);
 		if (exitOnClose)
 			stage.setOnCloseRequest(e ->

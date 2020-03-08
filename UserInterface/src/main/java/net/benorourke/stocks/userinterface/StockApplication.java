@@ -21,6 +21,7 @@ public class StockApplication extends Application
 {
     private static final long BACKGROUND_SLEEP_DELAY = 100;
     private static final Logger LOGGER;
+
     static
     {
         LOGGER = LoggerFactory.getLogger(StockApplication.class);
@@ -33,10 +34,11 @@ public class StockApplication extends Application
     {
         SceneHelper.modifyStage(stage, Constants.APPLICATION_NAME,
                                 Constants.APPLICATION_WIDTH, Constants.APPLICATION_HEIGHT,
-                        true, true,
-                                SceneType.DIRECTORY_SELECTION);
+                                Constants.APPLICATION_WIDTH_MIN, Constants.APPLICATION_HEIGHT_MIN,
+                        true, true, SceneType.DIRECTORY_SELECTION);
 
         backgroundThread = new BackgroundThread(new Configuration(), BACKGROUND_SLEEP_DELAY);
+        backgroundThread.setName("Background Thread");
         backgroundThread.start();
     }
 

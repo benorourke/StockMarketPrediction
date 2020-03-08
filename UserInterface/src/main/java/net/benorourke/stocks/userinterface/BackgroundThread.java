@@ -24,7 +24,7 @@ public class BackgroundThread extends Thread
     {
         while (true)
         {
-            StockApplication.debug("Looping BackgroundThread (size=" + runnables.size() + ")");
+            StockApplication.debug("Test");
 
             // Loop through all enqueued BackgroundRunnables to be executed on the Framework
             while (!runnables.isEmpty())
