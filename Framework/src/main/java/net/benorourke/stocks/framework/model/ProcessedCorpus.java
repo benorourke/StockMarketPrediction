@@ -41,6 +41,22 @@ public class ProcessedCorpus implements Iterable<ModelData>
         return data.iterator();
     }
 
+    /**
+     *
+     * @param splitRatio 0.6 would mean 60% in the first array, 40% in the second
+     * @return
+     */
+    public List<ProcessedCorpus> split(double splitRatio)
+    {
+        int cardinality = size();
+        int index = (int) Math.round(cardinality * splitRatio);
+
+        List<ProcessedCorpus> datasets = new ArrayList<>();
+        datasets.add(new ProcessedCorpus(data.subList(0, index)));
+        datasets.add(new ProcessedCorpus(data.subList(index + 1, cardinality - 1)));
+        return datasets;
+    }
+
     public DataSet toDataSet(long seed)
     {
         int size = size();

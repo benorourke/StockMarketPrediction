@@ -45,9 +45,9 @@ public class DocumentCleaner extends Preprocess<List<Document>, List<CleanedDocu
         {
             Framework.debug("Cleaning document on " + DateUtil.formatDetailed(document.getDate()));
 
-            String contentCleaned = clean(document.getContent());
+            List<String> cleanedTerms = clean(document.getContent());
             CleanedDocument cleaned = new CleanedDocument(document.getDate(), document.getContent(),
-                                                          contentCleaned, document.getDocumentType());
+                                                          cleanedTerms, document.getDocumentType());
             res.add(cleaned);
 
             count ++;
@@ -65,7 +65,7 @@ public class DocumentCleaner extends Preprocess<List<Document>, List<CleanedDocu
      * @param documentText
      * @return
      */
-    public String clean(String documentText)
+    public List<String> clean(String documentText)
     {
         documentText = documentText.replaceAll("[^a-zA-Z ]", "");
 
@@ -82,7 +82,7 @@ public class DocumentCleaner extends Preprocess<List<Document>, List<CleanedDocu
             }
         }
 
-        return reassemble(lemmas);
+        return lemmas;
     }
 
     private boolean isStopword(String word)
@@ -96,11 +96,6 @@ public class DocumentCleaner extends Preprocess<List<Document>, List<CleanedDocu
         String annotators = "tokenize, ssplit, pos, lemma";
         props.put("annotators", annotators);
         return props;
-    }
-
-    private String reassemble(List<String> tokens)
-    {
-        return tokens.stream().collect(Collectors.joining(" "));
     }
 
 }

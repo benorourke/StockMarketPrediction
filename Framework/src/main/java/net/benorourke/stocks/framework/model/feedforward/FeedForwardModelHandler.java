@@ -1,7 +1,6 @@
 package net.benorourke.stocks.framework.model.feedforward;
 
 import net.benorourke.stocks.framework.Framework;
-import net.benorourke.stocks.framework.model.ModelData;
 import net.benorourke.stocks.framework.model.ModelHandler;
 import net.benorourke.stocks.framework.model.ProcessedCorpus;
 import org.deeplearning4j.datasets.iterator.ExistingDataSetIterator;
@@ -21,12 +20,13 @@ import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.learning.config.Adam;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 
+import static net.benorourke.stocks.framework.model.ModelData.*;
+
 import java.util.Arrays;
 
 public class FeedForwardModelHandler extends ModelHandler<FeedForwardModel>
 {
-    private static final int nInput = 5, nHidden = 10, nOutput = 5;
-    private static final int batchSize = 5;
+    private static final int N_HIDDEN = 30;
 
     public FeedForwardModelHandler(long seed)
     {
@@ -47,12 +47,12 @@ public class FeedForwardModelHandler extends ModelHandler<FeedForwardModel>
                 .updater(new Adam())
                 .l2(1e-4)
                 .list()
-                .layer(0, new DenseLayer.Builder().nIn(nInput).nOut(nHidden)
+                .layer(0, new DenseLayer.Builder().nIn(N_FEATURES).nOut(N_HIDDEN)
                         .activation(Activation.TANH)
                         .build())
                 .layer(1, new OutputLayer.Builder(LossFunctions.LossFunction.MSE)
                         .activation(Activation.IDENTITY)
-                        .nIn(nHidden).nOut(nOutput).build())
+                        .nIn(N_HIDDEN).nOut(N_LABELS).build())
                 .build();
 
         MultiLayerNetwork net = new MultiLayerNetwork(conf);
@@ -84,7 +84,7 @@ public class FeedForwardModelHandler extends ModelHandler<FeedForwardModel>
     public void evaluate(FeedForwardModel trainedModel, DataSet dataSet)
     {
         // TODO
-        Evaluation evaluation = new Evaluation(nOutput);
+        Evaluation evaluation = new Evaluation(N_LABELS);
 
         INDArray labels = dataSet.getLabels();
         INDArray features = dataSet.getFeatures();

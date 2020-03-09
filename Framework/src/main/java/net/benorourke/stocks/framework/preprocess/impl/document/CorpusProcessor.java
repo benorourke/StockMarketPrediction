@@ -9,6 +9,7 @@ import net.benorourke.stocks.framework.Framework;
 import net.benorourke.stocks.framework.model.ModelData;
 import net.benorourke.stocks.framework.model.ProcessedCorpus;
 import net.benorourke.stocks.framework.preprocess.Preprocess;
+import net.benorourke.stocks.framework.preprocess.impl.document.relevancy.TF_IDF;
 import net.benorourke.stocks.framework.series.data.DatasetHelper;
 import net.benorourke.stocks.framework.series.data.impl.CleanedDocument;
 import net.benorourke.stocks.framework.series.data.impl.ProcessedDocument;
@@ -17,10 +18,9 @@ import net.benorourke.stocks.framework.util.DateUtil;
 
 import java.util.*;
 
+// TODO - Progress
 public class CorpusProcessor extends Preprocess<Map<Date, List<CleanedDocument>>, ProcessedCorpus>
 {
-    private static final int PROGRESS_ITERATIONS = 50;
-
     private final Map<Date, NormalisedStockQuote> labels;
     private StanfordCoreNLP pipeline;
 
@@ -33,7 +33,12 @@ public class CorpusProcessor extends Preprocess<Map<Date, List<CleanedDocument>>
     public void initialise()
     {
         Framework.info("Creating Pipeline [Processing]");
-        pipeline = new StanfordCoreNLP(createProperties());
+
+        Properties props = new Properties();
+        String annotators = "tokenize, ssplit, pos, lemma, parse, sentiment";
+        props.put("annotators", annotators);
+        pipeline = new StanfordCoreNLP(props);
+
         Framework.info("Created Pipeline [Processing]");
     }
 
@@ -52,7 +57,7 @@ public class CorpusProcessor extends Preprocess<Map<Date, List<CleanedDocument>>
                             + (dataSizePreCombination - data.size()) + " weekend days removed)");
 
         Framework.info("TODO: Generating TF_IDF");
-        TF_IDF tf_idf = TF_IDF.generate(data);
+//        TF_IDF tf_idf = TF_IDF.generate(data);
         Framework.info("TODO: Generated TF_IDF");
 
         Framework.debug("ModelData size2: " + data.size());
@@ -68,9 +73,6 @@ public class CorpusProcessor extends Preprocess<Map<Date, List<CleanedDocument>>
         }
         Framework.info("Processed individual documents");
 
-        onProgressChanged(100.0D);
-//        return new ProcessedCorpus(docs); //TODO
-
         // TODO: Delete from here down and replace with working
         Framework.debug("Creating fake corpus");
         ProcessedCorpus corpus = new ProcessedCorpus();
@@ -78,11 +80,16 @@ public class CorpusProcessor extends Preprocess<Map<Date, List<CleanedDocument>>
         for (Map.Entry<Date, NormalisedStockQuote> entry : labels.entrySet())
         {
             Framework.debug("Added " + (idx ++) + entry.getKey().toString());
+
+            double[] features = new double[ModelData.N_FEATURES];
+            double[] labels = new double[ModelData.N_LABELS];
+
             corpus.getData().add(new ModelData(DateUtil.getDayStart(entry.getKey()),
                                                entry.getValue().getNormalisedData(),
                                                entry.getValue().getUnnormalisedData()));
         }
 
+        onProgressChanged(100.0D);
         Framework.debug("Created fake corpus");
         return corpus;
     }
@@ -117,15 +124,7 @@ public class CorpusProcessor extends Preprocess<Map<Date, List<CleanedDocument>>
             }
         }
 //        Framework.info("Mode sentiment for '" + document.getOriginalContent() + "': " + mode);
-        return new ProcessedDocument(document.getDate(), document.getCleanedContent(), mode);
-    }
-
-    private Properties createProperties()
-    {
-        Properties props = new Properties();
-        String annotators = "tokenize, ssplit, pos, lemma, parse, sentiment";
-        props.put("annotators", annotators);
-        return props;
+        return new ProcessedDocument(document.getDate(), mode);
     }
 
 }

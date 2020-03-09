@@ -25,8 +25,6 @@ public class DocumentPreprocessorTest
 
         List<CleanedDocument> res = preprocessor.preprocess(corpus);
         CleanedDocument elem0 = res.get(0);
-
-        Framework.debug("Res: " + elem0.getCleanedContent());
     }
 
 }
