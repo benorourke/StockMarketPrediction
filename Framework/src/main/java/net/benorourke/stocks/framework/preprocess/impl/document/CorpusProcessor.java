@@ -9,6 +9,7 @@ import net.benorourke.stocks.framework.Framework;
 import net.benorourke.stocks.framework.model.ModelData;
 import net.benorourke.stocks.framework.model.ProcessedCorpus;
 import net.benorourke.stocks.framework.preprocess.Preprocess;
+import net.benorourke.stocks.framework.preprocess.impl.document.relevancy.RelevancyMetric;
 import net.benorourke.stocks.framework.preprocess.impl.document.relevancy.TF_IDF;
 import net.benorourke.stocks.framework.series.data.DatasetHelper;
 import net.benorourke.stocks.framework.series.data.impl.CleanedDocument;
@@ -22,11 +23,17 @@ import java.util.*;
 public class CorpusProcessor extends Preprocess<Map<Date, List<CleanedDocument>>, ProcessedCorpus>
 {
     private final Map<Date, NormalisedStockQuote> labels;
+    private final RelevancyMetric relevancyMetric;
+    private final int relevantTermCount;
+
     private StanfordCoreNLP pipeline;
 
-    public CorpusProcessor(Map<Date, NormalisedStockQuote> labels)
+    public CorpusProcessor(Map<Date, NormalisedStockQuote> labels,
+                           RelevancyMetric termRelevancyMetric, int relevantTermCount)
     {
         this.labels = labels;
+        this.relevancyMetric = termRelevancyMetric;
+        this.relevantTermCount = relevantTermCount;
     }
 
     @Override
@@ -56,9 +63,11 @@ public class CorpusProcessor extends Preprocess<Map<Date, List<CleanedDocument>>
         Framework.info("Combined Saturday/Sunday Documents with Monday ("
                             + (dataSizePreCombination - data.size()) + " weekend days removed)");
 
-        Framework.info("TODO: Generating TF_IDF");
-//        TF_IDF tf_idf = TF_IDF.generate(data);
-        Framework.info("TODO: Generated TF_IDF");
+        Framework.info("[RelevancyMetric] Initialising " + relevancyMetric.getClass().getSimpleName());
+        relevancyMetric.initialise(data);
+        List<String> topTerms = relevancyMetric.getMostRelevant(relevantTermCount);
+        Framework.info("[RelevancyMetric] Initialised " + relevancyMetric.getClass().getSimpleName());
+        Framework.info("[RelevancyMetric] Found " + topTerms.size() + " Terms");
 
         Framework.debug("ModelData size2: " + data.size());
         Framework.info("Processing individual documents");

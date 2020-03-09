@@ -10,6 +10,7 @@ import net.benorourke.stocks.framework.preprocess.impl.StockQuoteNormaliser;
 import net.benorourke.stocks.framework.preprocess.impl.document.DocumentCleaner;
 import net.benorourke.stocks.framework.preprocess.impl.document.CorpusProcessor;
 import net.benorourke.stocks.framework.model.ProcessedCorpus;
+import net.benorourke.stocks.framework.preprocess.impl.document.relevancy.RelevancyMetric;
 import net.benorourke.stocks.framework.series.data.DataType;
 import net.benorourke.stocks.framework.series.data.impl.*;
 import net.benorourke.stocks.framework.thread.Task;
@@ -53,7 +54,8 @@ public class PreprocessingTask implements Task<TaskDescription, PreprocessingRes
     private ProcessedCorpus processedCorpus;
 
     public PreprocessingTask(DataStore store,
-                             Map<DataSource, Integer> collectedDataCounts)
+                             Map<DataSource, Integer> collectedDataCounts,
+                             RelevancyMetric documentRelevancyMetric, int maximumRelevantTerms)
             throws InsuficcientRawDataException
     {
         this.store = store;
@@ -65,7 +67,7 @@ public class PreprocessingTask implements Task<TaskDescription, PreprocessingRes
         // Processes
         stockQuoteProcessor = new StockQuoteNormaliser();
         corpusCleaner = new DocumentCleaner();
-        corpusProcessor = new CorpusProcessor(normalisedQuotes);
+        corpusProcessor = new CorpusProcessor(normalisedQuotes, documentRelevancyMetric, maximumRelevantTerms);
         preprocesses = new Preprocess[]{stockQuoteProcessor, corpusCleaner, corpusProcessor};
 
         stage = PreprocessingStage.first();
