@@ -3,10 +3,14 @@ package net.benorourke.stocks.framework.thread.preprocessing;
 public enum PreprocessingStage
 {
     INITIALISE_PREPROCESSES,
+
     LOAD_QUOTES,
     LOAD_CORPUS,
-    CLEAN_CORPUS,
-    PROCESS_CORPUS,
+
+    DIMENSIONALITY_REDUCTION,
+    FEATURE_REPRESENTATION,
+    LABEL_ASSIGNMENT,
+
     DONE;
 
     // Order of Document Processing:
@@ -26,12 +30,14 @@ public enum PreprocessingStage
 
             case LOAD_QUOTES:
                 return LOAD_CORPUS;
-
             case LOAD_CORPUS:
-                return CLEAN_CORPUS;
-            case CLEAN_CORPUS:
-                return PROCESS_CORPUS;
-            case PROCESS_CORPUS:
+                return DIMENSIONALITY_REDUCTION;
+
+            case DIMENSIONALITY_REDUCTION:
+                return FEATURE_REPRESENTATION;
+            case FEATURE_REPRESENTATION:
+                return LABEL_ASSIGNMENT;
+            case LABEL_ASSIGNMENT:
                 return DONE;
 
             case DONE:

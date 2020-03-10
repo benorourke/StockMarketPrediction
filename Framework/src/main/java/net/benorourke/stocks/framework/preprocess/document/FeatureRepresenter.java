@@ -21,19 +21,16 @@ import java.util.*;
 
 // TODO - Progress
 // TODO - Create SentimentAnalyzer object for this
-public class DocumentFeatureRepresenter extends Preprocess< Map<Date, List<CleanedDocument>>,
+public class FeatureRepresenter extends Preprocess< Map<Date, List<CleanedDocument>>,
                                                             Map<Date, List<ProcessedDocument>> >
 {
-    private final Map<Date, StockQuote> quotes;
     private final RelevancyMetric relevancyMetric;
     private final int relevantTermCount;
 
     private StanfordCoreNLP pipeline;
 
-    public DocumentFeatureRepresenter(Map<Date, StockQuote> quotes,
-                                      RelevancyMetric termRelevancyMetric, int relevantTermCount)
+    public FeatureRepresenter(RelevancyMetric termRelevancyMetric, int relevantTermCount)
     {
-        this.quotes = quotes;
         this.relevancyMetric = termRelevancyMetric;
         this.relevantTermCount = relevantTermCount;
     }

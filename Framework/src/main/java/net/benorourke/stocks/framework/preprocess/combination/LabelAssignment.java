@@ -12,10 +12,16 @@ import java.util.List;
 import java.util.Map;
 
 // TODO - Progress
-public class DocumentQuoteCombiner extends Preprocess< Tuple<Map<Date, List<ProcessedDocument>>,
-                                                             Map<Date, StockQuote>>,
-                                                       List<ModelData>>
+public class LabelAssignment extends Preprocess< Tuple<Map<Date, List<ProcessedDocument>>,
+                                                       Map<Date, StockQuote>>,
+                                                 List<ModelData>>
 {
+    private final MissingDataHandler missingDataHandler;
+
+    public LabelAssignment(MissingDataHandler missingDataHandler)
+    {
+        this.missingDataHandler = missingDataHandler;
+    }
 
     @Override
     public void initialise() { }

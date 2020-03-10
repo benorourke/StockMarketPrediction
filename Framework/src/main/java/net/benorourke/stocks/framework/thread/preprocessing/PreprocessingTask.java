@@ -6,8 +6,10 @@ import net.benorourke.stocks.framework.exception.InsuficcientRawDataException;
 import net.benorourke.stocks.framework.persistence.store.DataStore;
 import net.benorourke.stocks.framework.preprocess.Preprocess;
 import net.benorourke.stocks.framework.preprocess.ProgressCallback;
+import net.benorourke.stocks.framework.preprocess.combination.LabelAssignment;
+import net.benorourke.stocks.framework.preprocess.combination.MissingDataHandler;
 import net.benorourke.stocks.framework.preprocess.document.DimensionalityReducer;
-import net.benorourke.stocks.framework.preprocess.document.DocumentFeatureRepresenter;
+import net.benorourke.stocks.framework.preprocess.document.FeatureRepresenter;
 import net.benorourke.stocks.framework.model.ProcessedCorpus;
 import net.benorourke.stocks.framework.preprocess.document.relevancy.RelevancyMetric;
 import net.benorourke.stocks.framework.series.data.DataType;
@@ -16,7 +18,6 @@ import net.benorourke.stocks.framework.thread.Task;
 import net.benorourke.stocks.framework.thread.TaskDescription;
 import net.benorourke.stocks.framework.thread.TaskType;
 import net.benorourke.stocks.framework.util.DateUtil;
-import net.benorourke.stocks.framework.util.Nullable;
 
 import static net.benorourke.stocks.framework.util.DateUtil.getDayStart;
 
@@ -31,8 +32,12 @@ public class PreprocessingTask implements Task<TaskDescription, PreprocessingRes
     private final DataStore store;
     private final Map<DataSource, Integer> collectedDataCounts;
 
-    private final Preprocess<List<Document>, List<CleanedDocument>> corpusCleaner;
-    private final Preprocess<Map<Date, List<CleanedDocument>>, ProcessedCorpus> corpusProcessor;
+    // Document Pre-processes
+    private final DimensionalityReducer dimensionalityReducer;
+    private final FeatureRepresenter featureRepresenter;
+    // Document & StockQuote Preprocesses
+    private final LabelAssignment labelAssignment;
+    // All Preprocesses
     private final Preprocess[] preprocesses;
 
     private PreprocessingStage stage;
@@ -41,29 +46,29 @@ public class PreprocessingTask implements Task<TaskDescription, PreprocessingRes
 
     private PreprocessingProgress progress;
 
-    // ModelData that's loaded/processed progressively:
+    // Data that's loaded/processed progressively:
     private Map<Date, StockQuote> loadedQuotes;
-    @Nullable
     private List<Document> loadedCorpus;
-    @Nullable
-    private Map<Date, List<CleanedDocument>> cleanDocuments;
-    private ProcessedCorpus processedCorpus;
+    private List<CleanedDocument> reducedCorpus;
+    private ProcessedCorpus result;
 
     public PreprocessingTask(DataStore store,
                              Map<DataSource, Integer> collectedDataCounts,
-                             RelevancyMetric documentRelevancyMetric, int maximumRelevantTerms)
+                             RelevancyMetric documentRelevancyMetric, int maximumRelevantTerms,
+                             MissingDataHandler missingDataHandler)
             throws InsuficcientRawDataException
     {
         this.store = store;
         this.collectedDataCounts = collectedDataCounts;
 
         loadedQuotes = new HashMap<>();
-        cleanDocuments = new HashMap<>();
+        reducedCorpus = new HashMap<>();
 
         // Processes
-        corpusCleaner = new DimensionalityReducer();
-        corpusProcessor = new DocumentFeatureRepresenter(loadedQuotes, documentRelevancyMetric, maximumRelevantTerms);
-        preprocesses = new Preprocess[]{corpusCleaner, corpusProcessor};
+        dimensionalityReducer = new DimensionalityReducer();
+        featureRepresenter = new FeatureRepresenter(documentRelevancyMetric, maximumRelevantTerms);
+        labelAssignment = new LabelAssignment(missingDataHandler);
+        preprocesses = new Preprocess[]{dimensionalityReducer, featureRepresenter, labelAssignment};
 
         stage = PreprocessingStage.first();
 
@@ -137,18 +142,24 @@ public class PreprocessingTask implements Task<TaskDescription, PreprocessingRes
             case INITIALISE_PREPROCESSES:
                 initialisePreprocesses();
                 return true;
+
             case LOAD_QUOTES:
                 executeLoadQuotes();
                 return true;
             case LOAD_CORPUS:
                 executeLoadCorpus();
                 return true;
-            case CLEAN_CORPUS:
-                executeCleanCorpus();
+
+            case DIMENSIONALITY_REDUCTION:
+                executeReduceDimensionality();
                 return true;
-            case PROCESS_CORPUS:
-                executeProcessCorpus();
+            case FEATURE_REPRESENTATION:
+                executeRepresentFeatures();
                 return true;
+            case LABEL_ASSIGNMENT:
+                executeAssignLabels();
+                return true;
+
             case DONE:
                 break;
         }
@@ -220,38 +231,43 @@ public class PreprocessingTask implements Task<TaskDescription, PreprocessingRes
         }
     }
 
-    private void executeCleanCorpus()
+    private void executeReduceDimensionality()
     {
         // TODO: Make the next step it's own stage as inserting this many values could
         //       take a long time
-        for (CleanedDocument processed : corpusCleaner.preprocess(loadedCorpus))
+        for (CleanedDocument processed : dimensionalityReducer.preprocess(loadedCorpus))
         {
             Date date = getDayStart(processed.getDate());
 
 //            Framework.debug("Received processed document on " + DateUtil.formatDetailed(date));
 
-            if (!cleanDocuments.containsKey(date))
+            if (!reducedCorpus.containsKey(date))
             {
                 Framework.debug("[Clean] Date added: " + DateUtil.formatDetailed(date)
                                     + " (" + DateUtil.formatDetailed(processed.getDate()) + ")");
-                cleanDocuments.put(date, new ArrayList<>());
+                reducedCorpus.put(date, new ArrayList<>());
             }
 
-            cleanDocuments.get(date).add(processed);
+            reducedCorpus.get(date).add(processed);
         }
 
         Framework.info("Cleaned " + loadedCorpus.size() + " documents across "
-                            + cleanDocuments.size() + " days. Dumping uncleaned corpus.");
+                            + reducedCorpus.size() + " days. Dumping uncleaned corpus.");
         loadedCorpus.clear();
         loadedCorpus = null;
     }
 
-    private void executeProcessCorpus()
+    private void executeRepresentFeatures()
     {
-        processedCorpus = corpusProcessor.preprocess(cleanDocuments);
+        result = featureRepresenter.preprocess(reducedCorpus);
         Framework.info("Processed entire corpus.");
-        cleanDocuments.clear();
-        cleanDocuments = null;
+        reducedCorpus.clear();
+        reducedCorpus = null;
+    }
+
+    private void executeAssignLabels()
+    {
+        // TODO
     }
 
     @Override
@@ -263,7 +279,7 @@ public class PreprocessingTask implements Task<TaskDescription, PreprocessingRes
     @Override
     public PreprocessingResult getResult()
     {
-        return new PreprocessingResult(processedCorpus);
+        return new PreprocessingResult(result);
     }
 
     private Map<DataType, List<DataSource>> group(Collection<DataSource> sources)
