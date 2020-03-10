@@ -1,4 +1,4 @@
-package net.benorourke.stocks.framework.preprocess.impl.document.relevancy;
+package net.benorourke.stocks.framework.preprocess.document.relevancy;
 
 import net.benorourke.stocks.framework.series.data.impl.CleanedDocument;
 
@@ -6,6 +6,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * A metric for producing the top terms.
+ */
 public interface RelevancyMetric
 {
 
@@ -16,6 +19,6 @@ public interface RelevancyMetric
      * @param maximumCount -> maximum because cardinality of return could be less
      * @return
      */
-    List<String> getMostRelevant(int maximumCount);
+    String[] getMostRelevant(int maximumCount);
 
 }

@@ -17,6 +17,14 @@ public class ProcessedCorpusAdapter implements JsonAdapter<ProcessedCorpus>
     {
         JsonObject result = new JsonObject();
         result.add("data", context.serialize(corpus.getData()));
+
+        JsonArray topTerms = new JsonArray();
+        for (String term : corpus.getTopTerms())
+        {
+            topTerms.add(new JsonPrimitive(term));
+        }
+        result.add("topTerms", topTerms);
+
         return result;
     }
 
@@ -27,6 +35,12 @@ public class ProcessedCorpusAdapter implements JsonAdapter<ProcessedCorpus>
         JsonObject object = json.getAsJsonObject();
         List<ModelData> data = context.deserialize(object.getAsJsonArray("data"),
                                                    new TypeToken<List<ModelData>>(){}.getType());
-        return new ProcessedCorpus(data);
+
+        JsonArray topTermsArray = object.getAsJsonArray("topTerms");
+        String[] topTerms = new String[topTermsArray.size()];
+        for (int i = 0; i < topTerms.length; i ++)
+            topTerms[i] = topTermsArray.get(i).getAsJsonPrimitive().getAsString();
+
+        return new ProcessedCorpus(topTerms, data);
     }
 }

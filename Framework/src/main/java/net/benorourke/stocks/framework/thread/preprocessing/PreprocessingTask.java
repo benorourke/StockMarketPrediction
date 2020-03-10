@@ -6,11 +6,10 @@ import net.benorourke.stocks.framework.exception.InsuficcientRawDataException;
 import net.benorourke.stocks.framework.persistence.store.DataStore;
 import net.benorourke.stocks.framework.preprocess.Preprocess;
 import net.benorourke.stocks.framework.preprocess.ProgressCallback;
-import net.benorourke.stocks.framework.preprocess.impl.StockQuoteNormaliser;
-import net.benorourke.stocks.framework.preprocess.impl.document.DocumentCleaner;
-import net.benorourke.stocks.framework.preprocess.impl.document.CorpusProcessor;
+import net.benorourke.stocks.framework.preprocess.document.DimensionalityReducer;
+import net.benorourke.stocks.framework.preprocess.document.DocumentFeatureRepresenter;
 import net.benorourke.stocks.framework.model.ProcessedCorpus;
-import net.benorourke.stocks.framework.preprocess.impl.document.relevancy.RelevancyMetric;
+import net.benorourke.stocks.framework.preprocess.document.relevancy.RelevancyMetric;
 import net.benorourke.stocks.framework.series.data.DataType;
 import net.benorourke.stocks.framework.series.data.impl.*;
 import net.benorourke.stocks.framework.thread.Task;
@@ -32,7 +31,6 @@ public class PreprocessingTask implements Task<TaskDescription, PreprocessingRes
     private final DataStore store;
     private final Map<DataSource, Integer> collectedDataCounts;
 
-    private final Preprocess<List<StockQuote>, List<NormalisedStockQuote>> stockQuoteProcessor;
     private final Preprocess<List<Document>, List<CleanedDocument>> corpusCleaner;
     private final Preprocess<Map<Date, List<CleanedDocument>>, ProcessedCorpus> corpusProcessor;
     private final Preprocess[] preprocesses;
@@ -44,9 +42,7 @@ public class PreprocessingTask implements Task<TaskDescription, PreprocessingRes
     private PreprocessingProgress progress;
 
     // ModelData that's loaded/processed progressively:
-    @Nullable
-    private List<StockQuote> loadedQuotes;
-    private Map<Date, NormalisedStockQuote> normalisedQuotes;
+    private Map<Date, StockQuote> loadedQuotes;
     @Nullable
     private List<Document> loadedCorpus;
     @Nullable
@@ -61,14 +57,13 @@ public class PreprocessingTask implements Task<TaskDescription, PreprocessingRes
         this.store = store;
         this.collectedDataCounts = collectedDataCounts;
 
-        normalisedQuotes = new HashMap<>();
+        loadedQuotes = new HashMap<>();
         cleanDocuments = new HashMap<>();
 
         // Processes
-        stockQuoteProcessor = new StockQuoteNormaliser();
-        corpusCleaner = new DocumentCleaner();
-        corpusProcessor = new CorpusProcessor(normalisedQuotes, documentRelevancyMetric, maximumRelevantTerms);
-        preprocesses = new Preprocess[]{stockQuoteProcessor, corpusCleaner, corpusProcessor};
+        corpusCleaner = new DimensionalityReducer();
+        corpusProcessor = new DocumentFeatureRepresenter(loadedQuotes, documentRelevancyMetric, maximumRelevantTerms);
+        preprocesses = new Preprocess[]{corpusCleaner, corpusProcessor};
 
         stage = PreprocessingStage.first();
 
@@ -145,9 +140,6 @@ public class PreprocessingTask implements Task<TaskDescription, PreprocessingRes
             case LOAD_QUOTES:
                 executeLoadQuotes();
                 return true;
-            case NORMALISE_QUOTES:
-                executeNormaliseQuotes();
-                return true;
             case LOAD_CORPUS:
                 executeLoadCorpus();
                 return true;
@@ -187,24 +179,13 @@ public class PreprocessingTask implements Task<TaskDescription, PreprocessingRes
     {
         Class<? extends DataSource<StockQuote>> stockQuoteSourceClazz
                 = (Class<? extends DataSource<StockQuote>>) stockQuoteSource.getClass();
-        loadedQuotes = store.loadRawStockQuotes(stockQuoteSourceClazz);
-        Framework.info("Loaded " + loadedQuotes.size() + " quotes to pre-process");
-    }
 
-    private void executeNormaliseQuotes()
-    {
-        Framework.info("Using Preprocess " + stockQuoteProcessor.getClass().getSimpleName()
-                                + " to normalise " + loadedQuotes.size() + " quotes");
-
-        for (NormalisedStockQuote processed : stockQuoteProcessor.preprocess(loadedQuotes))
+        for (StockQuote stockQuote : store.loadRawStockQuotes(stockQuoteSourceClazz))
         {
-            Date date = getDayStart(processed.getDate());
-            normalisedQuotes.put(date, processed);
+
         }
 
-        Framework.info("Normalised " + loadedQuotes.size() + " quotes. Dumping unprocessed quotes.");
-        loadedQuotes.clear();
-        loadedQuotes = null;
+        Framework.info("Loaded " + loadedQuotes.size() + " quotes to pre-process");
     }
 
     private void executeLoadCorpus()

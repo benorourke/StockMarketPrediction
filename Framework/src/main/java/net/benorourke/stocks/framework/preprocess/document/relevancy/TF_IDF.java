@@ -1,15 +1,13 @@
-package net.benorourke.stocks.framework.preprocess.impl.document.relevancy;
+package net.benorourke.stocks.framework.preprocess.document.relevancy;
 
-import net.benorourke.stocks.framework.Framework;
 import net.benorourke.stocks.framework.series.data.impl.CleanedDocument;
-import org.deeplearning4j.earlystopping.saver.LocalFileGraphSaver;
 
 import java.util.*;
 
 public class TF_IDF implements RelevancyMetric
 {
 
-    public enum Logarithm {BASE_10, NATURAL};
+    public enum Logarithm {BASE_10, NATURAL}
 
     private final Logarithm logarithm;
     private final List<CleanedDocument> corpus;
@@ -43,8 +41,7 @@ public class TF_IDF implements RelevancyMetric
         {
             HashSet<String> termsSeenThisDocument = new HashSet<>();
 
-            inner:
-            for (String term : document.getCleanedTerms())
+            inner: for (String term : document.getCleanedTerms())
             {
                 // Don't want to increment this term in the idfMap if we already have
                 // for this document
@@ -62,7 +59,7 @@ public class TF_IDF implements RelevancyMetric
     }
 
     @Override
-    public List<String> getMostRelevant(int maximumCount)
+    public String[] getMostRelevant(int maximumCount)
     {
         List<ScoredTerm> terms = new ArrayList<>();
         for (String term : getLexicon())
@@ -76,21 +73,23 @@ public class TF_IDF implements RelevancyMetric
                                                 ? 1
                                                 : 0)));
 
-        for (ScoredTerm term : terms)
+        if (terms.isEmpty())
         {
-            Framework.info(term.term + ": " + term.averageTFIDF);
+            return new String[0];
         }
-
-        List<String> mostRelevant = new ArrayList<>();
-        if (!terms.isEmpty())
+        else
         {
-            for (ScoredTerm term : terms.subList(0, Math.min(terms.size(), maximumCount) - 1))
+            int cardinality = Math.min(terms.size(), maximumCount);
+            String[] topTerms = new String[cardinality];
+
+            int i = 0;
+            for (ScoredTerm term : terms.subList(0, cardinality))
             {
-                mostRelevant.add(term.term);
+                topTerms[i ++] = term.term;
             }
-        }
 
-        return mostRelevant;
+            return topTerms;
+        }
     }
 
     private List<CleanedDocument> collateDocuments(Map<Date, List<CleanedDocument>> data)

@@ -4,7 +4,6 @@ public enum PreprocessingStage
 {
     INITIALISE_PREPROCESSES,
     LOAD_QUOTES,
-    NORMALISE_QUOTES,
     LOAD_CORPUS,
     CLEAN_CORPUS,
     PROCESS_CORPUS,
@@ -26,8 +25,6 @@ public enum PreprocessingStage
                 return LOAD_QUOTES;
 
             case LOAD_QUOTES:
-                return NORMALISE_QUOTES;
-            case NORMALISE_QUOTES:
                 return LOAD_CORPUS;
 
             case LOAD_CORPUS:

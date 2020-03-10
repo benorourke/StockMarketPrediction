@@ -42,20 +42,6 @@ public interface DataType<T extends Data>
             return new DocumentAdapter();
         }
     };
-    DataType<NormalisedStockQuote> NORMALISED_STOCK_QUOTE = new DataType<NormalisedStockQuote>()
-    {
-        @Override
-        public String getName()
-        {
-            return "Normalised Stock Quote";
-        }
-
-        @Override
-        public JsonAdapter<NormalisedStockQuote> getAdapter()
-        {
-            return null;
-        }
-    };
     DataType<CleanedDocument> CLEANED_DOCUMENT = new DataType<CleanedDocument>()
     {
         @Override
