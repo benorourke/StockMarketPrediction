@@ -6,28 +6,25 @@ import edu.stanford.nlp.pipeline.StanfordCoreNLP;
 import edu.stanford.nlp.sentiment.SentimentCoreAnnotations;
 import edu.stanford.nlp.util.CoreMap;
 import net.benorourke.stocks.framework.Framework;
-import net.benorourke.stocks.framework.model.ModelData;
-import net.benorourke.stocks.framework.model.ProcessedCorpus;
 import net.benorourke.stocks.framework.preprocess.Preprocess;
 import net.benorourke.stocks.framework.preprocess.document.relevancy.RelevancyMetric;
-import net.benorourke.stocks.framework.series.data.DatasetHelper;
 import net.benorourke.stocks.framework.series.data.impl.CleanedDocument;
 import net.benorourke.stocks.framework.series.data.impl.ProcessedDocument;
-import net.benorourke.stocks.framework.series.data.impl.NormalisedStockQuote;
-import net.benorourke.stocks.framework.series.data.impl.StockQuote;
-import net.benorourke.stocks.framework.util.DateUtil;
+import net.benorourke.stocks.framework.util.Nullable;
 
 import java.util.*;
 
 // TODO - Progress
 // TODO - Create SentimentAnalyzer object for this
-public class FeatureRepresenter extends Preprocess< Map<Date, List<CleanedDocument>>,
-                                                            Map<Date, List<ProcessedDocument>> >
+public class FeatureRepresenter extends Preprocess<List<CleanedDocument>, List<ProcessedDocument>>
 {
     private final RelevancyMetric relevancyMetric;
     private final int relevantTermCount;
 
     private StanfordCoreNLP pipeline;
+
+    @Nullable
+    private String[] topTerms;
 
     public FeatureRepresenter(RelevancyMetric termRelevancyMetric, int relevantTermCount)
     {
@@ -49,36 +46,22 @@ public class FeatureRepresenter extends Preprocess< Map<Date, List<CleanedDocume
     }
 
     @Override
-    public Map<Date, List<ProcessedDocument>> preprocess(Map<Date, List<CleanedDocument>> data)
+    public List<ProcessedDocument> preprocess(List<CleanedDocument> data)
     {
-        Map<Date, List<ProcessedDocument>> documents = new HashMap<>();
-
-        Framework.info("[Weekend Removal (1/3)] Combining Saturday/Sunday Documents with Monday");
-        int dataSizePreCombination = data.size();
-        Map<Date, List<CleanedDocument>> weekendsRemoved = DatasetHelper.handleWeekends(data);
-        Framework.info("[Weekend Removal (1/3)] Combined Saturday/Sunday Documents with Monday ("
-                            + (dataSizePreCombination - data.size()) + " weekend days removed)");
-
-        Framework.info("[Top Term Metric (2/3)] Initialising " + relevancyMetric.getClass().getSimpleName());
-        relevancyMetric.initialise(weekendsRemoved);
-        String[] topTerms = relevancyMetric.getMostRelevant(relevantTermCount);
-        Framework.info("[Top Term Metric (2/3)] Initialised " + relevancyMetric.getClass().getSimpleName());
-        Framework.info("[Top Term Metric (2/3)] Found " + topTerms.length
+        Framework.info("[Top Term Metric (1/2)] Initialising " + relevancyMetric.getClass().getSimpleName());
+        relevancyMetric.initialise(data);
+        topTerms = relevancyMetric.getMostRelevant(relevantTermCount);
+        Framework.info("[Top Term Metric (1/2)] Initialised " + relevancyMetric.getClass().getSimpleName());
+        Framework.info("[Top Term Metric (1/2)] Found " + topTerms.length
                                 + " Terms (" + String.join(",", topTerms) + ")");
 
-        Framework.info("[Document Processing (3/3)] Processing Individual Documents");
-        for (Map.Entry<Date, List<CleanedDocument>> entry : weekendsRemoved.entrySet())
-        {
-            List<ProcessedDocument> list = new ArrayList<>();
-            documents.put(entry.getKey(), list);
-            for (CleanedDocument doc : entry.getValue())
-            {
-                list.add(process(doc, topTerms));
-            }
-        }
-        Framework.info("[Document Processing (3/3)] Processed Individual Documents");
+        Framework.info("[Document Processing (2/2)] Processing Individual Documents");
+        List<ProcessedDocument> processed = new ArrayList<>();
+        for (CleanedDocument document : data)
+            processed.add(process(document, topTerms));
+        Framework.info("[Document Processing (2/2)] Processed Individual Documents");
 
-        return documents;
+        return processed;
     }
 
     public ProcessedDocument process(CleanedDocument document, String[] topTerms)
@@ -147,6 +130,11 @@ public class FeatureRepresenter extends Preprocess< Map<Date, List<CleanedDocume
         }
 
         return vector;
+    }
+
+    public String[] getTopTerms()
+    {
+        return topTerms;
     }
 
 }

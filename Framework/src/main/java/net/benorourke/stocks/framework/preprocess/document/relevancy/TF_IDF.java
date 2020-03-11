@@ -28,13 +28,13 @@ public class TF_IDF implements RelevancyMetric
     }
 
     @Override
-    public void initialise(Map<Date, List<CleanedDocument>> data)
+    public void initialise(List<CleanedDocument> data)
     {
         corpus.clear();
         idfMap.clear();
 
         // Create the map of terms against the number of documents where a term appears
-        corpus.addAll(collateDocuments(data));
+        corpus.addAll(data);
         corpusSize = (double) corpus.size();
 
         for (CleanedDocument document : corpus)
@@ -90,16 +90,6 @@ public class TF_IDF implements RelevancyMetric
 
             return topTerms;
         }
-    }
-
-    private List<CleanedDocument> collateDocuments(Map<Date, List<CleanedDocument>> data)
-    {
-        List<CleanedDocument> collated = new ArrayList<>();
-        for (List<CleanedDocument> value : data.values())
-        {
-            collated.addAll(value);
-        }
-        return collated;
     }
 
     public double termFrequency(String term, CleanedDocument document)

@@ -3,11 +3,13 @@ package net.benorourke.stocks.framework.thread.preprocessing;
 import net.benorourke.stocks.framework.Framework;
 import net.benorourke.stocks.framework.collection.datasource.DataSource;
 import net.benorourke.stocks.framework.exception.InsuficcientRawDataException;
+import net.benorourke.stocks.framework.model.ModelData;
 import net.benorourke.stocks.framework.persistence.store.DataStore;
 import net.benorourke.stocks.framework.preprocess.Preprocess;
 import net.benorourke.stocks.framework.preprocess.ProgressCallback;
 import net.benorourke.stocks.framework.preprocess.combination.LabelAssignment;
-import net.benorourke.stocks.framework.preprocess.combination.MissingDataHandler;
+import net.benorourke.stocks.framework.preprocess.combination.MissingDataPolicy;
+import net.benorourke.stocks.framework.preprocess.combination.ModelDataMapper;
 import net.benorourke.stocks.framework.preprocess.document.DimensionalityReducer;
 import net.benorourke.stocks.framework.preprocess.document.FeatureRepresenter;
 import net.benorourke.stocks.framework.model.ProcessedCorpus;
@@ -17,9 +19,8 @@ import net.benorourke.stocks.framework.series.data.impl.*;
 import net.benorourke.stocks.framework.thread.Task;
 import net.benorourke.stocks.framework.thread.TaskDescription;
 import net.benorourke.stocks.framework.thread.TaskType;
-import net.benorourke.stocks.framework.util.DateUtil;
-
-import static net.benorourke.stocks.framework.util.DateUtil.getDayStart;
+import net.benorourke.stocks.framework.util.Nullable;
+import net.benorourke.stocks.framework.util.Tuple;
 
 import java.util.*;
 
@@ -47,28 +48,35 @@ public class PreprocessingTask implements Task<TaskDescription, PreprocessingRes
     private PreprocessingProgress progress;
 
     // Data that's loaded/processed progressively:
-    private Map<Date, StockQuote> loadedQuotes;
+    private List<StockQuote> loadedQuotes;
+    @Nullable
     private List<Document> loadedCorpus;
+    @Nullable
     private List<CleanedDocument> reducedCorpus;
+    @Nullable
+    private List<ProcessedDocument> representedCorpus;
+    @Nullable
     private ProcessedCorpus result;
 
     public PreprocessingTask(DataStore store,
                              Map<DataSource, Integer> collectedDataCounts,
                              RelevancyMetric documentRelevancyMetric, int maximumRelevantTerms,
-                             MissingDataHandler missingDataHandler)
+                             MissingDataPolicy missingDataPolicy,
+                             ModelDataMapper modelDataMapper)
             throws InsuficcientRawDataException
     {
         this.store = store;
         this.collectedDataCounts = collectedDataCounts;
 
-        loadedQuotes = new HashMap<>();
-        reducedCorpus = new HashMap<>();
+        loadedQuotes = new ArrayList<>();
+        loadedCorpus = new ArrayList<>();
+        reducedCorpus = new ArrayList<>();
 
         // Processes
         dimensionalityReducer = new DimensionalityReducer();
         featureRepresenter = new FeatureRepresenter(documentRelevancyMetric, maximumRelevantTerms);
-        labelAssignment = new LabelAssignment(missingDataHandler);
-        preprocesses = new Preprocess[]{dimensionalityReducer, featureRepresenter, labelAssignment};
+        labelAssignment = new LabelAssignment(missingDataPolicy, modelDataMapper);
+        preprocesses = new Preprocess[] {dimensionalityReducer, featureRepresenter, labelAssignment};
 
         stage = PreprocessingStage.first();
 
@@ -191,18 +199,12 @@ public class PreprocessingTask implements Task<TaskDescription, PreprocessingRes
         Class<? extends DataSource<StockQuote>> stockQuoteSourceClazz
                 = (Class<? extends DataSource<StockQuote>>) stockQuoteSource.getClass();
 
-        for (StockQuote stockQuote : store.loadRawStockQuotes(stockQuoteSourceClazz))
-        {
-
-        }
-
+        loadedQuotes.addAll(store.loadRawStockQuotes(stockQuoteSourceClazz));
         Framework.info("Loaded " + loadedQuotes.size() + " quotes to pre-process");
     }
 
     private void executeLoadCorpus()
     {
-        loadedCorpus = new ArrayList<>();
-
         int totalSources = documentSources.size(), currentSource = 1;
         int totalDocuments = documentSources.stream()
                                     .mapToInt(s -> (s.getDataType().equals(DataType.DOCUMENT))
@@ -233,41 +235,31 @@ public class PreprocessingTask implements Task<TaskDescription, PreprocessingRes
 
     private void executeReduceDimensionality()
     {
-        // TODO: Make the next step it's own stage as inserting this many values could
-        //       take a long time
-        for (CleanedDocument processed : dimensionalityReducer.preprocess(loadedCorpus))
-        {
-            Date date = getDayStart(processed.getDate());
-
-//            Framework.debug("Received processed document on " + DateUtil.formatDetailed(date));
-
-            if (!reducedCorpus.containsKey(date))
-            {
-                Framework.debug("[Clean] Date added: " + DateUtil.formatDetailed(date)
-                                    + " (" + DateUtil.formatDetailed(processed.getDate()) + ")");
-                reducedCorpus.put(date, new ArrayList<>());
-            }
-
-            reducedCorpus.get(date).add(processed);
-        }
-
-        Framework.info("Cleaned " + loadedCorpus.size() + " documents across "
-                            + reducedCorpus.size() + " days. Dumping uncleaned corpus.");
+        reducedCorpus.addAll(dimensionalityReducer.preprocess(loadedCorpus));
+        Framework.info("[Pre-processing] Reduced Dimensionality of Entire Corpus ("
+                            + reducedCorpus.size() + ")");
         loadedCorpus.clear();
         loadedCorpus = null;
     }
 
     private void executeRepresentFeatures()
     {
-        result = featureRepresenter.preprocess(reducedCorpus);
-        Framework.info("Processed entire corpus.");
+        representedCorpus = featureRepresenter.preprocess(reducedCorpus);
+        Framework.info("[Pre-processing] Represented Entire Corpus");
         reducedCorpus.clear();
         reducedCorpus = null;
     }
 
     private void executeAssignLabels()
     {
-        // TODO
+        Framework.info("[Pre-processing] Assigning Labels");
+        List<ModelData> data = labelAssignment.preprocess(new Tuple<>(representedCorpus, loadedQuotes));
+        Framework.info("[Pre-processing] Producing Corpus");
+        result = new ProcessedCorpus(featureRepresenter.getTopTerms(), data);
+        Framework.info("[Pre-processing] Normalising Corpus");
+        double[][] normalisationMinsMaxes = result.getFeatureMinsMaxes();
+        result.normalise(normalisationMinsMaxes[0], normalisationMinsMaxes[1]);
+        Framework.info("[Pre-processing] Complete");
     }
 
     @Override

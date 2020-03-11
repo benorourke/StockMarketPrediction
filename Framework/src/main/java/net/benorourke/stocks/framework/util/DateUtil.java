@@ -70,4 +70,12 @@ public class DateUtil
                     && calendar.get(Calendar.HOUR_OF_DAY) == 0;
     }
 
+    public static Date addHours(Date date, int hours)
+    {
+        Calendar calendar = new GregorianCalendar();
+        calendar.setTime(date);
+        calendar.add(Calendar.HOUR, hours);
+        return calendar.getTime();
+    }
+
 }

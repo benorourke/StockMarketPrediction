@@ -52,7 +52,7 @@ public class Framework implements Initialisable
         taskManager = new TaskManager(config);
 
         gson = new GsonBuilder()
-                        .setPrettyPrinting() // TODO - Remove this when finished
+//                        .setPrettyPrinting()
                         .registerTypeAdapter(Stock.class, new StockAdapter(stockExchangeManager))
                         .registerTypeAdapter(TimeSeries.class, new TimeSeriesAdapter())
                         .registerTypeAdapter(StockQuote.class, new StockQuoteAdapter())

@@ -1,12 +1,12 @@
 package net.benorourke.stocks.framework.series.data.impl;
 
 import net.benorourke.stocks.framework.preprocess.document.Sentiment;
+import net.benorourke.stocks.framework.series.data.Data;
 import net.benorourke.stocks.framework.series.data.DataType;
-import net.benorourke.stocks.framework.series.data.ProcessedData;
 
 import java.util.Date;
 
-public class ProcessedDocument extends ProcessedData
+public class ProcessedDocument extends Data
 {
     private final Sentiment sentiment;
     private final boolean[] topTermVector;

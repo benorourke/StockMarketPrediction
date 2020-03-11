@@ -5,7 +5,6 @@ import net.benorourke.stocks.framework.persistence.gson.data.DocumentAdapter;
 import net.benorourke.stocks.framework.persistence.gson.data.StockQuoteAdapter;
 import net.benorourke.stocks.framework.series.data.impl.Document;
 import net.benorourke.stocks.framework.series.data.impl.CleanedDocument;
-import net.benorourke.stocks.framework.series.data.impl.NormalisedStockQuote;
 import net.benorourke.stocks.framework.series.data.impl.StockQuote;
 
 /**

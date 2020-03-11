@@ -4,7 +4,6 @@ import net.benorourke.stocks.framework.series.data.impl.CleanedDocument;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 /**
  * A metric for producing the top terms.
@@ -12,7 +11,7 @@ import java.util.Map;
 public interface RelevancyMetric
 {
 
-    void initialise(Map<Date, List<CleanedDocument>> data);
+    void initialise(List<CleanedDocument> data);
 
     /**
      *

@@ -1,8 +1,8 @@
 package net.benorourke.stocks.framework.series.data.impl;
 
+import net.benorourke.stocks.framework.series.data.Data;
 import net.benorourke.stocks.framework.series.data.DataType;
 import net.benorourke.stocks.framework.series.data.DocumentType;
-import net.benorourke.stocks.framework.series.data.ProcessedData;
 
 import java.util.Date;
 import java.util.List;
@@ -10,7 +10,7 @@ import java.util.List;
 /**
  * TODO
  */
-public class CleanedDocument extends ProcessedData
+public class CleanedDocument extends Data
 {
     private final String originalContent;
     private final List<String> cleanedTerms;

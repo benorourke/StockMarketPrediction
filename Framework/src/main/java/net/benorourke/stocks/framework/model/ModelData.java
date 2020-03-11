@@ -4,7 +4,7 @@ import java.util.Date;
 
 public class ModelData
 {
-    public static final int N_FEATURES = 5, N_LABELS = 5;
+    public static int N_FEATURES = 5, N_LABELS = 5;
 
     /**
      * As of now:
