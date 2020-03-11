@@ -3,11 +3,24 @@ package net.benorourke.stocks.framework.series.data;
 import net.benorourke.stocks.framework.persistence.gson.JsonAdapter;
 import net.benorourke.stocks.framework.persistence.gson.data.DocumentAdapter;
 import net.benorourke.stocks.framework.persistence.gson.data.StockQuoteAdapter;
+import net.benorourke.stocks.framework.series.data.impl.Document;
+import net.benorourke.stocks.framework.series.data.impl.CleanedDocument;
+import net.benorourke.stocks.framework.series.data.impl.StockQuote;
 
+/**
+ * Interface rather than enum so custom DataTypes can be injected by future users.
+ * @param <T>
+ */
 public interface DataType<T extends Data>
 {
     DataType<StockQuote> STOCK_QUOTE = new DataType<StockQuote>()
     {
+        @Override
+        public String getName()
+        {
+            return "Stock Quote";
+        }
+
         @Override
         public JsonAdapter<StockQuote> getAdapter()
         {
@@ -17,27 +30,47 @@ public interface DataType<T extends Data>
     DataType<Document> DOCUMENT = new DataType<Document>()
     {
         @Override
+        public String getName()
+        {
+            return "Document";
+        }
+
+        @Override
         public JsonAdapter<Document> getAdapter()
         {
             return new DocumentAdapter();
         }
     };
-    DataType<ProcessedStockQuote> PROCESSED_STOCK_QUOTE = new DataType<ProcessedStockQuote>()
+    DataType<CleanedDocument> CLEANED_DOCUMENT = new DataType<CleanedDocument>()
     {
         @Override
-        public JsonAdapter<ProcessedStockQuote> getAdapter()
+        public String getName()
+        {
+            return "Cleaned Document";
+        }
+
+        @Override
+        public JsonAdapter<CleanedDocument> getAdapter()
         {
             return null;
         }
-    }; // TODO
-    DataType<ProcessedDocument> PROCESSED_DOCUMENT = new DataType<ProcessedDocument>()
+    };
+    DataType<CleanedDocument> PROCESSED_DOCUMENT = new DataType<CleanedDocument>()
     {
         @Override
-        public JsonAdapter<ProcessedDocument> getAdapter()
+        public String getName()
+        {
+            return "Processed Document";
+        }
+
+        @Override
+        public JsonAdapter<CleanedDocument> getAdapter()
         {
             return null;
         }
-    }; // TODO
+    };
+
+    String getName();
 
     JsonAdapter<T> getAdapter();
 

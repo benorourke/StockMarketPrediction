@@ -5,6 +5,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.concurrent.TimeUnit;
 
 public class DateUtil
 {
@@ -23,19 +25,6 @@ public class DateUtil
         return DETAILED_UK_DATE_FORMAT.format(date);
     }
 
-    public static Date parseDetailedUK(String strDate)
-    {
-        try
-        {
-            return DETAILED_UK_DATE_FORMAT.parse(strDate);
-        }
-        catch (ParseException e)
-        {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
     public static boolean sameDay(Date a, Date b)
     {
         Calendar calA = Calendar.getInstance();
@@ -45,6 +34,48 @@ public class DateUtil
 
         return calA.get(Calendar.DAY_OF_YEAR) == calB.get(Calendar.DAY_OF_YEAR)
                     && calA.get(Calendar.YEAR) == calB.get(Calendar.YEAR);
+    }
+
+    public static boolean isWeekend(Date date)
+    {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(date);
+
+        return cal.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY
+                    || cal.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY;
+    }
+
+    /**
+     * Get the time at 00:01 (midnight) on any day.
+     *
+     * @param date the date of the day to convert to 1-past midnight
+     * @return 1-past midnight on the specified day / {@link java.util.Date}
+     */
+    public static Date getDayStart(Date date)
+    {
+        Calendar calendar = new GregorianCalendar();
+        calendar.setTime(date);
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 1);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+        return calendar.getTime();
+    }
+
+    public static boolean isMidnight(Date date)
+    {
+        Calendar calendar = new GregorianCalendar();
+        calendar.setTime(date);
+        return calendar.get(Calendar.MINUTE) == 0
+                    && calendar.get(Calendar.HOUR_OF_DAY) == 0;
+    }
+
+    public static Date addHours(Date date, int hours)
+    {
+        Calendar calendar = new GregorianCalendar();
+        calendar.setTime(date);
+        calendar.add(Calendar.HOUR, hours);
+        return calendar.getTime();
     }
 
 }

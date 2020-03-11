@@ -11,6 +11,10 @@ public interface Task<U extends TaskDescription, S extends Result> extends Runna
 
     U getDescription();
 
+    /**
+     * Should store the object internally too
+     * @return
+     */
     Progress createTaskProgress();
 
     boolean isFinished();

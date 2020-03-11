@@ -14,7 +14,7 @@ public class StockApplication extends Application
     {
         SceneHelper.modifyStage(stage, Constants.APPLICATION_NAME,
                                 Constants.APPLICATION_WIDTH, Constants.APPLICATION_HEIGHT,
-                       true, true,
+                        true, true,
                                 SceneType.DIRECTORY_SELECTION);
     }
 

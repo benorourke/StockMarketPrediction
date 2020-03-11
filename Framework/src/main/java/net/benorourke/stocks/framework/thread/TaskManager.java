@@ -12,10 +12,12 @@ import java.util.concurrent.*;
 /**
  * Do not call any of these functions from within a Task.
  *
- * Update the Progress/Result objects within Tasks to pass data to the main thread.
+ * Update the Progress/Result objects within Tasks to pass feedforward to the main thread.
  */
 public class TaskManager
 {
+    // TODO - Synchronise the methods that remove/add to queues using a single lock
+
     @ThreadSynchronised
     private final ScheduledExecutorService executor;
     /**
@@ -98,13 +100,14 @@ public class TaskManager
      * @return the taskId
      */
     @ThreadSynchronised
-    public <T extends Result> UUID scheduleRepeating(Task<TaskDescription, T> task,
-                                                     ResultCallback<T> onFinished,
+    public <S extends TaskDescription,
+            U extends Result> UUID scheduleRepeating(Task<S, U> task, ResultCallback<U> onFinished,
                                                      long initialDelay, long period, TimeUnit timeUnit)
             throws TaskAlreadyPresentException
     {
         if (isTaskPresent(task))
             throw new TaskAlreadyPresentException(task);
+        // TODO - ADD A CHECK TO SEE IF ANYTHING ELSE IS RUNNING BEFORE BEGINNING PRE-PROCESSINGS
 
         TaskWrapper wrapper = new TaskWrapper(this, task, onFinished);
         taskMap.put(wrapper.getId(), wrapper);

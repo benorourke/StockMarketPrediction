@@ -29,8 +29,7 @@ public class URLConnector
     public String read() throws IOException
     {
         connection.getResponseCode();
-        BufferedReader in = new BufferedReader(
-                new InputStreamReader(connection.getInputStream()));
+        BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
         String inputLine;
         StringBuffer content = new StringBuffer();
         while ((inputLine = in.readLine()) != null)

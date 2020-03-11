@@ -1,16 +1,19 @@
 package net.benorourke.stocks.framework.persistence.store;
 
+import com.google.gson.reflect.TypeToken;
 import net.benorourke.stocks.framework.Framework;
 import net.benorourke.stocks.framework.collection.datasource.DataSource;
 import net.benorourke.stocks.framework.persistence.FileManager;
 import net.benorourke.stocks.framework.series.TimeSeries;
 import net.benorourke.stocks.framework.series.data.Data;
+import net.benorourke.stocks.framework.series.data.impl.Document;
+import net.benorourke.stocks.framework.series.data.impl.StockQuote;
+import net.benorourke.stocks.framework.util.DateUtil;
 
 import java.io.File;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.lang.reflect.Type;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class DataStore
 {
@@ -25,11 +28,6 @@ public class DataStore
         this.timeSeries = timeSeries;
     }
 
-    private String sourceToString(Class<? extends DataSource> source)
-    {
-        return source.getSimpleName().toLowerCase();
-    }
-
     //////////////////////////////////////////////////////////////////
     //      RAW DATA
     //////////////////////////////////////////////////////////////////
@@ -41,8 +39,8 @@ public class DataStore
     //        - newsapi.json
     //        - alphavantage.json
     //    - processed
-    //        - processeddocument.json
-    //        - processedstockquote.json
+    //        - processeddocuments.json
+    //        - processedstockquotes.json
 
     public boolean rawDataExists(Class<? extends DataSource> source)
     {
@@ -59,30 +57,52 @@ public class DataStore
 
         if(fileManager.writeJson(file, data))
         {
-            Framework.debug("Wrote " + data.size() + ": raw data to " + file.toString());
+            Framework.debug("Wrote " + data.size() + ": raw feedforward to " + file.toString());
             return true;
         }
         else
         {
-            Framework.error("Unable to write raw data to " + file.toString());
+            Framework.error("Unable to write raw feedforward to " + file.toString());
             return false;
         }
     }
 
-    public List<Data> loadRawData(Class<? extends DataSource>... source)
+    public List<StockQuote> loadRawStockQuotes(Class<? extends DataSource<StockQuote>> source)
     {
-        // TODO
-        return null;
+        File file = fileManager.getRawDataFile(timeSeries, source);
+        file.getParentFile().mkdirs();
+
+        List<StockQuote> data = new ArrayList<StockQuote>();
+        if (file.exists())
+        {
+            TypeToken typeToken = new TypeToken<List<StockQuote>>(){};
+            Collection<Object> loaded = fileManager.loadJsonList(file, typeToken).get();
+            data.addAll(loaded.stream().map(o -> (StockQuote) o).collect(Collectors.toList()));
+        }
+
+        return data;
     }
 
-    public Map<Class<? extends DataSource>, List<Data>> getAllRawData(
-                Class<? extends DataSource>... sources)
+    public List<Document> loadRawDocuments(Class<? extends DataSource<Document>> source)
     {
-        Map<Class<? extends DataSource>, List<Data>> data = new HashMap<>();
-        for (Class<? extends DataSource> clazz : sources)
+        File file = fileManager.getRawDataFile(timeSeries, source);
+        file.getParentFile().mkdirs();
+
+        List<Document> data = new ArrayList<Document>();
+        if (file.exists())
         {
-            data.put(clazz, loadRawData(sources));
+            TypeToken typeToken = new TypeToken<List<Document>>(){};
+            Collection<Object> loaded = fileManager.loadJsonList(file, typeToken).get();
+            data.addAll(loaded.stream().map(o -> (Document) o).collect(Collectors.toList()));
         }
+
+        // TODO: Remove
+        Framework.debug("Looping");
+        for ( Document document : data)
+        {
+            Framework.debug("Loaded document on " + DateUtil.formatDetailed(document.getDate()));
+        }
+
         return data;
     }
 

@@ -5,13 +5,15 @@ import com.google.gson.JsonObject;
 import net.benorourke.stocks.framework.Framework;
 import net.benorourke.stocks.framework.collection.ConnectionResponse;
 import net.benorourke.stocks.framework.collection.URLConnector;
-import net.benorourke.stocks.framework.collection.session.CollectionSession;
+import net.benorourke.stocks.framework.collection.session.APICollectionSession;
+import net.benorourke.stocks.framework.collection.session.filter.CollectionFilter;
 import net.benorourke.stocks.framework.collection.constraint.Constraint;
 import net.benorourke.stocks.framework.collection.datasource.DataSource;
 import net.benorourke.stocks.framework.collection.Query;
 import net.benorourke.stocks.framework.collection.constraint.OrderingConstraint;
 import net.benorourke.stocks.framework.exception.ConstraintException;
-import net.benorourke.stocks.framework.series.data.StockQuote;
+import net.benorourke.stocks.framework.series.data.DataType;
+import net.benorourke.stocks.framework.series.data.impl.StockQuote;
 import net.benorourke.stocks.framework.exception.FailedCollectionException;
 import net.benorourke.stocks.framework.util.DateUtil;
 
@@ -41,6 +43,12 @@ public class AlphaVantage extends DataSource<StockQuote>
     }
 
     @Override
+    public DataType getDataType()
+    {
+        return DataType.STOCK_QUOTE;
+    }
+
+    @Override
     public Constraint[] getConstraints()
     {
         return new Constraint[]
@@ -50,9 +58,9 @@ public class AlphaVantage extends DataSource<StockQuote>
     }
 
     @Override
-    public CollectionSession newSession(Query completeQuery)
+    public APICollectionSession<StockQuote> newSession(Query completeQuery, CollectionFilter<StockQuote> collectionFilter)
     {
-        return null;
+        return new AlphaVantageCollectionSession(completeQuery, collectionFilter);
     }
 
     @Override

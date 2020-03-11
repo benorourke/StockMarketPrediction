@@ -9,9 +9,11 @@ import net.benorourke.stocks.framework.collection.datasource.DataSource;
 import net.benorourke.stocks.framework.collection.constraint.Constraint;
 import net.benorourke.stocks.framework.collection.constraint.MaximumAgeConstraint;
 import net.benorourke.stocks.framework.collection.constraint.OrderingConstraint;
-import net.benorourke.stocks.framework.collection.session.CollectionSession;
+import net.benorourke.stocks.framework.collection.session.APICollectionSession;
+import net.benorourke.stocks.framework.collection.session.filter.CollectionFilter;
 import net.benorourke.stocks.framework.exception.ConstraintException;
-import net.benorourke.stocks.framework.series.data.Document;
+import net.benorourke.stocks.framework.series.data.DataType;
+import net.benorourke.stocks.framework.series.data.impl.Document;
 import net.benorourke.stocks.framework.exception.FailedCollectionException;
 import net.benorourke.stocks.framework.series.data.DocumentType;
 import net.benorourke.stocks.framework.collection.ConnectionResponse;
@@ -26,7 +28,7 @@ import java.util.*;
 public class NewsAPI extends DataSource<Document>
 {
     private static final String BASE_URL = "https://newsapi.org/";
-    private static final int MAX_PAGE_SIZE = 100;
+    private static final int MAX_PAGE_SIZE = 20; // TODO - Make this larger when the document raw feedforward dumps are split
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
 
     private final String apiKey;
@@ -43,6 +45,12 @@ public class NewsAPI extends DataSource<Document>
     }
 
     @Override
+    public DataType getDataType()
+    {
+        return DataType.DOCUMENT;
+    }
+
+    @Override
     public Constraint[] getConstraints()
     {
         return new Constraint[]
@@ -53,9 +61,9 @@ public class NewsAPI extends DataSource<Document>
     }
 
     @Override
-    public CollectionSession newSession(Query completeQuery)
+    public APICollectionSession<Document> newSession(Query completeQuery, CollectionFilter<Document> collectionFilter)
     {
-        return new NewsAPICollectionSession(completeQuery);
+        return new NewsAPICollectionSession(completeQuery, collectionFilter);
     }
 
     @Override
@@ -114,14 +122,15 @@ public class NewsAPI extends DataSource<Document>
 
     /**
      * Example: "publishedAt": "2020-02-04T18:45:00Z"
-     * @param date
+     * @param strDate
      * @return
      */
-    private Date parseDate(String date)
+    private Date parseDate(String strDate)
     {
         try
         {
-            return DATE_FORMAT.parse(date);
+            Date date = DATE_FORMAT.parse(strDate);
+            return date;
         }
         catch (ParseException e)
         {

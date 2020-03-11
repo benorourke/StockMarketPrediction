@@ -1,6 +1,7 @@
 package net.benorourke.stocks.framework.persistence.gson;
 
 import com.google.gson.*;
+import net.benorourke.stocks.framework.Framework;
 import net.benorourke.stocks.framework.stock.Stock;
 import net.benorourke.stocks.framework.stock.StockExchangeManager;
 

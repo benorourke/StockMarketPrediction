@@ -1,6 +1,31 @@
 package net.benorourke.stocks.framework.thread;
 
-public enum TaskType
+public interface TaskType
 {
-    COLLECTION;
+    TaskType COLLECTION = new TaskType()
+    {
+        @Override
+        public String getName()
+        {
+            return "Collection";
+        }
+    };
+    TaskType PRE_PROCESSING = new TaskType()
+    {
+        @Override
+        public String getName()
+        {
+            return "Pre-processing";
+        }
+    };
+    TaskType TRAINING = new TaskType()
+    {
+        @Override
+        public String getName()
+        {
+            return "Training";
+        }
+    };
+
+    String getName();
 }

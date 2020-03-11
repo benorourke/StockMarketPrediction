@@ -1,8 +1,9 @@
 package net.benorourke.stocks.framework.persistence.gson.data;
 
 import com.google.gson.*;
+import net.benorourke.stocks.framework.Framework;
 import net.benorourke.stocks.framework.persistence.gson.JsonAdapter;
-import net.benorourke.stocks.framework.series.data.Document;
+import net.benorourke.stocks.framework.series.data.impl.Document;
 import net.benorourke.stocks.framework.series.data.DocumentType;
 import net.benorourke.stocks.framework.util.DateUtil;
 
@@ -16,7 +17,7 @@ public class DocumentAdapter implements JsonAdapter<Document>
     public JsonElement serialize(Document document, Type typeOfSrc, JsonSerializationContext context)
     {
         JsonObject result = new JsonObject();
-        result.add("date", new JsonPrimitive(DateUtil.formatDetailed(document.getDate())));
+        result.add("date", new JsonPrimitive(document.getDate().getTime()));
         result.add("content", new JsonPrimitive(document.getContent()));
         result.add("type", new JsonPrimitive(document.getDocumentType().toString()));
         return result;
@@ -27,7 +28,7 @@ public class DocumentAdapter implements JsonAdapter<Document>
             throws JsonParseException
     {
         JsonObject object = json.getAsJsonObject();
-        Date date = DateUtil.parseDetailedUK(object.getAsJsonPrimitive("date").getAsString());
+        Date date = new Date(object.getAsJsonPrimitive("date").getAsLong());
         String content = object.getAsJsonPrimitive("content").getAsString();
         DocumentType type = DocumentType.valueOf(object.getAsJsonPrimitive("type").getAsString());
         return new Document(date, content, type);

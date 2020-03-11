@@ -3,20 +3,25 @@ package net.benorourke.stocks.framework;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import net.benorourke.stocks.framework.collection.datasource.DataSourceManager;
+import net.benorourke.stocks.framework.model.ModelData;
+import net.benorourke.stocks.framework.model.ProcessedCorpus;
 import net.benorourke.stocks.framework.persistence.FileManager;
 import net.benorourke.stocks.framework.persistence.gson.StockAdapter;
 import net.benorourke.stocks.framework.persistence.gson.TimeSeriesAdapter;
 import net.benorourke.stocks.framework.persistence.gson.data.DocumentAdapter;
 import net.benorourke.stocks.framework.persistence.gson.data.StockQuoteAdapter;
+import net.benorourke.stocks.framework.persistence.gson.model.ModelDataAdapter;
+import net.benorourke.stocks.framework.persistence.gson.model.ProcessedCorpusAdapter;
+import net.benorourke.stocks.framework.series.TimeSeries;
 import net.benorourke.stocks.framework.series.TimeSeriesManager;
-import net.benorourke.stocks.framework.series.data.Document;
-import net.benorourke.stocks.framework.series.data.StockQuote;
+import net.benorourke.stocks.framework.series.data.impl.Document;
+import net.benorourke.stocks.framework.series.data.impl.StockQuote;
 import net.benorourke.stocks.framework.stock.Stock;
 import net.benorourke.stocks.framework.stock.StockExchangeManager;
 import net.benorourke.stocks.framework.thread.TaskManager;
 import net.benorourke.stocks.framework.util.Initialisable;
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The Framework should only be accessed via a single thread.
@@ -35,8 +40,7 @@ public class Framework implements Initialisable
 
     static
     {
-        BasicConfigurator.configure();
-        logger = Logger.getLogger(Framework.class);
+        logger = LoggerFactory.getLogger(Framework.class);
     }
 
     public Framework(Configuration config)
@@ -48,10 +52,13 @@ public class Framework implements Initialisable
         taskManager = new TaskManager(config);
 
         gson = new GsonBuilder()
+//                        .setPrettyPrinting()
                         .registerTypeAdapter(Stock.class, new StockAdapter(stockExchangeManager))
-                        .registerTypeAdapter(TimeSeriesAdapter.class, new TimeSeriesAdapter())
-                        .registerTypeAdapter(Document.class, new DocumentAdapter())
+                        .registerTypeAdapter(TimeSeries.class, new TimeSeriesAdapter())
                         .registerTypeAdapter(StockQuote.class, new StockQuoteAdapter())
+                        .registerTypeAdapter(Document.class, new DocumentAdapter())
+                        .registerTypeAdapter(ModelData.class, new ModelDataAdapter())
+                        .registerTypeAdapter(ProcessedCorpus.class, new ProcessedCorpusAdapter())
                         .create();
     }
 
@@ -74,7 +81,7 @@ public class Framework implements Initialisable
 
     public static void debug(String message)
     {
-        logger.debug(message);
+        logger.info("Debug: " + message);
     }
 
     public static void error(String message)

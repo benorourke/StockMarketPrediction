@@ -1,15 +1,15 @@
 package net.benorourke.stocks.framework.series;
 
 import net.benorourke.stocks.framework.Framework;
+import net.benorourke.stocks.framework.collection.datasource.DataSource;
 import net.benorourke.stocks.framework.persistence.FileManager;
 import net.benorourke.stocks.framework.persistence.store.DataStore;
+import net.benorourke.stocks.framework.series.data.Data;
 import net.benorourke.stocks.framework.stock.Stock;
 import net.benorourke.stocks.framework.util.Initialisable;
 
-import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.io.File;
+import java.util.*;
 
 public class TimeSeriesManager implements Initialisable
 {
@@ -30,24 +30,45 @@ public class TimeSeriesManager implements Initialisable
     {
         timeSeries.addAll(loadStoredTimeSeries());
 
-        Framework.debug("Time Series Dir: " + fileManager.getTimeSeriesParentDirectory());
-        Framework.debug("Time Series Found: " + timeSeries.size());
+        Framework.info("Time Series Dir: " + fileManager.getTimeSeriesParentDirectory());
+        Framework.info("Time Series Found: " + timeSeries.size());
     }
+
+    //////////////////////////////////////////////////////////////////
+    //      TIMESERIES MANAGEMENT
+    //////////////////////////////////////////////////////////////////
 
     public boolean create(String name, Stock stock)
     {
         TimeSeries series = new TimeSeries(name, stock);
-        File info = fileManager.getTimeSeriesInfoFile(series);
         timeSeries.add(series);
 
-        if(fileManager.writeJson(info, series))
+        if(save(series))
         {
-            Framework.debug("Time Series Created: " + name + " for stock " + stock);
+            Framework.info("Time Series Created: " + series.toString());
             return true;
         }
         else
         {
-            Framework.error("Unable to Create TimeSeries " + name + " for stock " + stock);
+            Framework.error("Unable to Create TimeSeries " + series.toString());
+            return false;
+        }
+    }
+
+    public boolean save(TimeSeries series)
+    {
+        File info = fileManager.getTimeSeriesInfoFile(series);
+
+        if(info.exists()) info.delete();
+
+        if(fileManager.writeJson(info, series))
+        {
+            Framework.info("Time Series Saved: " + series.toString() + " to " + info.toString());
+            return true;
+        }
+        else
+        {
+            Framework.error("Unable to Create TimeSeries " + series.toString());
             return false;
         }
     }
@@ -96,15 +117,52 @@ public class TimeSeriesManager implements Initialisable
             }
             else
             {
-                framework.error("Unable to load time series meta at " + infoFile.getPath());
+                Framework.error("Unable to load time series meta at " + infoFile.getPath());
             }
         }
         return result;
     }
 
+    //////////////////////////////////////////////////////////////////
+    //      DATA COLLECTION / PRE-PROCESSING
+    //////////////////////////////////////////////////////////////////
+
     public DataStore getDataStore(TimeSeries timeSeries)
     {
         return new DataStore(framework, timeSeries);
+    }
+
+    public void onDataCollected(TimeSeries series, Class<? extends DataSource> dataSourceClass,
+                                Collection<Data> data)
+    {
+        if (getDataStore(series).writeRawData(dataSourceClass, data))
+        {
+            // Save the TimeSeries with the updated feedforward counts
+            series.getRawDataCounts().put(dataSourceClass, data.size());
+            save(series);
+
+            Framework.info("Wrote raw feedforward to TimeSeries " + series.toString());
+            Framework.debug("Raw feedforward counts:");
+            for (Map.Entry<Class<? extends DataSource>, Integer> rawDataCount : series.getRawDataCounts().entrySet())
+            {
+                Framework.debug(rawDataCount.getKey().getName() + ": " + rawDataCount.getValue());
+            }
+        }
+        else
+        {
+            Framework.error("Unable to write raw feedforward to TimeSeries " + series.toString());
+        }
+    }
+
+    public Map<DataSource, Integer> getCollectedDataCounts(TimeSeries series)
+    {
+        Map<DataSource, Integer> counts = new HashMap<>();
+        for (Map.Entry<Class<? extends DataSource>, Integer> entry : series.getRawDataCounts().entrySet())
+        {
+            DataSource src = framework.getDataSourceManager().getDataSourceByClass(entry.getKey());
+            counts.put(src, entry.getValue());
+        }
+        return counts;
     }
 
 }

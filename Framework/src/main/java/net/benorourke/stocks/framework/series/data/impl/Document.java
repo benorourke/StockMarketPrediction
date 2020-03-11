@@ -1,4 +1,8 @@
-package net.benorourke.stocks.framework.series.data;
+package net.benorourke.stocks.framework.series.data.impl;
+
+import net.benorourke.stocks.framework.series.data.Data;
+import net.benorourke.stocks.framework.series.data.DataType;
+import net.benorourke.stocks.framework.series.data.DocumentType;
 
 import java.util.Date;
 
@@ -13,12 +17,6 @@ public class Document extends Data
 
         this.content = content;
         this.documentType = documentType;
-    }
-
-    @Override
-    public boolean isProcessed()
-    {
-        return false;
     }
 
     public String getContent()

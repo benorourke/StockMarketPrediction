@@ -1,11 +1,15 @@
 package net.benorourke.stocks.framework.persistence;
 
+import com.google.gson.reflect.TypeToken;
+import com.google.gson.stream.JsonReader;
 import net.benorourke.stocks.framework.Configuration;
 import net.benorourke.stocks.framework.Framework;
 import net.benorourke.stocks.framework.collection.datasource.DataSource;
 import net.benorourke.stocks.framework.series.TimeSeries;
 
 import java.io.*;
+import java.lang.reflect.Type;
+import java.util.Collection;
 import java.util.Optional;
 
 public class FileManager
@@ -24,25 +28,32 @@ public class FileManager
         return workingDirectory;
     }
 
+    private void createFile(File file, boolean deleteIfExists) throws IOException
+    {
+        if(!file.getParentFile().exists())
+            file.getParentFile().mkdirs();
+
+
+        if(deleteIfExists && file.exists())
+            file.delete();
+
+        if(!file.exists())
+        {
+            file.createNewFile();
+        }
+    }
+
     //////////////////////////////////////////////////////////////////
     //      GSON
     //////////////////////////////////////////////////////////////////
 
     public boolean writeJson(File file, Object object)
     {
-        if(!file.getParentFile().exists())
-            file.getParentFile().mkdirs();
-        if(!file.exists())
+        try
         {
-            try
-            {
-                file.createNewFile();
-            }
-            catch (IOException exception)
-            {
-                return false;
-            }
+            createFile(file, true);
         }
+        catch (IOException e) { return false; }
 
         try (Writer writer = new FileWriter(file))
         {
@@ -76,6 +87,26 @@ public class FileManager
         {
             Framework.error("Unable to load " + classOfType.getSimpleName()
                                         + " from json file (" + file.toString() + ")", e);
+            return Optional.empty();
+        }
+    }
+
+    public <T> Optional<Collection<T>> loadJsonList(File file, TypeToken token)
+    {
+        if(!file.exists()) Optional.empty();
+
+        Type type = token.getType();
+        try
+        {
+            JsonReader reader = new JsonReader(new FileReader(file));
+            Collection<T> data = framework.getGson().fromJson(reader, type);
+
+            return Optional.of(data);
+        }
+        catch (FileNotFoundException e)
+        {
+            Framework.error("Unable to load list of " + type.toString()
+                    + " from json file (" + file.toString() + ")", e);
             return Optional.empty();
         }
     }
@@ -138,6 +169,16 @@ public class FileManager
     {
         return new File(getRawDataStoreDirectory(timeSeries)
                             + File.separator + clazz.getSimpleName().toLowerCase() + ".json");
+    }
+
+    public File getProcessedDataStoreDirectory(TimeSeries timeSeries)
+    {
+        return new File(getTimeSeriesDirectory(timeSeries), "processed");
+    }
+
+    public File getProcessedCorpusFile(TimeSeries timeSeries)
+    {
+        return new File(getProcessedDataStoreDirectory(timeSeries) + File.separator + "processed.json");
     }
 
 }

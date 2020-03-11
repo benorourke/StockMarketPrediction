@@ -2,22 +2,25 @@ package net.benorourke.stocks.framework.collection.datasource.alphavantage;
 
 import net.benorourke.stocks.framework.collection.Query;
 import net.benorourke.stocks.framework.collection.session.APICollectionSession;
+import net.benorourke.stocks.framework.collection.session.filter.CollectionFilter;
 import net.benorourke.stocks.framework.exception.ConstraintException;
 import net.benorourke.stocks.framework.exception.FailedCollectionException;
-import net.benorourke.stocks.framework.series.data.StockQuote;
+import net.benorourke.stocks.framework.series.data.impl.StockQuote;
 
 /**
- * Session only runs once since AlphaVantage returns enough data in one API call.
+ * Session only runs once since AlphaVantage returns enough feedforward in one API call.
  *
  * TODO - API key cycling
  */
-public class AlphaVantageCollectionSession implements APICollectionSession<StockQuote>
+public class AlphaVantageCollectionSession extends APICollectionSession<StockQuote>
 {
     private final Query completeQuery;
     private boolean done;
 
-    public AlphaVantageCollectionSession(Query completeQuery)
+    protected AlphaVantageCollectionSession(Query completeQuery, CollectionFilter<StockQuote> collectionFilter)
     {
+        super(collectionFilter);
+
         this.completeQuery = completeQuery;
         done = false;
     }
