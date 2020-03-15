@@ -9,19 +9,23 @@ import java.util.*;
 
 public class ProcessedCorpus implements Iterable<ModelData>
 {
-
+    private final int numFeatures, numLabels;
     private final String[] topTerms;
     private final List<ModelData> data;
+    // Have to be manually calculated; can't calculate on the fly if we normalise
+    private double[] featureMinimums, featureMaximums;
 
-    public ProcessedCorpus(String[] topTerms, List<ModelData> data)
+    public ProcessedCorpus(int numFeatures, int numLabels, String[] topTerms, List<ModelData> data)
     {
+        this.numFeatures = numFeatures;
+        this.numLabels = numLabels;
         this.topTerms = topTerms;
         this.data = data;
     }
 
-    public ProcessedCorpus(String[] topTerms)
+    public ProcessedCorpus(int numFeatures, int numLabels, String[] topTerms)
     {
-        this(topTerms, new ArrayList<>());
+        this(numFeatures, numLabels, topTerms, new ArrayList<>());
     }
 
     public List<ModelData> getData()
@@ -42,43 +46,55 @@ public class ProcessedCorpus implements Iterable<ModelData>
 
     /**
      * Normalise the features based on the minimums & maximums provided.
-     * @param featureMinimums
-     * @param featureMaximums
      */
     public void normalise(double[] featureMinimums, double[] featureMaximums)
     {
         for (ModelData modelData : data)
         {
-            for (int i = 0; i < ModelData.N_FEATURES; i ++)
+            for (int i = 0; i < numFeatures; i ++)
             {
                 double unnormalised = modelData.getFeatures()[i];
-                modelData.getFeatures()[i] = (unnormalised - featureMinimums[i])
-                                                / (featureMaximums[i] - featureMinimums[i]);
+
+                if (featureMinimums[i] == featureMaximums[i]) // Prevent dividing by zero
+                {
+                    modelData.getFeatures()[i] = 0.0D;
+                }
+                else
+                {
+                    double normalised = (unnormalised - featureMinimums[i])
+                            / (featureMaximums[i] - featureMinimums[i]);
+                    modelData.getFeatures()[i] = normalised;
+                }
             }
         }
+    }
+
+    public void normalise()
+    {
+        normalise(this.featureMinimums, this.featureMaximums);
     }
 
     /**
      * @return [0] = minimums for each feature, [1] = maximums for each feature
      */
-    public double[][] getFeatureMinsMaxes()
+    public void calculateFeatureMinsMaxes()
     {
-        double[] minimums = new double[ModelData.N_FEATURES];
-        Arrays.fill(minimums, Double.MAX_VALUE);
-        double[] maximums = new double[ModelData.N_FEATURES];
-        Arrays.fill(maximums, Double.MIN_VALUE);
+        featureMinimums = new double[numFeatures];
+        Arrays.fill(featureMinimums, Double.MAX_VALUE);
+        featureMaximums = new double[numFeatures];
+        Arrays.fill(featureMaximums, Double.MIN_VALUE);
         for (ModelData elem : data)
         {
             double[] quoteData = elem.getFeatures();
-            for (int i = 0; i < ModelData.N_FEATURES; i ++)
+            for (int i = 0; i < numFeatures; i ++)
             {
-                if (minimums[i] > quoteData[i])
-                    minimums[i] = quoteData[i];
-                if (maximums[i] < quoteData[i])
-                    maximums[i] = quoteData[i];
+
+                if (featureMinimums[i] > quoteData[i])
+                    featureMinimums[i] = quoteData[i];
+                if (featureMaximums[i] < quoteData[i])
+                    featureMaximums[i] = quoteData[i];
             }
         }
-        return new double[][] {minimums, maximums};
     }
 
     /**
@@ -92,8 +108,8 @@ public class ProcessedCorpus implements Iterable<ModelData>
         int index = (int) Math.round(cardinality * splitRatio);
 
         List<ProcessedCorpus> datasets = new ArrayList<>();
-        datasets.add(new ProcessedCorpus(topTerms, data.subList(0, index)));
-        datasets.add(new ProcessedCorpus(topTerms, data.subList(index + 1, cardinality - 1)));
+        datasets.add(new ProcessedCorpus(numFeatures, numLabels, topTerms, data.subList(0, index)));
+        datasets.add(new ProcessedCorpus(numFeatures, numLabels, topTerms, data.subList(index + 1, cardinality - 1)));
         return datasets;
     }
 
@@ -101,13 +117,13 @@ public class ProcessedCorpus implements Iterable<ModelData>
     {
         int size = size();
 
-        double[][] inputsMatrix = new double[size][ModelData.N_FEATURES];
-        double[][] outputsMatrix = new double[size][ModelData.N_LABELS];
+        double[][] inputsMatrix = new double[size][numFeatures];
+        double[][] outputsMatrix = new double[size][numLabels];
 
         int row = 0;
         for (ModelData data : this.data)
         {
-            for (int col = 0; col < ModelData.N_FEATURES; col ++)
+            for (int col = 0; col < numLabels; col ++)
             {
                 inputsMatrix[row] = data.getFeatures();
                 outputsMatrix[row] = data.getLabels();
@@ -122,6 +138,16 @@ public class ProcessedCorpus implements Iterable<ModelData>
 
         set.shuffle(seed);
         return set;
+    }
+
+    public int getNumFeatures()
+    {
+        return numFeatures;
+    }
+
+    public int getNumLabels()
+    {
+        return numLabels;
     }
 
     public String[] getTopTerms()

@@ -15,6 +15,7 @@ public class TrainingTask implements Task<TaskDescription, Result>
 {
     private final ModelHandler modelHandler;
     private final ProcessedCorpus corpus;
+    private final long seed;
 
     private TrainingStage stage;
     private Progress progress;
@@ -22,10 +23,11 @@ public class TrainingTask implements Task<TaskDescription, Result>
     @Nullable
     private PredictionModel predictionModel;
 
-    public TrainingTask(ModelHandler modelHandler, ProcessedCorpus corpus)
+    public TrainingTask(ModelHandler modelHandler, ProcessedCorpus corpus, long seed)
     {
         this.modelHandler = modelHandler;
         this.corpus = corpus;
+        this.seed = seed;
 
         stage = TrainingStage.first();
     }
@@ -61,9 +63,7 @@ public class TrainingTask implements Task<TaskDescription, Result>
     {
         Framework.info("Executing stage " + stage.toString());
         if (executeStage())
-        {
             stage = stage.next();
-        }
     }
 
     private boolean executeStage()
@@ -97,7 +97,7 @@ public class TrainingTask implements Task<TaskDescription, Result>
 
     private void executeEvaluate()
     {
-        modelHandler.evaluate(predictionModel, corpus.toDataSet(0)); // TODO
+        modelHandler.evaluate(predictionModel, corpus.toDataSet(seed));
     }
 
     @Override

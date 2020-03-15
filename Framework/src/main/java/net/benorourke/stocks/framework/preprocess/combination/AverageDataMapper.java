@@ -1,12 +1,15 @@
 package net.benorourke.stocks.framework.preprocess.combination;
 
+import net.benorourke.stocks.framework.Framework;
 import net.benorourke.stocks.framework.model.ModelData;
 import net.benorourke.stocks.framework.preprocess.document.Sentiment;
 import net.benorourke.stocks.framework.series.data.impl.ProcessedDocument;
 import net.benorourke.stocks.framework.series.data.impl.StockQuote;
 import net.benorourke.stocks.framework.series.data.impl.StockQuoteDataType;
 
+import java.text.DecimalFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class AverageDataMapper implements ModelDataMapper
 {
@@ -37,6 +40,9 @@ public class AverageDataMapper implements ModelDataMapper
         // quotes
         int quoteFeaturesCols = quotes.get(0).getData().length;
         double[][] quoteFeatures = new double[quotes.size()][quoteFeaturesCols];
+        int quoteFeaturesIdx = 0;
+        for (StockQuote quote : quotes)
+            quoteFeatures[quoteFeaturesIdx ++] = quote.getData();
         double[] quoteFeaturesVector = takeAverage(quoteFeatures, quoteFeaturesCols);
         // sentiment
         double[] sentimentVector = getModeSentiment(documents).toInputVector();

@@ -28,36 +28,40 @@ public class FeedForwardModelHandler extends ModelHandler<FeedForwardModel>
 {
     private static final int N_HIDDEN = 30;
 
-    public FeedForwardModelHandler(long seed)
+    private final int numFeatures, numLabels;
+
+    public FeedForwardModelHandler(long seed, int numFeatures, int numLabels)
     {
         super(seed);
-    }
 
-    public FeedForwardModelHandler()
-    {
-        this(0);
+        this.numFeatures = numFeatures;
+        this.numLabels = numLabels;
     }
 
     @Override
     public FeedForwardModel create()
     {
+        Framework.debug("Creating with features " + numFeatures + ", labels " + numLabels);
+        Framework.debug("d1");
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
                 .seed(getSeed())
                 .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
                 .updater(new Adam())
                 .l2(1e-4)
                 .list()
-                .layer(0, new DenseLayer.Builder().nIn(N_FEATURES).nOut(N_HIDDEN)
+                .layer(0, new DenseLayer.Builder().nIn(numFeatures).nOut(N_HIDDEN)
                         .activation(Activation.TANH)
                         .build())
                 .layer(1, new OutputLayer.Builder(LossFunctions.LossFunction.MSE)
                         .activation(Activation.IDENTITY)
-                        .nIn(N_HIDDEN).nOut(N_LABELS).build())
+                        .nIn(N_HIDDEN).nOut(numLabels).build())
                 .build();
+        Framework.debug("d2");
 
         MultiLayerNetwork net = new MultiLayerNetwork(conf);
         net.init();
         net.setListeners(new ScoreIterationListener(1));
+        Framework.debug("d3");
 
         return new FeedForwardModel(net);
     }
@@ -84,7 +88,7 @@ public class FeedForwardModelHandler extends ModelHandler<FeedForwardModel>
     public void evaluate(FeedForwardModel trainedModel, DataSet dataSet)
     {
         // TODO
-        Evaluation evaluation = new Evaluation(N_LABELS);
+        Evaluation evaluation = new Evaluation(numLabels);
 
         INDArray labels = dataSet.getLabels();
         INDArray features = dataSet.getFeatures();

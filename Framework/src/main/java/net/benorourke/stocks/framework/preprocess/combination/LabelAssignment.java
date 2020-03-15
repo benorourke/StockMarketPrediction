@@ -29,10 +29,7 @@ public class LabelAssignment extends Preprocess< Tuple<List<ProcessedDocument>,
     }
 
     @Override
-    public void initialise()
-    {
-
-    }
+    public void initialise() {}
 
     @Override
     public List<ModelData> preprocess(Tuple<List<ProcessedDocument>, List<StockQuote>> data)
@@ -136,6 +133,11 @@ public class LabelAssignment extends Preprocess< Tuple<List<ProcessedDocument>,
 
             current = DateUtil.addHours(current, 24);
         }
+    }
+
+    public ModelDataMapper getMapper()
+    {
+        return mapper;
     }
 
 }

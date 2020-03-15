@@ -253,12 +253,14 @@ public class PreprocessingTask implements Task<TaskDescription, PreprocessingRes
     private void executeAssignLabels()
     {
         Framework.info("[Pre-processing] Assigning Labels");
+        int features = labelAssignment.getMapper().getFeatureCount(representedCorpus, loadedQuotes);
+        int labels = labelAssignment.getMapper().getLabelCount(representedCorpus, loadedQuotes);
         List<ModelData> data = labelAssignment.preprocess(new Tuple<>(representedCorpus, loadedQuotes));
         Framework.info("[Pre-processing] Producing Corpus");
-        result = new ProcessedCorpus(featureRepresenter.getTopTerms(), data);
+        result = new ProcessedCorpus(features, labels,featureRepresenter.getTopTerms(), data);
         Framework.info("[Pre-processing] Normalising Corpus");
-        double[][] normalisationMinsMaxes = result.getFeatureMinsMaxes();
-        result.normalise(normalisationMinsMaxes[0], normalisationMinsMaxes[1]);
+        result.calculateFeatureMinsMaxes();
+        result.normalise();
         Framework.info("[Pre-processing] Complete");
     }
 

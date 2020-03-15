@@ -12,11 +12,6 @@ public abstract class ModelHandler<T extends PredictionModel>
         this.seed = seed;
     }
 
-    public ModelHandler()
-    {
-        this(0);
-    }
-
     public abstract T create();
 
     public abstract void train(T model, ProcessedCorpus corpus);
