@@ -12,6 +12,7 @@ import org.deeplearning4j.nn.conf.layers.OutputLayer;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
 import org.nd4j.evaluation.classification.Evaluation;
+import org.nd4j.evaluation.regression.RegressionEvaluation;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
@@ -22,6 +23,8 @@ import org.nd4j.linalg.lossfunctions.LossFunctions;
 
 import static net.benorourke.stocks.framework.model.ModelData.*;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
 
 public class FeedForwardModelHandler extends ModelHandler<FeedForwardModel>
@@ -88,13 +91,20 @@ public class FeedForwardModelHandler extends ModelHandler<FeedForwardModel>
     public void evaluate(FeedForwardModel trainedModel, DataSet dataSet)
     {
         // TODO
-        Evaluation evaluation = new Evaluation(numLabels);
+//        Evaluation evaluation = new Evaluation(numLabels);
+        RegressionEvaluation evaluation =  new RegressionEvaluation(numLabels);
+
+        Framework.debug("1: numLabels=" + numLabels);
 
         INDArray labels = dataSet.getLabels();
         INDArray features = dataSet.getFeatures();
+        Framework.debug("1.5");
         INDArray predicted = predict(trainedModel, features);
+        Framework.debug("2");
         evaluation.eval(labels, predicted);
+        Framework.debug("2.5");
         Framework.debug(evaluation.stats());
+        Framework.debug("3");
     }
 
     @Override
@@ -109,6 +119,35 @@ public class FeedForwardModelHandler extends ModelHandler<FeedForwardModel>
     public INDArray predict(FeedForwardModel trainedModel, INDArray features)
     {
         return trainedModel.predict(features);
+    }
+
+    @Override
+    public boolean writeModel(File file, FeedForwardModel trainedModel)
+    {
+        try
+        {
+            trainedModel.save(file);
+            return true;
+        }
+        catch (IOException e)
+        {
+            Framework.error("Unable to write model to " + file.getPath(), e);
+            return false;
+        }
+    }
+
+    @Override
+    public FeedForwardModel loadModel(File file)
+    {
+        try
+        {
+            return new FeedForwardModel(MultiLayerNetwork.load(file, true));
+        }
+        catch (IOException e)
+        {
+            Framework.error("Unable to load model from " + file.getPath(), e);
+            return null;
+        }
     }
 
 }

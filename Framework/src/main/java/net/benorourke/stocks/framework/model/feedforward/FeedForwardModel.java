@@ -6,6 +6,9 @@ import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
 
+import java.io.File;
+import java.io.IOException;
+
 public class FeedForwardModel extends PredictionModel
 {
     private final MultiLayerNetwork network;
@@ -25,6 +28,15 @@ public class FeedForwardModel extends PredictionModel
     public INDArray predict(INDArray input)
     {
         return network.output(input);
+    }
+
+    public void save(File file) throws IOException
+    {
+        if (file.exists())
+            file.delete();
+        file.getParentFile().mkdirs();
+
+        network.save(file);
     }
 
 }

@@ -1,5 +1,6 @@
 package net.benorourke.stocks.framework.model;
 
+import net.benorourke.stocks.framework.Framework;
 import net.benorourke.stocks.framework.series.data.impl.StockQuote;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
@@ -105,11 +106,19 @@ public class ProcessedCorpus implements Iterable<ModelData>
     public List<ProcessedCorpus> split(double splitRatio)
     {
         int cardinality = size();
-        int index = (int) Math.round(cardinality * splitRatio);
+        int index;
+        if (cardinality < 2)
+            return null;
+        if (cardinality == 2)
+            index = 0;
+        else
+            index = (int) Math.round((cardinality - 1) * splitRatio);
+
+        Framework.debug("[ProcessedCorpus] Splitting @" + index + " (cardinality=" + cardinality + ')');
 
         List<ProcessedCorpus> datasets = new ArrayList<>();
-        datasets.add(new ProcessedCorpus(numFeatures, numLabels, topTerms, data.subList(0, index)));
-        datasets.add(new ProcessedCorpus(numFeatures, numLabels, topTerms, data.subList(index + 1, cardinality - 1)));
+        datasets.add(new ProcessedCorpus(numFeatures, numLabels, topTerms, data.subList(0, index + 1)));
+        datasets.add(new ProcessedCorpus(numFeatures, numLabels, topTerms, data.subList(index + 1, cardinality)));
         return datasets;
     }
 

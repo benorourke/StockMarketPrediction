@@ -11,22 +11,24 @@ import net.benorourke.stocks.framework.util.Nullable;
  * No TaskDescription derivative class required as we only want to enable one
  * pre-processing task at a time.
  */
-public class TrainingTask implements Task<TaskDescription, Result>
+public class TrainingTask<T extends PredictionModel> implements Task<TaskDescription, TrainingResult<T>>
 {
-    private final ModelHandler modelHandler;
-    private final ProcessedCorpus corpus;
+    private final ModelHandler<T> modelHandler;
+    private final ProcessedCorpus training, testing;
     private final long seed;
 
     private TrainingStage stage;
     private Progress progress;
 
     @Nullable
-    private PredictionModel predictionModel;
+    private T predictionModel;
 
-    public TrainingTask(ModelHandler modelHandler, ProcessedCorpus corpus, long seed)
+    public TrainingTask(ModelHandler<T> modelHandler,
+                        ProcessedCorpus training, ProcessedCorpus testing, long seed)
     {
         this.modelHandler = modelHandler;
-        this.corpus = corpus;
+        this.training = training;
+        this.testing = testing;
         this.seed = seed;
 
         stage = TrainingStage.first();
@@ -92,12 +94,12 @@ public class TrainingTask implements Task<TaskDescription, Result>
 
     private void executeTrain()
     {
-        modelHandler.train(predictionModel, corpus);
+        modelHandler.train(predictionModel, training);
     }
 
     private void executeEvaluate()
     {
-        modelHandler.evaluate(predictionModel, corpus.toDataSet(seed));
+        modelHandler.evaluate(predictionModel, testing.toDataSet(seed));
     }
 
     @Override
@@ -107,8 +109,9 @@ public class TrainingTask implements Task<TaskDescription, Result>
     }
 
     @Override
-    public Result getResult()
+    public TrainingResult getResult()
     {
-        return new Result();
+        return new TrainingResult(predictionModel);
     }
+
 }
