@@ -5,7 +5,6 @@ import net.benorourke.stocks.framework.persistence.gson.data.DocumentAdapter;
 import net.benorourke.stocks.framework.persistence.gson.data.StockQuoteAdapter;
 import net.benorourke.stocks.framework.series.data.impl.Document;
 import net.benorourke.stocks.framework.series.data.impl.CleanedDocument;
-import net.benorourke.stocks.framework.series.data.impl.NormalisedStockQuote;
 import net.benorourke.stocks.framework.series.data.impl.StockQuote;
 
 /**
@@ -40,20 +39,6 @@ public interface DataType<T extends Data>
         public JsonAdapter<Document> getAdapter()
         {
             return new DocumentAdapter();
-        }
-    };
-    DataType<NormalisedStockQuote> NORMALISED_STOCK_QUOTE = new DataType<NormalisedStockQuote>()
-    {
-        @Override
-        public String getName()
-        {
-            return "Normalised Stock Quote";
-        }
-
-        @Override
-        public JsonAdapter<NormalisedStockQuote> getAdapter()
-        {
-            return null;
         }
     };
     DataType<CleanedDocument> CLEANED_DOCUMENT = new DataType<CleanedDocument>()

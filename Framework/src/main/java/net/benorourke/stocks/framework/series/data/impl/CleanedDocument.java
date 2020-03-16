@@ -1,26 +1,27 @@
 package net.benorourke.stocks.framework.series.data.impl;
 
+import net.benorourke.stocks.framework.series.data.Data;
 import net.benorourke.stocks.framework.series.data.DataType;
 import net.benorourke.stocks.framework.series.data.DocumentType;
-import net.benorourke.stocks.framework.series.data.ProcessedData;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * TODO
  */
-public class CleanedDocument extends ProcessedData
+public class CleanedDocument extends Data
 {
     private final String originalContent;
-    private final String cleanedContent;
+    private final List<String> cleanedTerms;
     private final DocumentType documentType;
 
-    public CleanedDocument(Date date, String originalContent, String cleanedContent, DocumentType documentType)
+    public CleanedDocument(Date date, String originalContent, List<String> cleanedTerms, DocumentType documentType)
     {
         super(DataType.CLEANED_DOCUMENT, date);
 
         this.originalContent = originalContent;
-        this.cleanedContent = cleanedContent;
+        this.cleanedTerms = cleanedTerms;
         this.documentType = documentType;
     }
 
@@ -29,9 +30,9 @@ public class CleanedDocument extends ProcessedData
         return originalContent;
     }
 
-    public String getCleanedContent()
+    public List<String> getCleanedTerms()
     {
-        return cleanedContent;
+        return cleanedTerms;
     }
 
     public DocumentType getDocumentType()

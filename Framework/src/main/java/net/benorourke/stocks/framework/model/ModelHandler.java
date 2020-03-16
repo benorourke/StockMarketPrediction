@@ -3,6 +3,8 @@ package net.benorourke.stocks.framework.model;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
 
+import java.io.File;
+
 public abstract class ModelHandler<T extends PredictionModel>
 {
     private final long seed;
@@ -10,11 +12,6 @@ public abstract class ModelHandler<T extends PredictionModel>
     public ModelHandler(long seed)
     {
         this.seed = seed;
-    }
-
-    public ModelHandler()
-    {
-        this(0);
     }
 
     public abstract T create();
@@ -26,6 +23,10 @@ public abstract class ModelHandler<T extends PredictionModel>
     public abstract double[] predictOne(T trainedModel, double[] features);
 
     public abstract INDArray predict(T trainedModel, INDArray features);
+
+    public abstract boolean writeModel(File file, T trainedModel);
+
+    public abstract T loadModel(File file);
 
     public long getSeed()
     {

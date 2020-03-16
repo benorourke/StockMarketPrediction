@@ -1,6 +1,5 @@
-package net.benorourke.stocks.framework.preprocess.impl.document;
+package net.benorourke.stocks.framework.preprocess.document;
 
-import net.benorourke.stocks.framework.Framework;
 import net.benorourke.stocks.framework.series.data.DocumentType;
 import net.benorourke.stocks.framework.series.data.impl.Document;
 import net.benorourke.stocks.framework.series.data.impl.CleanedDocument;
@@ -17,7 +16,7 @@ public class DocumentPreprocessorTest
     @Test
     public void rename()
     {
-        DocumentCleaner preprocessor = new DocumentCleaner();
+        DimensionalityReducer preprocessor = new DimensionalityReducer();
         preprocessor.initialise();
 
         List<Document> corpus = new ArrayList<Document>();
@@ -25,8 +24,6 @@ public class DocumentPreprocessorTest
 
         List<CleanedDocument> res = preprocessor.preprocess(corpus);
         CleanedDocument elem0 = res.get(0);
-
-        Framework.debug("Res: " + elem0.getCleanedContent());
     }
 
 }

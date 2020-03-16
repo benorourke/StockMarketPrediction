@@ -181,4 +181,9 @@ public class FileManager
         return new File(getProcessedDataStoreDirectory(timeSeries) + File.separator + "processed.json");
     }
 
+    public File getModelFile(TimeSeries timeSeries)
+    {
+        return new File(getProcessedDataStoreDirectory(timeSeries) + File.separator + "trained.model");
+    }
+
 }

@@ -16,7 +16,18 @@ public class ProcessedCorpusAdapter implements JsonAdapter<ProcessedCorpus>
     public JsonElement serialize(ProcessedCorpus corpus, Type typeOfSrc, JsonSerializationContext context)
     {
         JsonObject result = new JsonObject();
+
+        result.add("numFeatures", new JsonPrimitive(corpus.getNumFeatures()));
+        result.add("numLabels", new JsonPrimitive(corpus.getNumLabels()));
         result.add("data", context.serialize(corpus.getData()));
+
+        JsonArray topTerms = new JsonArray();
+        for (String term : corpus.getTopTerms())
+        {
+            topTerms.add(new JsonPrimitive(term));
+        }
+        result.add("topTerms", topTerms);
+
         return result;
     }
 
@@ -25,8 +36,16 @@ public class ProcessedCorpusAdapter implements JsonAdapter<ProcessedCorpus>
             throws JsonParseException
     {
         JsonObject object = json.getAsJsonObject();
+        int numFeatures = object.getAsJsonPrimitive("numFeatures").getAsInt();
+        int numLabels = object.getAsJsonPrimitive("numLabels").getAsInt();
         List<ModelData> data = context.deserialize(object.getAsJsonArray("data"),
                                                    new TypeToken<List<ModelData>>(){}.getType());
-        return new ProcessedCorpus(data);
+
+        JsonArray topTermsArray = object.getAsJsonArray("topTerms");
+        String[] topTerms = new String[topTermsArray.size()];
+        for (int i = 0; i < topTerms.length; i ++)
+            topTerms[i] = topTermsArray.get(i).getAsJsonPrimitive().getAsString();
+
+        return new ProcessedCorpus(numFeatures, numLabels, topTerms, data);
     }
 }

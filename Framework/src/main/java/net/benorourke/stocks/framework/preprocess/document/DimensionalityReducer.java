@@ -1,4 +1,4 @@
-package net.benorourke.stocks.framework.preprocess.impl.document;
+package net.benorourke.stocks.framework.preprocess.document;
 
 import edu.stanford.nlp.ling.CoreAnnotations;
 import edu.stanford.nlp.ling.CoreLabel;
@@ -14,7 +14,7 @@ import net.benorourke.stocks.framework.util.DateUtil;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class DocumentCleaner extends Preprocess<List<Document>, List<CleanedDocument>>
+public class DimensionalityReducer extends Preprocess<List<Document>, List<CleanedDocument>>
 {
     private static final int PROGRESS_ITERATIONS = 50;
     private static final Set<String> STOPWORDS = new HashSet<>(Arrays.asList(new String[]
@@ -45,9 +45,9 @@ public class DocumentCleaner extends Preprocess<List<Document>, List<CleanedDocu
         {
             Framework.debug("Cleaning document on " + DateUtil.formatDetailed(document.getDate()));
 
-            String contentCleaned = clean(document.getContent());
+            List<String> cleanedTerms = clean(document.getContent());
             CleanedDocument cleaned = new CleanedDocument(document.getDate(), document.getContent(),
-                                                          contentCleaned, document.getDocumentType());
+                                                          cleanedTerms, document.getDocumentType());
             res.add(cleaned);
 
             count ++;
@@ -65,9 +65,9 @@ public class DocumentCleaner extends Preprocess<List<Document>, List<CleanedDocu
      * @param documentText
      * @return
      */
-    public String clean(String documentText)
+    public List<String> clean(String documentText)
     {
-        documentText = documentText.replaceAll("[^a-zA-Z ]", "");
+        documentText = documentText.toLowerCase().replaceAll("[^a-zA-Z ]", "");
 
         List<String> lemmas = new LinkedList<String>();
         Annotation document = new Annotation(documentText);
@@ -82,7 +82,7 @@ public class DocumentCleaner extends Preprocess<List<Document>, List<CleanedDocu
             }
         }
 
-        return reassemble(lemmas);
+        return lemmas;
     }
 
     private boolean isStopword(String word)
@@ -96,11 +96,6 @@ public class DocumentCleaner extends Preprocess<List<Document>, List<CleanedDocu
         String annotators = "tokenize, ssplit, pos, lemma";
         props.put("annotators", annotators);
         return props;
-    }
-
-    private String reassemble(List<String> tokens)
-    {
-        return tokens.stream().collect(Collectors.joining(" "));
     }
 
 }

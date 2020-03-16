@@ -3,7 +3,8 @@ package net.benorourke.stocks.framework.collection.datasource;
 import net.benorourke.stocks.framework.collection.ConnectionResponse;
 import net.benorourke.stocks.framework.collection.Query;
 import net.benorourke.stocks.framework.collection.constraint.Constraint;
-import net.benorourke.stocks.framework.collection.session.CollectionSession;
+import net.benorourke.stocks.framework.collection.session.APICollectionSession;
+import net.benorourke.stocks.framework.collection.session.filter.CollectionFilter;
 import net.benorourke.stocks.framework.exception.ConstraintException;
 import net.benorourke.stocks.framework.exception.FailedCollectionException;
 import net.benorourke.stocks.framework.series.data.Data;
@@ -18,7 +19,7 @@ public abstract class DataSource<T extends Data>
 
     public abstract Constraint[] getConstraints();
 
-    public abstract CollectionSession<T> newSession(Query completeQuery);
+    public abstract APICollectionSession<T> newSession(Query completeQuery, CollectionFilter<T> collectionFilter);
 
     public abstract ConnectionResponse<T> retrieve(Query query) throws ConstraintException, FailedCollectionException;
 

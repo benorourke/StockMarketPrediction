@@ -1,21 +1,24 @@
 package net.benorourke.stocks.framework.collection.session;
 
 import net.benorourke.stocks.framework.collection.Query;
+import net.benorourke.stocks.framework.collection.session.filter.CollectionFilter;
 import net.benorourke.stocks.framework.series.data.Data;
 
 import java.util.Calendar;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
-public class DailyCollectionSession<T extends Data> implements CollectionSession<T>
+public class DailyCollectionSession<T extends Data> extends CollectionSession<T>
 {
     private final Query completeQuery;
     private Date currentDate;
 
     private int completed;
 
-    public DailyCollectionSession(Query completeQuery)
+    public DailyCollectionSession(Query completeQuery, CollectionFilter<T> collectionFilter)
     {
+        super(collectionFilter);
+
         this.completeQuery = completeQuery;
         currentDate = completeQuery.getFrom();
     }

@@ -1,32 +1,32 @@
 package net.benorourke.stocks.framework.series.data.impl;
 
-import net.benorourke.stocks.framework.preprocess.impl.document.Sentiment;
+import net.benorourke.stocks.framework.preprocess.document.Sentiment;
+import net.benorourke.stocks.framework.series.data.Data;
 import net.benorourke.stocks.framework.series.data.DataType;
-import net.benorourke.stocks.framework.series.data.ProcessedData;
 
 import java.util.Date;
 
-public class ProcessedDocument extends ProcessedData
+public class ProcessedDocument extends Data
 {
-    private final String cleanedContent;
     private final Sentiment sentiment;
+    private final boolean[] topTermVector;
 
-    public ProcessedDocument(Date date, String cleanedText, Sentiment sentiment)
+    public ProcessedDocument(Date date, Sentiment sentiment, boolean[] topTermVector)
     {
         super(DataType.PROCESSED_DOCUMENT, date);
 
-        this.cleanedContent = cleanedText;
         this.sentiment = sentiment;
-    }
-
-    public String getCleanedContent()
-    {
-        return cleanedContent;
+        this.topTermVector = topTermVector;
     }
 
     public Sentiment getSentiment()
     {
         return sentiment;
+    }
+
+    public boolean[] getTopTermVector()
+    {
+        return topTermVector;
     }
 
 }
