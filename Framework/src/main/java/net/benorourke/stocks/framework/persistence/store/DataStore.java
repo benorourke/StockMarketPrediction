@@ -32,7 +32,7 @@ public class DataStore
     //      RAW DATA
     //////////////////////////////////////////////////////////////////
 
-    // Example directory:
+    // Example splash:
     //
     // - TimeSeriesA
     //    - raw

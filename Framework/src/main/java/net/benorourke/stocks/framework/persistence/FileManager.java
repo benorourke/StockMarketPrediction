@@ -116,7 +116,7 @@ public class FileManager
     //////////////////////////////////////////////////////////////////
 
     /**
-     * Get the parent directory that contains all TimeSeries sub-directories.
+     * Get the parent splash that contains all TimeSeries sub-directories.
      * @return
      */
     public File getTimeSeriesParentDirectory()
@@ -125,7 +125,7 @@ public class FileManager
     }
 
     /**
-     * Get the directory for a given TimeSeries' name.
+     * Get the splash for a given TimeSeries' name.
      * @return
      */
     public File getTimeSeriesDirectory(String name)

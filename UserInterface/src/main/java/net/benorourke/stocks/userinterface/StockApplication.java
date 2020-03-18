@@ -56,7 +56,9 @@ public class StockApplication extends Application
     {
         // TODO - set as Daemon Thread (low prior, background thread)?
         new Thread(() -> backgroundThread.queueRunnable(runnable)).start();
-    }    public static void info(String message)
+    }
+
+    public static void info(String message)
 {
     LOGGER.info(message);
 }

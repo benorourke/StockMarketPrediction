@@ -104,7 +104,7 @@ public class TimeSeriesManager implements Initialisable
 
             File infoFile = fileManager.getTimeSeriesInfoFile(file);
 
-            if(!infoFile.exists()) // There's a TimeSeries directory but the info file is missing
+            if(!infoFile.exists()) // There's a TimeSeries splash but the info file is missing
             {
                 Framework.info("Timeseries info.json " + infoFile.getPath() + " is missing! Unable to load");
                 continue;
@@ -163,6 +163,11 @@ public class TimeSeriesManager implements Initialisable
             counts.put(src, entry.getValue());
         }
         return counts;
+    }
+
+    public List<TimeSeries> getTimeSeries()
+    {
+        return timeSeries;
     }
 
 }
