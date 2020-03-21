@@ -60,38 +60,45 @@ public class SplashController extends Controller
 	private void initScrollPane(VBox parent)
 	{
 		ScrollPane scrollPane = new ScrollPane();
+
 		scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
 		bind(scrollPane, parent);
 
-		FlowPane flowPane = new FlowPane();
-		flowPane.setHgap(20);
-		flowPane.setVgap(20);
-		flowPane.setColumnHalignment(HPos.CENTER);
-		flowPane.setRowValignment(VPos.CENTER);
-		bindY(flowPane, scrollPane);
-		bindX(flowPane, scrollPane, 0.9);
+		GridPane gridPane = new GridPane();
+		gridPane.setVgap(20);
+		gridPane.setHgap(20);
+		gridPane.setAlignment(Pos.CENTER);
+		gridPane.setPadding(new Insets(20));
+
+		bindX(gridPane, scrollPane, 0.99);
+		bindY(gridPane, scrollPane, 0.99);
 		Random rand = new Random();
-		for (int i = 0; i < 4; i ++)
+		int count = 0;
+		for (int i = 0; i < 30; i ++)
 		{
-			VBox item = createPaneItem(flowPane);
-			item.setPrefWidth(250);
-			item.setPrefHeight(item.getPrefWidth() * Constants.INVERSE_ASPECT_RATIO);
-			item.setPadding(new Insets(20));
+			VBox item = createPaneItem(gridPane);
+//			bindX(item, gridPane, 0.3);
+//			bindY(item, gridPane, 0.3);
 
 			Color[] colors = new Color[] {Color.YELLOW, Color.BLUE, Color.BLACK};
 			item.setBackground(new Background(new BackgroundFill(colors[rand.nextInt(colors.length)],
 																 CornerRadii.EMPTY, Insets.EMPTY)));
-			flowPane.getChildren().add(item);
+//			gridPane.getChildren().add(item);
+			gridPane.add(item, count % 3, (int) Math.floor(count / 3.0D));
+
+			count ++;
 		}
 
 		parent.getChildren().add(scrollPane);
-		scrollPane.setContent(flowPane);
+		scrollPane.setContent(gridPane);
 	}
 
-	private VBox createPaneItem(FlowPane flowPane)
+	private VBox createPaneItem(GridPane gridPane)
 	{
 		VBox vBox = new VBox();
 		vBox.getChildren().add(new Label("Test"));
+		vBox.setPrefHeight(500D);
+		vBox.setPrefWidth(300);
 		return vBox;
 	}
 
