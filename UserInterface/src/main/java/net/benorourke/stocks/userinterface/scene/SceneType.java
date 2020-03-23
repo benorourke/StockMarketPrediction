@@ -1,25 +1,20 @@
 package net.benorourke.stocks.userinterface.scene;
 
-import net.benorourke.stocks.userinterface.scene.splash.SplashController;
+import net.benorourke.stocks.userinterface.scene.dashboard.DashboardController;
 
 public enum SceneType
 {
-    /**
-     * The Scene that shows information & options for a given module, i.e.
-     * a list of bots.
-     */
-    DIRECTORY_SELECTION("/splash.fxml", "/darktheme.css", SplashController.class),
 	/** The dashboard Scene */
-	/*DASHBOARD("splash.fxml", "darktheme.css", DashboardController.class)*/;
+	DASHBOARD("/dashboard.fxml", new String[] {"/dashboard.css"}, DashboardController.class);
 	
 	private String fxmlName;
-	private String cssName;
+	private String[] cssNames;
 	private Class<? extends Controller> controllerClazz;
 	
-	SceneType(String fxmlName, String cssName, Class<? extends Controller> controllerClazz)
+	SceneType(String fxmlName, String[] cssNames, Class<? extends Controller> controllerClazz)
     {
 		this.fxmlName = fxmlName;
-		this.cssName = cssName;
+		this.cssNames = cssNames;
 		this.controllerClazz = controllerClazz;
 	}
 	
@@ -28,9 +23,9 @@ public enum SceneType
 		return fxmlName;
 	}
 	
-	public String getCssName()
+	public String[] getCssNames()
     {
-		return cssName;
+		return cssNames;
 	}
 	
 	public Class<? extends Controller> getControllerClazz()

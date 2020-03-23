@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Circle?>
+
+<HBox fx:id="presetSeries" alignment="CENTER_LEFT" prefHeight="48.0" prefWidth="218.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <Circle fill="DODGERBLUE" radius="7.0" stroke="TRANSPARENT" strokeType="INSIDE">
+         <HBox.margin>
+            <Insets left="20.0" />
+         </HBox.margin>
+      </Circle>
+      <VBox alignment="CENTER_LEFT" prefHeight="48.0" prefWidth="183.0">
+         <children>
+            <Label text="Series Name" textFill="WHITE" />
+            <Label text="Stock Info" textFill="WHITE" />
+         </children>
+         <padding>
+            <Insets left="10.0" />
+         </padding>
+      </VBox>
+   </children>
+</HBox>

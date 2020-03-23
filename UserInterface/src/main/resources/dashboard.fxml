@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane fx:id="root" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="720.0" prefWidth="1280.0" stylesheets="@dashboard.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <VBox prefHeight="720.0" prefWidth="218.0">
+         <children>
+            <VBox prefHeight="722.0" prefWidth="218.0" styleClass="navbar">
+               <children>
+                  <Label fx:id="headerLabel" prefHeight="137.0" prefWidth="218.0" styleClass="header" text="Dashboard">
+                     <font>
+                        <Font size="32.0" />
+                     </font>
+                     <padding>
+                        <Insets left="15.0" />
+                     </padding>
+                  </Label>
+                  <HBox fx:id="homeRow" alignment="CENTER_LEFT" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="36.0" prefWidth="200.0" styleClass="nav-row">
+                     <children>
+                        <FontAwesomeIcon fill="WHITE" iconName="TACHOMETER" size="1.5em" styleClass="nav-icon">
+                           <HBox.margin>
+                              <Insets left="20.0" />
+                           </HBox.margin>
+                        </FontAwesomeIcon>
+                        <Label prefHeight="50.0" styleClass="nav-text" text="Home" textFill="WHITE">
+                           <opaqueInsets>
+                              <Insets />
+                           </opaqueInsets>
+                           <padding>
+                              <Insets left="20.0" />
+                           </padding>
+                           <font>
+                              <Font size="18.0" />
+                           </font>
+                        </Label>
+                     </children>
+                  </HBox>
+                  <HBox fx:id="collectionRow" alignment="CENTER_LEFT" layoutX="10.0" layoutY="104.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="36.0" prefWidth="200.0" styleClass="nav-row">
+                     <children>
+                        <FontAwesomeIcon fill="WHITE" iconName="ARROW_DOWN" size="1.5em" styleClass="nav-icon">
+                           <HBox.margin>
+                              <Insets left="20.0" />
+                           </HBox.margin>
+                        </FontAwesomeIcon>
+                        <Label prefHeight="50.0" styleClass="nav-text" text="Collection" textFill="WHITE">
+                           <opaqueInsets>
+                              <Insets />
+                           </opaqueInsets>
+                           <padding>
+                              <Insets left="20.0" />
+                           </padding>
+                           <font>
+                              <Font size="18.0" />
+                           </font>
+                        </Label>
+                     </children>
+                  </HBox>
+                  <HBox fx:id="preprocessingRow" alignment="CENTER_LEFT" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="36.0" prefWidth="200.0" styleClass="nav-row">
+                     <children>
+                        <FontAwesomeIcon fill="WHITE" iconName="TACHOMETER" size="1.5em" styleClass="nav-icon">
+                           <HBox.margin>
+                              <Insets left="20.0" />
+                           </HBox.margin>
+                        </FontAwesomeIcon>
+                        <Label prefHeight="50.0" styleClass="nav-text" text="Pre-processing" textFill="WHITE">
+                           <opaqueInsets>
+                              <Insets />
+                           </opaqueInsets>
+                           <padding>
+                              <Insets left="20.0" />
+                           </padding>
+                           <font>
+                              <Font size="18.0" />
+                           </font>
+                        </Label>
+                     </children>
+                  </HBox>
+                  <HBox fx:id="trainingRow" alignment="CENTER_LEFT" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="36.0" prefWidth="200.0" styleClass="nav-row">
+                     <children>
+                        <FontAwesomeIcon fill="WHITE" iconName="CODEPEN" size="1.5em" styleClass="nav-icon">
+                           <HBox.margin>
+                              <Insets left="20.0" />
+                           </HBox.margin>
+                        </FontAwesomeIcon>
+                        <Label prefHeight="50.0" styleClass="nav-text" text="Training" textFill="WHITE">
+                           <opaqueInsets>
+                              <Insets />
+                           </opaqueInsets>
+                           <padding>
+                              <Insets left="20.0" />
+                           </padding>
+                           <font>
+                              <Font size="18.0" />
+                           </font>
+                        </Label>
+                     </children>
+                  </HBox>
+                  <HBox fx:id="evaluationRow" alignment="CENTER_LEFT" layoutX="10.0" layoutY="165.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="36.0" prefWidth="200.0" styleClass="nav-row">
+                     <children>
+                        <FontAwesomeIcon fill="WHITE" iconName="LINE_CHART" size="1.5em" styleClass="nav-icon">
+                           <HBox.margin>
+                              <Insets left="20.0" />
+                           </HBox.margin>
+                        </FontAwesomeIcon>
+                        <Label prefHeight="50.0" styleClass="nav-text" text="Evaluation" textFill="WHITE">
+                           <opaqueInsets>
+                              <Insets />
+                           </opaqueInsets>
+                           <padding>
+                              <Insets left="20.0" />
+                           </padding>
+                           <font>
+                              <Font size="18.0" />
+                           </font>
+                        </Label>
+                     </children>
+                  </HBox>
+                  <VBox prefHeight="470.0" prefWidth="218.0">
+                     <children>
+                        <Label prefHeight="64.0" prefWidth="198.0" styleClass="seriesheader" text="TIMESERIES">
+                           <VBox.margin>
+                              <Insets left="20.0" />
+                           </VBox.margin>
+                           <padding>
+                              <Insets bottom="10.0" right="10.0" top="10.0" />
+                           </padding>
+                        </Label>
+                        <ScrollPane hbarPolicy="NEVER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="386.0" prefWidth="217.0">
+                           <content>
+                              <VBox fx:id="paneVBox" maxHeight="-Infinity" maxWidth="-Infinity" minWidth="-Infinity" prefHeight="363.0" prefWidth="213.0" />
+                           </content>
+                        </ScrollPane>
+                     </children>
+                  </VBox>
+               </children>
+            </VBox>
+         </children>
+      </VBox>
+      <VBox layoutX="218.0" prefHeight="720.0" prefWidth="1062.0">
+         <children>
+            <TabPane prefHeight="720.0" prefWidth="1059.0" tabClosingPolicy="UNAVAILABLE">
+              <tabs>
+                <Tab fx:id="homeTab" text="Home" />
+              </tabs>
+            </TabPane>
+         </children>
+      </VBox>
+   </children>
+</AnchorPane>

@@ -5,9 +5,11 @@ import net.benorourke.stocks.framework.stock.Stock;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 public class TimeSeries
 {
+    private final UUID id;
     private String name;
     private Stock stock;
     /**
@@ -15,8 +17,9 @@ public class TimeSeries
      */
     private Map<Class<? extends DataSource>, Integer> rawDataCounts;
 
-    public TimeSeries(String name, Stock stock, Map<Class<? extends DataSource>, Integer> rawDataCounts)
+    public TimeSeries(UUID id, String name, Stock stock, Map<Class<? extends DataSource>, Integer> rawDataCounts)
     {
+        this.id = id;
         this.name = name;
         this.stock = stock;
         this.rawDataCounts = rawDataCounts;
@@ -24,13 +27,18 @@ public class TimeSeries
 
     public TimeSeries(String name, Stock stock)
     {
-        this(name, stock, new HashMap<>());
+        this(UUID.randomUUID(), name, stock, new HashMap<>());
     }
 
     @Override
     public String toString()
     {
         return '[' + name + ", " + stock.toString() + ']';
+    }
+
+    public UUID getId()
+    {
+        return id;
     }
 
     public String getName()
@@ -47,5 +55,4 @@ public class TimeSeries
     {
         return rawDataCounts;
     }
-
 }

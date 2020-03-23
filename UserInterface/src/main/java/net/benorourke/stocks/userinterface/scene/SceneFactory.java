@@ -55,8 +55,11 @@ public class SceneFactory
 		}
 
 		Scene scene = new Scene(root);
-        String sheet = ResourceUtil.getResource(type.getCssName()).toExternalForm();
-        scene.getStylesheets().add(sheet);
+		for (String cssPath : type.getCssNames())
+		{
+			String sheet = ResourceUtil.getResource(cssPath).toExternalForm();
+			scene.getStylesheets().add(sheet);
+		}
 		return scene;
 	}
 	

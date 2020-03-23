@@ -29,17 +29,20 @@ public class StockApplication extends Application
 
     private static BackgroundThread backgroundThread;
 
+    public StockApplication()
+    {
+        backgroundThread = new BackgroundThread(new Configuration(), BACKGROUND_SLEEP_DELAY);
+        backgroundThread.setName("Background Thread");
+        backgroundThread.start();
+    }
+
     @Override
     public void start(Stage stage) throws Exception
     {
         SceneHelper.modifyStage(stage, Constants.APPLICATION_NAME,
                                 Constants.APPLICATION_WIDTH, Constants.APPLICATION_HEIGHT,
                                 Constants.APPLICATION_WIDTH_MIN, Constants.APPLICATION_HEIGHT_MIN,
-                        true, true, SceneType.DIRECTORY_SELECTION);
-
-        backgroundThread = new BackgroundThread(new Configuration(), BACKGROUND_SLEEP_DELAY);
-        backgroundThread.setName("Background Thread");
-        backgroundThread.start();
+                        true, true, SceneType.DASHBOARD);
     }
 
     public static void main(String[] args)

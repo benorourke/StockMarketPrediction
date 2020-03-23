@@ -9,6 +9,7 @@ import net.benorourke.stocks.framework.stock.Stock;
 import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 public class TimeSeriesAdapter implements JsonAdapter<TimeSeries>
 {
@@ -18,6 +19,7 @@ public class TimeSeriesAdapter implements JsonAdapter<TimeSeries>
     {
         Framework.debug("Calling TimeSeries Serializer");
         JsonObject result = new JsonObject();
+        result.add("id", context.serialize(series.getId().toString()));
         result.add("name", context.serialize(series.getName()));
         result.add("stock", context.serialize(series.getStock()));
 
@@ -37,6 +39,7 @@ public class TimeSeriesAdapter implements JsonAdapter<TimeSeries>
             throws JsonParseException
     {
         JsonObject object = json.getAsJsonObject();
+        UUID id = UUID.fromString(object.getAsJsonPrimitive("id").getAsString());
         String name = object.getAsJsonPrimitive("name").getAsString();
         Stock stock = context.deserialize(object.getAsJsonObject("stock"), Stock.class);
 
@@ -57,7 +60,7 @@ public class TimeSeriesAdapter implements JsonAdapter<TimeSeries>
                 Framework.error("Unable to deserialize DataSource Class " + key, e);
             }
         }
-        return new TimeSeries(name, stock, typedMap);
+        return new TimeSeries(id, name, stock, typedMap);
     }
 
 

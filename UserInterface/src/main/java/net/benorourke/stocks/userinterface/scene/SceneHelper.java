@@ -1,13 +1,32 @@
 package net.benorourke.stocks.userinterface.scene;
 
 import javafx.application.Platform;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.stage.Stage;
+import net.benorourke.stocks.userinterface.exception.InflationException;
 import net.benorourke.stocks.userinterface.exception.SceneCreationDataException;
+import net.benorourke.stocks.userinterface.util.ResourceUtil;
+
+import java.io.IOException;
 
 public class SceneHelper
 {
 	
 	private SceneHelper() {}
+
+	public static Parent inflate(String fxmlPath) throws InflationException
+	{
+		FXMLLoader loader = new FXMLLoader(ResourceUtil.getResource(fxmlPath));
+		try
+		{
+			return loader.load();
+		}
+		catch (IOException e)
+		{
+			throw new InflationException(e.getMessage());
+		}
+	}
 
 	public static void modifyStage(Stage stage, String windowTitle,
 								   int width, int height,

@@ -1,0 +1,35 @@
+.parent {
+    -fx-background-color: #fff;
+}
+
+.navbar {
+    -fx-background-color: #343647;
+}
+.navbar .header {
+    -fx-background-color: #0095d9;
+    -fx-text-fill: #fff;
+}
+.navbar .nav-row:hover {
+    -fx-background-color: #202332;
+}
+.navbar .nav-row .nav-icon {
+    -fx-fill: #7f8287;
+}
+.navbar .nav-row .nav-text {
+    -fx-text-fill: #7f8287;
+}
+.scroll-pane {
+   -fx-background: #343647;
+   -fx-border-color: #343647;
+   -fx-focus-color: transparent;
+}
+.navbar .seriesheader {
+    -fx-text-fill: #fff;
+}
+
+.tab-pane {
+    -fx-tab-max-height: 0 ;
+}
+.tab-pane .tab-header-area {
+    visibility: hidden ;
+}

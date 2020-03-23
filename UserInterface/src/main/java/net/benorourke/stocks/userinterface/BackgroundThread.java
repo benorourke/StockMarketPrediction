@@ -22,6 +22,8 @@ public class BackgroundThread extends Thread
     @Override
     public void run()
     {
+        framework.initialise();
+
         while (true)
         {
             // Loop through all enqueued BackgroundRunnables to be executed on the Framework
