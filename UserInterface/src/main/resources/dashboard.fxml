@@ -2,6 +2,9 @@
 
 <?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon?>
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.chart.CategoryAxis?>
+<?import javafx.scene.chart.LineChart?>
+<?import javafx.scene.chart.NumberAxis?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Tab?>
@@ -148,9 +151,40 @@
       </VBox>
       <VBox layoutX="218.0" prefHeight="720.0" prefWidth="1062.0">
          <children>
-            <TabPane prefHeight="720.0" prefWidth="1059.0" tabClosingPolicy="UNAVAILABLE">
+            <TabPane fx:id="tabPane" prefHeight="720.0" prefWidth="1059.0" tabClosingPolicy="UNAVAILABLE">
               <tabs>
-                <Tab fx:id="homeTab" text="Home" />
+                  <Tab fx:id="homePane" text="Home">
+                    <content>
+                      <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+                    </content>
+                  </Tab>
+                  <Tab fx:id="collectionTab" text="Collection">
+                     <content>
+                        <LineChart>
+                          <xAxis>
+                            <CategoryAxis side="BOTTOM" />
+                          </xAxis>
+                          <yAxis>
+                            <NumberAxis side="LEFT" />
+                          </yAxis>
+                        </LineChart>
+                     </content>
+                  </Tab>
+                  <Tab fx:id="preprocessingTab" text="Pre-processing">
+                    <content>
+                      <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+                    </content>
+                  </Tab>
+                  <Tab fx:id="trainingPane" text="Training">
+                    <content>
+                      <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+                    </content>
+                  </Tab>
+                  <Tab fx:id="evaluationPane" text="Evaluation">
+                    <content>
+                      <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+                    </content>
+                  </Tab>
               </tabs>
             </TabPane>
          </children>

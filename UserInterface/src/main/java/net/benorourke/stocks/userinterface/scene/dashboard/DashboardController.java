@@ -4,6 +4,9 @@ import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.Label;
+import javafx.scene.control.SingleSelectionModel;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -17,6 +20,7 @@ import net.benorourke.stocks.userinterface.util.FontFamily;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 public class DashboardController extends Controller
@@ -30,6 +34,7 @@ public class DashboardController extends Controller
     @FXML private AnchorPane root;
     @FXML private Label headerLabel;
     @FXML private VBox paneVBox;
+    @FXML private TabPane tabPane;
 
     private List<HBox> navRows;
 
@@ -45,11 +50,19 @@ public class DashboardController extends Controller
         headerLabel.setFont(FontFamily.OPENSANS_BOLD.get(HEADER_SIZE));
 
         navRows.addAll(getNavBarBoxes(root));
-        for (HBox row : navRows)
+        for (int i = 0; i < navRows.size(); i ++)
         {
+            HBox row = navRows.get(i);
+            DashboardPane paneFor = DashboardPane.values()[i];
+
             row.setOnMouseClicked( event ->
             {
-                Framework.debug("Clicked row " + row.getId());
+                String id = row.getId();
+
+                SingleSelectionModel<Tab> model = tabPane.getSelectionModel();
+                model.select(paneFor.ordinal());
+
+                Framework.debug("Clicked row " + row.getId() + " (" + paneFor.toString() + ")");
             });
         }
 
