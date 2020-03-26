@@ -1,6 +1,8 @@
 package net.benorourke.stocks.framework.model.feedforward;
 
 import net.benorourke.stocks.framework.Framework;
+import net.benorourke.stocks.framework.model.HyperParameter;
+import net.benorourke.stocks.framework.model.ModelParameters;
 import net.benorourke.stocks.framework.model.ModelHandler;
 import net.benorourke.stocks.framework.model.ProcessedCorpus;
 import org.deeplearning4j.datasets.iterator.ExistingDataSetIterator;
@@ -11,7 +13,6 @@ import org.deeplearning4j.nn.conf.layers.DenseLayer;
 import org.deeplearning4j.nn.conf.layers.OutputLayer;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
-import org.nd4j.evaluation.classification.Evaluation;
 import org.nd4j.evaluation.regression.RegressionEvaluation;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
@@ -21,15 +22,22 @@ import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.learning.config.Adam;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 
-import static net.benorourke.stocks.framework.model.ModelData.*;
-
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
+import java.util.*;
 
 public class FeedForwardModelHandler extends ModelHandler<FeedForwardModel>
 {
-    private static final int N_HIDDEN = 30;
+    private static final List<HyperParameter> REQUIRED_HYPERPARAMETERS;
+
+    public static String HYPERPARAMETER_HIDDEN_NODES = "N_HIDDEN";
+
+    static
+    {
+        List<HyperParameter> list = new ArrayList<>();
+        list.add(new HyperParameter(HYPERPARAMETER_HIDDEN_NODES, 30));
+        REQUIRED_HYPERPARAMETERS = Collections.unmodifiableList(list);
+    }
 
     private final int numFeatures, numLabels;
 
@@ -42,8 +50,11 @@ public class FeedForwardModelHandler extends ModelHandler<FeedForwardModel>
     }
 
     @Override
-    public FeedForwardModel create()
+    public FeedForwardModel create(ModelParameters configuration)
     {
+        configuration.addMissingDefaults(getRequiredHyperParameters());
+        int paramHidden = configuration.getInt(HYPERPARAMETER_HIDDEN_NODES);
+
         Framework.debug("Creating with features " + numFeatures + ", labels " + numLabels);
         Framework.debug("d1");
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
@@ -52,12 +63,12 @@ public class FeedForwardModelHandler extends ModelHandler<FeedForwardModel>
                 .updater(new Adam())
                 .l2(1e-4)
                 .list()
-                .layer(0, new DenseLayer.Builder().nIn(numFeatures).nOut(N_HIDDEN)
+                .layer(0, new DenseLayer.Builder().nIn(numFeatures).nOut(paramHidden)
                         .activation(Activation.TANH)
                         .build())
                 .layer(1, new OutputLayer.Builder(LossFunctions.LossFunction.MSE)
                         .activation(Activation.IDENTITY)
-                        .nIn(N_HIDDEN).nOut(numLabels).build())
+                        .nIn(paramHidden).nOut(numLabels).build())
                 .build();
         Framework.debug("d2");
 
@@ -67,6 +78,12 @@ public class FeedForwardModelHandler extends ModelHandler<FeedForwardModel>
         Framework.debug("d3");
 
         return new FeedForwardModel(net);
+    }
+
+    @Override
+    public List<HyperParameter> getRequiredHyperParameters()
+    {
+        return REQUIRED_HYPERPARAMETERS;
     }
 
     @Override

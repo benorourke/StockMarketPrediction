@@ -4,6 +4,7 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
 
 import java.io.File;
+import java.util.List;
 
 public abstract class ModelHandler<T extends PredictionModel>
 {
@@ -14,7 +15,13 @@ public abstract class ModelHandler<T extends PredictionModel>
         this.seed = seed;
     }
 
-    public abstract T create();
+    public abstract T create(ModelParameters configuration);
+
+    /**
+     *
+     * @return values are the default values for the hyper-parameters
+     */
+    public abstract List<HyperParameter> getRequiredHyperParameters();
 
     public abstract void train(T model, ProcessedCorpus corpus);
 
