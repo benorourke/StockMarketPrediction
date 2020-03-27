@@ -55,7 +55,7 @@ public class StockApplication extends Application
         Platform.runLater(runnable);
     }
 
-    public static void runBackgroundThread(BackgroundRunnable runnable)
+    public static void runBgThread(BackgroundRunnable runnable)
     {
         // TODO - set as Daemon Thread (low prior, background thread)?
         new Thread(() -> backgroundThread.queueRunnable(runnable)).start();

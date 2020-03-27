@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import net.benorourke.stocks.framework.collection.datasource.DataSourceManager;
 import net.benorourke.stocks.framework.model.ModelData;
+import net.benorourke.stocks.framework.model.ModelHandlerManager;
 import net.benorourke.stocks.framework.model.ProcessedCorpus;
 import net.benorourke.stocks.framework.persistence.FileManager;
 import net.benorourke.stocks.framework.persistence.gson.StockAdapter;
@@ -35,6 +36,7 @@ public class Framework implements Initialisable
     private final DataSourceManager dataSourceManager;
     private final TimeSeriesManager timeSeriesManager;
     private final TaskManager taskManager;
+    private final ModelHandlerManager modelHandlerManager;
 
     private final Gson gson;
 
@@ -50,6 +52,7 @@ public class Framework implements Initialisable
         dataSourceManager = new DataSourceManager();
         timeSeriesManager = new TimeSeriesManager(this);
         taskManager = new TaskManager(config);
+        modelHandlerManager = new ModelHandlerManager();
 
         gson = new GsonBuilder()
 //                        .setPrettyPrinting()
@@ -72,6 +75,7 @@ public class Framework implements Initialisable
     {
         stockExchangeManager.initialise();
         timeSeriesManager.initialise();
+        modelHandlerManager.initialise();
     }
 
     public static void info(String message)
@@ -117,6 +121,11 @@ public class Framework implements Initialisable
     public TaskManager getTaskManager()
     {
         return taskManager;
+    }
+
+    public ModelHandlerManager getModelHandlerManager()
+    {
+        return modelHandlerManager;
     }
 
     /**

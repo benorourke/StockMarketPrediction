@@ -20,8 +20,6 @@ public class FeedForwardModel extends PredictionModel
 
     public void fit(DataSet set)
     {
-        Framework.debug("DataSet null: " + (set == null));
-        Framework.debug("Network null: " + (network == null));
         network.fit(set);
     }
 

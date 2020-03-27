@@ -1,26 +1,26 @@
 .parent {
-    -fx-background-color: #fff;
+    -fx-background-color: #f9f9f9;
 }
 
 .navbar {
-    -fx-background-color: #343647;
+    -fx-background-color: #414b56;
 }
 .navbar .header {
-    -fx-background-color: #0095d9;
+    -fx-background-color: #3792ed;
     -fx-text-fill: #fff;
 }
 .navbar .nav-row:hover {
-    -fx-background-color: #202332;
+    -fx-background-color: #3a424d;
 }
 .navbar .nav-row .nav-icon {
     -fx-fill: #7f8287;
 }
 .navbar .nav-row .nav-text {
-    -fx-text-fill: #7f8287;
+    -fx-text-fill: #9198a3;
 }
 .scroll-pane {
-   -fx-background: #343647;
-   -fx-border-color: #343647;
+   -fx-background: #414b56;
+   -fx-border-color: #414b56;
    -fx-focus-color: transparent;
 }
 .navbar .seriesheader {
@@ -32,4 +32,17 @@
 }
 .tab-pane .tab-header-area {
     visibility: hidden ;
+}
+
+.content-box {
+    -fx-background-color: #ffffff;
+    -fx-border-radius: 10 10 10 10;
+    -fx-background-radius: 10 10 10 10;
+    -fx-border-color: #dcdcdc;
+}
+.content-box .header {
+    -fx-text-fill: #2e87e0;
+}
+.content-box .body {
+    -fx-text-fill: #2e87e0;
 }

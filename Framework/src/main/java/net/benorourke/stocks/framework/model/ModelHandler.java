@@ -1,5 +1,7 @@
 package net.benorourke.stocks.framework.model;
 
+import net.benorourke.stocks.framework.model.param.HyperParameter;
+import net.benorourke.stocks.framework.model.param.ModelParameters;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
 
@@ -8,13 +10,6 @@ import java.util.List;
 
 public abstract class ModelHandler<T extends PredictionModel>
 {
-    private final long seed;
-
-    public ModelHandler(long seed)
-    {
-        this.seed = seed;
-    }
-
     public abstract T create(ModelParameters configuration);
 
     /**
@@ -34,10 +29,5 @@ public abstract class ModelHandler<T extends PredictionModel>
     public abstract boolean writeModel(File file, T trainedModel);
 
     public abstract T loadModel(File file);
-
-    public long getSeed()
-    {
-        return seed;
-    }
 
 }

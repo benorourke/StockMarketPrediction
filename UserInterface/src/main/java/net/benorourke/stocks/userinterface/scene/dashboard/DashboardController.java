@@ -1,5 +1,6 @@
 package net.benorourke.stocks.userinterface.scene.dashboard;
 
+import com.jfoenix.controls.JFXComboBox;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.Parent;
@@ -16,11 +17,13 @@ import net.benorourke.stocks.userinterface.StockApplication;
 import net.benorourke.stocks.userinterface.exception.InflationException;
 import net.benorourke.stocks.userinterface.scene.Controller;
 import net.benorourke.stocks.userinterface.scene.SceneHelper;
+import net.benorourke.stocks.userinterface.scene.dashboard.panes.DashboardPane;
+import net.benorourke.stocks.userinterface.scene.dashboard.panes.PaneHandler;
+import net.benorourke.stocks.userinterface.scene.dashboard.panes.TrainingPaneHandler;
 import net.benorourke.stocks.userinterface.util.FontFamily;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 import java.util.stream.Collectors;
 
 public class DashboardController extends Controller
@@ -31,12 +34,35 @@ public class DashboardController extends Controller
 
     private final DashboardModel model;
 
+    //////////////////////////////////////////////////////////////////
+    //      NAV BAR STUFF
+    //////////////////////////////////////////////////////////////////
     @FXML private AnchorPane root;
-    @FXML private Label headerLabel;
+    @FXML private Label headerLabel; // Nav bar header
     @FXML private VBox paneVBox;
-    @FXML private TabPane tabPane;
 
     private List<HBox> navRows;
+
+    //////////////////////////////////////////////////////////////////
+    //      PANE
+    //////////////////////////////////////////////////////////////////
+    @FXML private TabPane tabPane;
+    @FXML private Tab homeTab, collectionTab, preprocessingTab, trainingTab, evaluationTab;
+
+    //////////////////////////////////////////////////////////////////
+    //      PANE HANDLERS
+    //////////////////////////////////////////////////////////////////
+    private PaneHandler[] paneHandlers;
+
+    // TRAINING:
+    @FXML private JFXComboBox<String> trainingComboBox;
+    @FXML private Label trainingHandlerCount;
+    private TrainingPaneHandler trainingPaneHandler;
+
+    //////////////////////////////////////////////////////////////////
+    //      MISC
+    //////////////////////////////////////////////////////////////////
+    @FXML private Label tasksRunningLabel;
 
     public DashboardController()
     {
@@ -47,8 +73,8 @@ public class DashboardController extends Controller
     @FXML
     public void initialize()
     {
+        // Initialise Navbars & nav-pane
         headerLabel.setFont(FontFamily.OPENSANS_BOLD.get(HEADER_SIZE));
-
         navRows.addAll(getNavBarBoxes(root));
         for (int i = 0; i < navRows.size(); i ++)
         {
@@ -67,6 +93,19 @@ public class DashboardController extends Controller
         }
 
         model.loadTimeSeries( () -> updateTimeSeries() );
+
+        // Initialise pane handlers
+        paneHandlers = new PaneHandler[DashboardPane.values().length];
+        paneHandlers[DashboardPane.PRE_PROCESSING.ordinal()] =
+                new TrainingPaneHandler(model, trainingHandlerCount, trainingComboBox);
+
+        for (PaneHandler handler : paneHandlers)
+        {
+            // TODO Remove null check; shouldn't be null when completed
+            if (handler == null) continue;
+
+            handler.initialise();
+        }
     }
 
     private List<HBox> getNavBarBoxes(Parent parent)

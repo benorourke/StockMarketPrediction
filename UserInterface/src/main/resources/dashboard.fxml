@@ -1,10 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import com.jfoenix.controls.JFXComboBox?>
 <?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon?>
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.chart.CategoryAxis?>
-<?import javafx.scene.chart.LineChart?>
-<?import javafx.scene.chart.NumberAxis?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Tab?>
@@ -151,23 +149,16 @@
       </VBox>
       <VBox layoutX="218.0" prefHeight="720.0" prefWidth="1062.0">
          <children>
-            <TabPane fx:id="tabPane" prefHeight="720.0" prefWidth="1059.0" tabClosingPolicy="UNAVAILABLE">
+            <TabPane fx:id="tabPane" prefHeight="720.0" prefWidth="1059.0" side="RIGHT" tabClosingPolicy="UNAVAILABLE">
               <tabs>
-                  <Tab fx:id="homePane" text="Home">
+                  <Tab fx:id="homeTab" text="Home">
                     <content>
                       <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
                     </content>
                   </Tab>
                   <Tab fx:id="collectionTab" text="Collection">
                      <content>
-                        <LineChart>
-                          <xAxis>
-                            <CategoryAxis side="BOTTOM" />
-                          </xAxis>
-                          <yAxis>
-                            <NumberAxis side="LEFT" />
-                          </yAxis>
-                        </LineChart>
+                        <AnchorPane prefHeight="200.0" prefWidth="200.0" />
                      </content>
                   </Tab>
                   <Tab fx:id="preprocessingTab" text="Pre-processing">
@@ -175,18 +166,72 @@
                       <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
                     </content>
                   </Tab>
-                  <Tab fx:id="trainingPane" text="Training">
+                  <Tab fx:id="trainingTab" text="Training">
                     <content>
-                      <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+                      <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                           <children>
+                              <HBox alignment="CENTER" minHeight="0.0" minWidth="0.0" prefHeight="695.0" prefWidth="1059.0" spacing="70.0">
+                                 <children>
+                                    <VBox alignment="CENTER_LEFT" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="695.0" prefWidth="300.0" spacing="50.0">
+                                       <children>
+                                          <VBox alignment="CENTER_LEFT" prefHeight="180.0" prefWidth="100.0" styleClass="content-box">
+                                             <children>
+                                                <Label text="MODEL HANDLERS">
+                                                   <padding>
+                                                      <Insets bottom="15.0" left="20.0" top="15.0" />
+                                                   </padding>
+                                                   <font>
+                                                      <Font size="20.0" />
+                                                   </font>
+                                                </Label>
+                                                <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0">
+                                                   <children>
+                                                      <Label fx:id="preprocessingHandlerCount" text="1">
+                                                         <font>
+                                                            <Font size="49.0" />
+                                                         </font>
+                                                      </Label>
+                                                   </children>
+                                                </VBox>
+                                             </children>
+                                          </VBox>
+                                          <VBox alignment="CENTER_LEFT" layoutX="10.0" layoutY="153.0" prefHeight="180.0" prefWidth="100.0" styleClass="content-box">
+                                             <children>
+                                                <Label text="SELECT HANDLER">
+                                                   <padding>
+                                                      <Insets bottom="15.0" left="20.0" top="15.0" />
+                                                   </padding>
+                                                   <font>
+                                                      <Font size="20.0" />
+                                                   </font>
+                                                </Label>
+                                                <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0">
+                                                   <children>
+                                                      <JFXComboBox fx:id="preprocessingComboBox" />
+                                                   </children>
+                                                </VBox>
+                                             </children>
+                                          </VBox>
+                                       </children>
+                                    </VBox>
+                                    <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="300.0" styleClass="content-box" />
+                                 </children>
+                              </HBox>
+                           </children></AnchorPane>
                     </content>
                   </Tab>
-                  <Tab fx:id="evaluationPane" text="Evaluation">
+                  <Tab fx:id="evaluationTab" text="Evaluation">
                     <content>
                       <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
                     </content>
                   </Tab>
               </tabs>
             </TabPane>
+            <HBox alignment="CENTER_RIGHT" minHeight="-Infinity" minWidth="-Infinity" prefHeight="25.0" prefWidth="200.0">
+               <children>
+                  <Label fx:id="tasksRunningLabel" text="0 Tasks Running" />
+               </children>
+            </HBox>
          </children>
       </VBox>
    </children>

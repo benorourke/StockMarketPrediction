@@ -3,10 +3,6 @@ package net.benorourke.stocks.userinterface.scene;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
-import net.benorourke.stocks.framework.model.ModelData;
-import net.benorourke.stocks.framework.model.ModelHandler;
-import net.benorourke.stocks.framework.model.PredictionModel;
-import net.benorourke.stocks.framework.model.ProcessedCorpus;
 import net.benorourke.stocks.framework.util.Nullable;
 import net.benorourke.stocks.framework.util.Tuple;
 

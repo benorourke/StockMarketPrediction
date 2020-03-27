@@ -1,4 +1,4 @@
-package net.benorourke.stocks.framework.model;
+package net.benorourke.stocks.framework.model.param;
 
 public class HyperParameter
 {

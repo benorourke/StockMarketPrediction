@@ -2,6 +2,7 @@ package net.benorourke.stocks.framework.thread.model;
 
 import net.benorourke.stocks.framework.Framework;
 import net.benorourke.stocks.framework.model.ModelHandler;
+import net.benorourke.stocks.framework.model.param.ModelParameters;
 import net.benorourke.stocks.framework.model.PredictionModel;
 import net.benorourke.stocks.framework.model.ProcessedCorpus;
 import net.benorourke.stocks.framework.thread.*;
@@ -14,6 +15,7 @@ import net.benorourke.stocks.framework.util.Nullable;
 public class TrainingTask<T extends PredictionModel> implements Task<TaskDescription, TrainingResult<T>>
 {
     private final ModelHandler<T> modelHandler;
+    private final ModelParameters modelParameters;
     private final ProcessedCorpus training, testing;
     private final long seed;
 
@@ -23,10 +25,11 @@ public class TrainingTask<T extends PredictionModel> implements Task<TaskDescrip
     @Nullable
     private T predictionModel;
 
-    public TrainingTask(ModelHandler<T> modelHandler,
+    public TrainingTask(ModelHandler<T> modelHandler, ModelParameters modelParameters,
                         ProcessedCorpus training, ProcessedCorpus testing, long seed)
     {
         this.modelHandler = modelHandler;
+        this.modelParameters = modelParameters;
         this.training = training;
         this.testing = testing;
         this.seed = seed;
@@ -89,7 +92,7 @@ public class TrainingTask<T extends PredictionModel> implements Task<TaskDescrip
 
     private void executeCreate()
     {
-        predictionModel = modelHandler.create();
+        predictionModel = modelHandler.create(modelParameters);
     }
 
     private void executeTrain()

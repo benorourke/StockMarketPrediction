@@ -31,11 +31,9 @@ public class NewsAPI extends DataSource<Document>
     private static final int MAX_PAGE_SIZE = 20; // TODO - Make this larger when the document raw feedforward dumps are split
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
 
-    private final String apiKey;
-
     public NewsAPI(String apiKey)
     {
-        this.apiKey = apiKey;
+        super(apiKey);
     }
 
     @Override
@@ -159,7 +157,7 @@ public class NewsAPI extends DataSource<Document>
                     .concat("&from=".concat(strFrom))
                     .concat("&to=".concat(strTo))
                     .concat("&sortBy=popularity")
-                    .concat("&apiKey=" + apiKey)
+                    .concat("&apiKey=" + getApiKey())
                     .concat("&pageSize=" + MAX_PAGE_SIZE);
 //        return "v2/top-headlines?country=gb&apiKey=" + apiKey;
     }

@@ -1,8 +1,8 @@
 package net.benorourke.stocks.framework.model.feedforward;
 
 import net.benorourke.stocks.framework.Framework;
-import net.benorourke.stocks.framework.model.HyperParameter;
-import net.benorourke.stocks.framework.model.ModelParameters;
+import net.benorourke.stocks.framework.model.param.HyperParameter;
+import net.benorourke.stocks.framework.model.param.ModelParameters;
 import net.benorourke.stocks.framework.model.ModelHandler;
 import net.benorourke.stocks.framework.model.ProcessedCorpus;
 import org.deeplearning4j.datasets.iterator.ExistingDataSetIterator;
@@ -28,6 +28,7 @@ import java.util.*;
 
 public class FeedForwardModelHandler extends ModelHandler<FeedForwardModel>
 {
+    private static final long SEED = 0;
     private static final List<HyperParameter> REQUIRED_HYPERPARAMETERS;
 
     public static String HYPERPARAMETER_HIDDEN_NODES = "N_HIDDEN";
@@ -41,10 +42,8 @@ public class FeedForwardModelHandler extends ModelHandler<FeedForwardModel>
 
     private final int numFeatures, numLabels;
 
-    public FeedForwardModelHandler(long seed, int numFeatures, int numLabels)
+    public FeedForwardModelHandler(int numFeatures, int numLabels)
     {
-        super(seed);
-
         this.numFeatures = numFeatures;
         this.numLabels = numLabels;
     }
@@ -58,7 +57,7 @@ public class FeedForwardModelHandler extends ModelHandler<FeedForwardModel>
         Framework.debug("Creating with features " + numFeatures + ", labels " + numLabels);
         Framework.debug("d1");
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
-                .seed(getSeed())
+                .seed(SEED)
                 .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
                 .updater(new Adam())
                 .l2(1e-4)
@@ -89,8 +88,7 @@ public class FeedForwardModelHandler extends ModelHandler<FeedForwardModel>
     @Override
     public void train(FeedForwardModel model, ProcessedCorpus corpus)
     {
-        DataSetIterator iterator = new ExistingDataSetIterator(
-                Arrays.asList(corpus.toDataSet(getSeed())));
+        DataSetIterator iterator = new ExistingDataSetIterator(Arrays.asList(corpus.toDataSet(SEED)));
 
         //Number of epochs (full passes of the feedforward)
         final int nEpochs = 200;

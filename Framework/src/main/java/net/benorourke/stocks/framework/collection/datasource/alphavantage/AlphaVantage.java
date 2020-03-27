@@ -29,11 +29,9 @@ public class AlphaVantage extends DataSource<StockQuote>
     private static final String BASE_URL = "https://www.alphavantage.co/";
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
 
-    private final String apiKey;
-
     public AlphaVantage(String apiKey)
     {
-        this.apiKey = apiKey;
+        super(apiKey);
     }
 
     @Override
@@ -158,7 +156,7 @@ public class AlphaVantage extends DataSource<StockQuote>
                 .concat("?function=TIME_SERIES_DAILY")
                 .concat("&symbol=LON:VOD") // TODO - make symbol resolving automatic
                 .concat("&outputsize=full")
-                .concat("&apikey=".concat(apiKey));
+                .concat("&apikey=".concat(getApiKey()));
     }
 
 }

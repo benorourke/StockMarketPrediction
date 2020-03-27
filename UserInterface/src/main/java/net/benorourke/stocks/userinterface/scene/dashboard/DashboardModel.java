@@ -1,21 +1,23 @@
 package net.benorourke.stocks.userinterface.scene.dashboard;
 
-import net.benorourke.stocks.framework.Framework;
 import net.benorourke.stocks.framework.series.TimeSeries;
-import net.benorourke.stocks.userinterface.BackgroundRunnable;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import static net.benorourke.stocks.userinterface.StockApplication.runUIThread;
-import static net.benorourke.stocks.userinterface.StockApplication.runBackgroundThread;
+import static net.benorourke.stocks.userinterface.StockApplication.runBgThread;
 
 public class DashboardModel
 {
     private final DashboardController controller;
 
+    // NAVBAR
     private List<TimeSeries> timeSeries;
+
+    // TRAINING
+
 
     protected DashboardModel(DashboardController controller)
     {
@@ -29,7 +31,7 @@ public class DashboardModel
      */
     public void loadTimeSeries(Runnable onLoaded)
     {
-        runBackgroundThread(framework ->
+        runBgThread(framework ->
         {
             final List<TimeSeries> clone = Collections.unmodifiableList(
                                                 framework.getTimeSeriesManager().getTimeSeries());

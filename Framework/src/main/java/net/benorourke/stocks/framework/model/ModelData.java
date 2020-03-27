@@ -6,7 +6,7 @@ public class ModelData
 {
     private final Date date;
     private final double[] features;   // normalised feedforward
-    private final double[] labels; // unnormalised feedforward
+    private final double[] labels;     // unnormalised feedforward
 
     public ModelData(Date date, double[] features, double[] labels)
     {

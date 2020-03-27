@@ -12,6 +12,12 @@ import net.benorourke.stocks.framework.series.data.DataType;
 
 public abstract class DataSource<T extends Data>
 {
+    private final String apiKey;
+
+    public DataSource(String apiKey)
+    {
+        this.apiKey = apiKey;
+    }
 
     public abstract Class<? extends T> getDataClass();
 
@@ -29,6 +35,11 @@ public abstract class DataSource<T extends Data>
         {
             constraint.checkValid(query);
         }
+    }
+
+    public String getApiKey()
+    {
+        return apiKey;
     }
 
 }

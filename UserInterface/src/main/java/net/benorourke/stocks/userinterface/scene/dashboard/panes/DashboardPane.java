@@ -1,4 +1,4 @@
-package net.benorourke.stocks.userinterface.scene.dashboard;
+package net.benorourke.stocks.userinterface.scene.dashboard.panes;
 
 public enum DashboardPane
 {
