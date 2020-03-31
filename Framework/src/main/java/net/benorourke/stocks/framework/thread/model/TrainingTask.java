@@ -1,12 +1,19 @@
 package net.benorourke.stocks.framework.thread.model;
 
 import net.benorourke.stocks.framework.Framework;
+import net.benorourke.stocks.framework.model.ModelEvaluation;
 import net.benorourke.stocks.framework.model.ModelHandler;
 import net.benorourke.stocks.framework.model.param.ModelParameters;
 import net.benorourke.stocks.framework.model.PredictionModel;
 import net.benorourke.stocks.framework.model.ProcessedCorpus;
 import net.benorourke.stocks.framework.thread.*;
+import net.benorourke.stocks.framework.util.DateUtil;
 import net.benorourke.stocks.framework.util.Nullable;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 /**
  * No TaskDescription derivative class required as we only want to enable one
@@ -24,6 +31,8 @@ public class TrainingTask<T extends PredictionModel> implements Task<TaskDescrip
 
     @Nullable
     private T predictionModel;
+    @Nullable
+    private ModelEvaluation evaluation;
 
     public TrainingTask(ModelHandler<T> modelHandler, ModelParameters modelParameters,
                         ProcessedCorpus training, ProcessedCorpus testing, long seed)
@@ -102,7 +111,20 @@ public class TrainingTask<T extends PredictionModel> implements Task<TaskDescrip
 
     private void executeEvaluate()
     {
-        modelHandler.evaluate(predictionModel, testing.toDataSet(seed));
+        evaluation = modelHandler.evaluate(predictionModel, training, testing);
+
+        List<ModelEvaluation.Prediction> predictions = new ArrayList();
+        predictions.addAll(evaluation.getTrainingPredictions());
+        predictions.addAll(evaluation.getTestingPredictions());
+
+        Framework.debug("Training predictions: " + evaluation.getTrainingPredictions().size());
+        Framework.debug("Testing predictions: " + evaluation.getTestingPredictions().size());
+
+        Collections.sort(predictions, Comparator.comparing(ModelEvaluation.Prediction::getDate));
+        for (ModelEvaluation.Prediction day : predictions)
+        {
+            Framework.debug(DateUtil.formatSimple(day.getDate()) + ": [" + day.getLabels()[0] + "->" + day.getPredicted()[0] + "]");
+        }
     }
 
     @Override
@@ -114,7 +136,7 @@ public class TrainingTask<T extends PredictionModel> implements Task<TaskDescrip
     @Override
     public TrainingResult getResult()
     {
-        return new TrainingResult(predictionModel);
+        return new TrainingResult(predictionModel, evaluation);
     }
 
 }

@@ -28,7 +28,7 @@ import java.util.*;
 public class NewsAPI extends DataSource<Document>
 {
     private static final String BASE_URL = "https://newsapi.org/";
-    private static final int MAX_PAGE_SIZE = 20; // TODO - Make this larger when the document raw feedforward dumps are split
+    private static final int MAX_PAGE_SIZE = 100;
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
 
     public NewsAPI(String apiKey)

@@ -9,7 +9,7 @@ import net.benorourke.stocks.framework.util.DateUtil;
 import java.lang.reflect.Type;
 import java.util.Date;
 
-public class StockQuoteAdapter implements JsonAdapter<StockQuote>
+public class StockQuoteAdapter extends JsonAdapter<StockQuote>
 {
 
     @Override

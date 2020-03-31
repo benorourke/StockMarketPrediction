@@ -11,7 +11,7 @@ import java.lang.reflect.Type;
  * Stock contains a cyclic reference to it's member and containing object; StockExchange, so a custom adapter must be
  * specified and registered to Gson.
  */
-public class StockAdapter implements JsonAdapter<Stock>
+public class StockAdapter extends JsonAdapter<Stock>
 {
     private final StockExchangeManager exchangeManager;
 

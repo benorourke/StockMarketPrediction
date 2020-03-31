@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import net.benorourke.stocks.framework.collection.datasource.DataSourceManager;
 import net.benorourke.stocks.framework.model.ModelData;
+import net.benorourke.stocks.framework.model.ModelEvaluation;
 import net.benorourke.stocks.framework.model.ModelHandlerManager;
 import net.benorourke.stocks.framework.model.ProcessedCorpus;
 import net.benorourke.stocks.framework.persistence.FileManager;
@@ -12,6 +13,7 @@ import net.benorourke.stocks.framework.persistence.gson.TimeSeriesAdapter;
 import net.benorourke.stocks.framework.persistence.gson.data.DocumentAdapter;
 import net.benorourke.stocks.framework.persistence.gson.data.StockQuoteAdapter;
 import net.benorourke.stocks.framework.persistence.gson.model.ModelDataAdapter;
+import net.benorourke.stocks.framework.persistence.gson.model.ModelEvaluationAdapter;
 import net.benorourke.stocks.framework.persistence.gson.model.ProcessedCorpusAdapter;
 import net.benorourke.stocks.framework.series.TimeSeries;
 import net.benorourke.stocks.framework.series.TimeSeriesManager;
@@ -55,13 +57,14 @@ public class Framework implements Initialisable
         modelHandlerManager = new ModelHandlerManager();
 
         gson = new GsonBuilder()
-//                        .setPrettyPrinting()
+                        .setPrettyPrinting()
                         .registerTypeAdapter(Stock.class, new StockAdapter(stockExchangeManager))
                         .registerTypeAdapter(TimeSeries.class, new TimeSeriesAdapter())
                         .registerTypeAdapter(StockQuote.class, new StockQuoteAdapter())
                         .registerTypeAdapter(Document.class, new DocumentAdapter())
                         .registerTypeAdapter(ModelData.class, new ModelDataAdapter())
                         .registerTypeAdapter(ProcessedCorpus.class, new ProcessedCorpusAdapter())
+                        .registerTypeAdapter(ModelEvaluation.class, new ModelEvaluationAdapter())
                         .create();
     }
 

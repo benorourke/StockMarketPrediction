@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import net.benorourke.stocks.framework.Configuration;
 import net.benorourke.stocks.framework.Framework;
 import net.benorourke.stocks.framework.collection.datasource.DataSourceManager;
@@ -39,10 +40,10 @@ public class StockApplication extends Application
     @Override
     public void start(Stage stage) throws Exception
     {
+//        stage.initStyle(StageStyle.UNDECORATED);
         SceneHelper.modifyStage(stage, Constants.APPLICATION_NAME,
-                                Constants.APPLICATION_WIDTH, Constants.APPLICATION_HEIGHT,
                                 Constants.APPLICATION_WIDTH_MIN, Constants.APPLICATION_HEIGHT_MIN,
-                        true, true, SceneType.DASHBOARD);
+                        false, true, SceneType.DASHBOARD);
     }
 
     public static void main(String[] args)

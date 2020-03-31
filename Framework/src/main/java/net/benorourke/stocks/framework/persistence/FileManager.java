@@ -181,9 +181,19 @@ public class FileManager
         return new File(getProcessedDataStoreDirectory(timeSeries) + File.separator + "processed.json");
     }
 
-    public File getModelFile(TimeSeries timeSeries)
+    public File getTrainedDirectory(TimeSeries timeSeries)
     {
-        return new File(getProcessedDataStoreDirectory(timeSeries) + File.separator + "trained.model");
+        return new File(getTimeSeriesDirectory(timeSeries), "models");
+    }
+
+    public File getModelFile(TimeSeries timeSeries, String modelName)
+    {
+        return new File(getTrainedDirectory(timeSeries) + File.separator + modelName.toLowerCase() + ".model");
+    }
+
+    public File getModelEvaluationFile(TimeSeries timeSeries, String modelName)
+    {
+        return new File(getTrainedDirectory(timeSeries) + File.separator + modelName.toLowerCase() + "-evaluation.json");
     }
 
 }

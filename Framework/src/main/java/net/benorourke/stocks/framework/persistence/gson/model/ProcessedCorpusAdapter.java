@@ -9,7 +9,7 @@ import net.benorourke.stocks.framework.persistence.gson.JsonAdapter;
 import java.lang.reflect.Type;
 import java.util.List;
 
-public class ProcessedCorpusAdapter implements JsonAdapter<ProcessedCorpus>
+public class ProcessedCorpusAdapter extends JsonAdapter<ProcessedCorpus>
 {
 
     @Override

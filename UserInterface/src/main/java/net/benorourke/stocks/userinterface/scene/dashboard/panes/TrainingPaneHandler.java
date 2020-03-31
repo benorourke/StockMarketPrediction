@@ -2,12 +2,11 @@ package net.benorourke.stocks.userinterface.scene.dashboard.panes;
 
 import com.jfoenix.controls.JFXComboBox;
 import javafx.scene.control.Label;
-import net.benorourke.stocks.framework.Framework;
-import net.benorourke.stocks.userinterface.BackgroundRunnable;
+import net.benorourke.stocks.framework.series.TimeSeries;
+import net.benorourke.stocks.userinterface.StockApplication;
 import net.benorourke.stocks.userinterface.scene.dashboard.DashboardModel;
 
-import static net.benorourke.stocks.userinterface.StockApplication.runBgThread;
-import static net.benorourke.stocks.userinterface.StockApplication.runUIThread;
+import java.util.stream.Collectors;
 
 public class TrainingPaneHandler extends PaneHandler
 {
@@ -25,10 +24,23 @@ public class TrainingPaneHandler extends PaneHandler
     @Override
     public void initialise()
     {
-        runBgThread(framework -> {
-            List<String> model
-            runUIThread();
+        // Load the model handlers & set the text once the value is retrieved
+        model.getModelHandlers(() ->
+        {
+            modelHandlers.setText(String.valueOf(model.getModelHandlerCreators().size()));
+
+            selectHandler.getItems().clear();
+            selectHandler.getItems().addAll(model.getModelHandlerCreators()
+                                                    .stream().map(c -> c.name())
+                                                    .collect(Collectors.toList()));
         });
+    }
+
+    @Override
+    public void onTimeSeriesChanged(TimeSeries series)
+    {
+        // TODO
+        StockApplication.debug("Verändert");
     }
 
 }

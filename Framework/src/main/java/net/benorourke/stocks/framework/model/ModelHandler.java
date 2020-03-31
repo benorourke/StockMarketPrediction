@@ -20,7 +20,7 @@ public abstract class ModelHandler<T extends PredictionModel>
 
     public abstract void train(T model, ProcessedCorpus corpus);
 
-    public abstract void evaluate(T trainedModel, DataSet data);
+    public abstract ModelEvaluation evaluate(T trainedModel, ProcessedCorpus trainingData, ProcessedCorpus testingData);
 
     public abstract double[] predictOne(T trainedModel, double[] features);
 

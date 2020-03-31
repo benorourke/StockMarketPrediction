@@ -55,8 +55,8 @@ public class DashboardController extends Controller
     private PaneHandler[] paneHandlers;
 
     // TRAINING:
-    @FXML private JFXComboBox<String> trainingComboBox;
     @FXML private Label trainingHandlerCount;
+    @FXML private JFXComboBox<String> trainingComboBox;
     private TrainingPaneHandler trainingPaneHandler;
 
     //////////////////////////////////////////////////////////////////
@@ -87,12 +87,13 @@ public class DashboardController extends Controller
 
                 SingleSelectionModel<Tab> model = tabPane.getSelectionModel();
                 model.select(paneFor.ordinal());
-
                 Framework.debug("Clicked row " + row.getId() + " (" + paneFor.toString() + ")");
             });
         }
 
         model.loadTimeSeries( () -> updateTimeSeries() );
+
+        Framework.debug("Label null: " + (trainingHandlerCount == null));
 
         // Initialise pane handlers
         paneHandlers = new PaneHandler[DashboardPane.values().length];
@@ -101,8 +102,7 @@ public class DashboardController extends Controller
 
         for (PaneHandler handler : paneHandlers)
         {
-            // TODO Remove null check; shouldn't be null when completed
-            if (handler == null) continue;
+            if (handler == null) continue;  // TODO Remove null check; shouldn't be null when completed
 
             handler.initialise();
         }
@@ -126,18 +126,30 @@ public class DashboardController extends Controller
     {
         StockApplication.debug("Updating time series");
         paneVBox.getChildren().clear();
-        paneVBox.getChildren().addAll(model.getTimeSeries()
-                                                .stream()
-                                                .map(t -> createTimeSeries(t))
-                                                .collect(Collectors.toList()));
+        for (int i = 0; i < 20; i ++)
+        {
+            paneVBox.getChildren().addAll(model.getTimeSeries()
+                    .stream()
+                    .map(t -> createTimeSeries(t))
+                    .collect(Collectors.toList()));
+        }
     }
 
-    private Node createTimeSeries(TimeSeries series)
+    private Node createTimeSeries(final TimeSeries series)
     {
         StockApplication.debug("Creating Node from TimeSeries");
         try
         {
             Parent parent = SceneHelper.inflate(SERIES_ROW_FXML);
+            parent.setOnMouseClicked(event ->
+            {
+                for (PaneHandler handler : paneHandlers)
+                {
+                    if (handler == null) continue;  // TODO Remove null check; shouldn't be null when completed
+
+                    handler.onTimeSeriesChanged(series);
+                }
+            });
             return parent;
         }
         catch (InflationException e)

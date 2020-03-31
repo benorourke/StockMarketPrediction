@@ -1,5 +1,6 @@
 package net.benorourke.stocks.framework.model;
 
+import net.benorourke.stocks.framework.Framework;
 import net.benorourke.stocks.framework.model.feedforward.FeedForwardModelHandler;
 import net.benorourke.stocks.framework.util.Initialisable;
 

@@ -1,6 +1,8 @@
 package net.benorourke.stocks.framework.model.feedforward;
 
 import net.benorourke.stocks.framework.Framework;
+import net.benorourke.stocks.framework.model.ModelData;
+import net.benorourke.stocks.framework.model.ModelEvaluation;
 import net.benorourke.stocks.framework.model.param.HyperParameter;
 import net.benorourke.stocks.framework.model.param.ModelParameters;
 import net.benorourke.stocks.framework.model.ModelHandler;
@@ -103,23 +105,35 @@ public class FeedForwardModelHandler extends ModelHandler<FeedForwardModel>
     }
 
     @Override
-    public void evaluate(FeedForwardModel trainedModel, DataSet dataSet)
+    public ModelEvaluation evaluate(FeedForwardModel trainedModel,
+                                    ProcessedCorpus trainingData, ProcessedCorpus testingData)
     {
-        // TODO
-//        Evaluation evaluation = new Evaluation(numLabels);
-        RegressionEvaluation evaluation =  new RegressionEvaluation(numLabels);
+        List<ModelEvaluation.Prediction> trainingPredictions = getPredictions(trainedModel, trainingData);
+        List<ModelEvaluation.Prediction> testingPredictions = getPredictions(trainedModel, testingData);
+        return new ModelEvaluation(getScore(trainedModel, testingData), trainingPredictions, testingPredictions);
+    }
 
-        Framework.debug("1: numLabels=" + numLabels);
-
-        INDArray labels = dataSet.getLabels();
-        INDArray features = dataSet.getFeatures();
-        Framework.debug("1.5");
+    private double getScore(FeedForwardModel trainedModel, ProcessedCorpus testingData)
+    {
+        RegressionEvaluation regressionEvaluation =  new RegressionEvaluation(numLabels);
+        DataSet dataset = testingData.toDataSet(SEED);
+        INDArray labels = dataset.getLabels();
+        INDArray features = dataset.getFeatures();
         INDArray predicted = predict(trainedModel, features);
-        Framework.debug("2");
-        evaluation.eval(labels, predicted);
-        Framework.debug("2.5");
-        Framework.debug(evaluation.stats());
-        Framework.debug("3");
+        regressionEvaluation.eval(labels, predicted);
+        Framework.debug(regressionEvaluation.stats());
+        return regressionEvaluation.rootMeanSquaredError(0); // TODO - Should we take an average of all the cols, in case there is?
+    }
+
+    private List<ModelEvaluation.Prediction> getPredictions(FeedForwardModel model, ProcessedCorpus data)
+    {
+        List<ModelEvaluation.Prediction> days = new ArrayList<>();
+        for (ModelData elem : data.getData())
+        {
+            double[] predicted = predictOne(model, elem.getFeatures());
+            days.add(new ModelEvaluation.Prediction(elem.getDate(), elem.getLabels(), predicted));
+        }
+        return days;
     }
 
     @Override

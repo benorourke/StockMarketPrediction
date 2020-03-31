@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-public class TimeSeriesAdapter implements JsonAdapter<TimeSeries>
+public class TimeSeriesAdapter extends JsonAdapter<TimeSeries>
 {
 
     @Override

@@ -12,13 +12,13 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane fx:id="root" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="720.0" prefWidth="1280.0" stylesheets="@dashboard.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
+<AnchorPane fx:id="root" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="720.0" prefWidth="1280.0" stylesheets="@dashboard.css" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1">
    <children>
       <VBox prefHeight="720.0" prefWidth="218.0">
          <children>
             <VBox prefHeight="722.0" prefWidth="218.0" styleClass="navbar">
                <children>
-                  <Label fx:id="headerLabel" prefHeight="137.0" prefWidth="218.0" styleClass="header" text="Dashboard">
+                  <Label fx:id="headerLabel" prefHeight="137.0" prefWidth="218.0" styleClass="header" text="DASHBOARD">
                      <font>
                         <Font size="32.0" />
                      </font>
@@ -138,7 +138,9 @@
                         </Label>
                         <ScrollPane hbarPolicy="NEVER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="386.0" prefWidth="217.0">
                            <content>
-                              <VBox fx:id="paneVBox" maxHeight="-Infinity" maxWidth="-Infinity" minWidth="-Infinity" prefHeight="363.0" prefWidth="213.0" />
+                              <AnchorPane prefHeight="382.0" prefWidth="213.0">
+                              <VBox fx:id="paneVBox" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="382.0" prefWidth="209.0" />
+                              </AnchorPane>
                            </content>
                         </ScrollPane>
                      </children>
@@ -170,7 +172,7 @@
                     <content>
                       <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                            <children>
-                              <HBox alignment="CENTER" minHeight="0.0" minWidth="0.0" prefHeight="695.0" prefWidth="1059.0" spacing="70.0">
+                              <HBox alignment="CENTER" minHeight="0.0" minWidth="0.0" prefHeight="695.0" prefWidth="1059.0" spacing="130.0">
                                  <children>
                                     <VBox alignment="CENTER_LEFT" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="695.0" prefWidth="300.0" spacing="50.0">
                                        <children>
@@ -186,7 +188,7 @@
                                                 </Label>
                                                 <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0">
                                                    <children>
-                                                      <Label fx:id="preprocessingHandlerCount" text="1">
+                                                      <Label fx:id="trainingHandlerCount" text="1">
                                                          <font>
                                                             <Font size="49.0" />
                                                          </font>
@@ -207,14 +209,29 @@
                                                 </Label>
                                                 <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0">
                                                    <children>
-                                                      <JFXComboBox fx:id="preprocessingComboBox" />
+                                                      <JFXComboBox fx:id="trainingComboBox" />
                                                    </children>
                                                 </VBox>
                                              </children>
                                           </VBox>
                                        </children>
                                     </VBox>
-                                    <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="300.0" styleClass="content-box" />
+                                    <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="300.0" styleClass="content-box">
+                                       <children>
+                                          <Label text="TRAIN MODEL">
+                                             <padding>
+                                                <Insets bottom="15.0" left="20.0" top="15.0" />
+                                             </padding>
+                                             <font>
+                                                <Font size="20.0" />
+                                             </font>
+                                          </Label>
+                                          <ScrollPane prefHeight="322.0" prefWidth="298.0">
+                                            <content>
+                                              <AnchorPane prefHeight="316.0" prefWidth="294.0" />
+                                            </content>
+                                          </ScrollPane>
+                                       </children></VBox>
                                  </children>
                               </HBox>
                            </children></AnchorPane>

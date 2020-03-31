@@ -10,7 +10,7 @@ import net.benorourke.stocks.framework.util.DateUtil;
 import java.lang.reflect.Type;
 import java.util.Date;
 
-public class DocumentAdapter implements JsonAdapter<Document>
+public class DocumentAdapter extends JsonAdapter<Document>
 {
 
     @Override
