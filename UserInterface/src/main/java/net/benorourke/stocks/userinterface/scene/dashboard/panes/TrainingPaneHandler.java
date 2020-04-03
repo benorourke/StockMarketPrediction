@@ -53,7 +53,7 @@ public class TrainingPaneHandler extends PaneHandler
     public void initialise()
     {
         // Load the model handlers & set the text once the value is retrieved
-        model.getModelHandlers(() ->
+        model.acquireModelHandlers(() ->
         {
             modelHandlers.setText(String.valueOf(model.getModelHandlerCreators().size()));
 
@@ -77,7 +77,7 @@ public class TrainingPaneHandler extends PaneHandler
     public void onTimeSeriesChanged(TimeSeries series)
     {
         // TODO
-        StockApplication.debug("Verändert");
+        StockApplication.debug("Verändert zum " + series.getName());
     }
 
     public void setTrainBox(ModelHandlerManager.RuntimeCreator creator)
@@ -128,6 +128,8 @@ public class TrainingPaneHandler extends PaneHandler
             return;
 
         controller.snackbar(Controller.SnackbarType.ERROR, "Test");
+
+        // TODO - Once trained update the EvaluationPaneHandler
     }
 
 }

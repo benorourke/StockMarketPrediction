@@ -4,6 +4,9 @@
 <?import com.jfoenix.controls.JFXComboBox?>
 <?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon?>
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.chart.CategoryAxis?>
+<?import javafx.scene.chart.LineChart?>
+<?import javafx.scene.chart.NumberAxis?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Tab?>
@@ -256,8 +259,41 @@
                            <children>
                               <VBox prefHeight="695.0" prefWidth="1059.0">
                                  <children>
-                                    <HBox prefHeight="100.0" prefWidth="200.0" />
-                                    <VBox prefHeight="595.0" prefWidth="100.0" />
+                                    <HBox alignment="CENTER_RIGHT" prefHeight="65.0" prefWidth="1059.0">
+                                       <children>
+                                          <JFXComboBox fx:id="evaluationComboBox" prefHeight="27.0" prefWidth="267.0">
+                                             <HBox.margin>
+                                                <Insets />
+                                             </HBox.margin>
+                                             <padding>
+                                                <Insets right="60.0" top="10.0" />
+                                             </padding>
+                                          </JFXComboBox>
+                                       </children></HBox>
+                                    <VBox alignment="CENTER" prefHeight="595.0" prefWidth="100.0">
+                                       <children>
+                                          <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="480.0" prefWidth="839.0">
+                                             <children>
+                                                <Label text="PREDICTIONS">
+                                                   <padding>
+                                                      <Insets bottom="15.0" left="20.0" top="15.0" />
+                                                   </padding>
+                                                   <font>
+                                                      <Font size="20.0" />
+                                                   </font>
+                                                </Label>
+                                                <LineChart fx:id="evaluationChart">
+                                                  <xAxis>
+                                                    <CategoryAxis side="BOTTOM" />
+                                                  </xAxis>
+                                                  <yAxis>
+                                                    <NumberAxis side="LEFT" />
+                                                  </yAxis>
+                                                </LineChart>
+                                             </children>
+                                          </VBox>
+                                       </children>
+                                    </VBox>
                                  </children>
                               </VBox>
                            </children></AnchorPane>

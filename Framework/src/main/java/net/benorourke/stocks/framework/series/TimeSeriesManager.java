@@ -168,6 +168,44 @@ public class TimeSeriesManager implements Initialisable
         return counts;
     }
 
+    //////////////////////////////////////////////////////////////////
+    //      TRAINED MODELS
+    //////////////////////////////////////////////////////////////////
+
+    /**
+     * To retrieve a model the model file and it's corresponding evaluation file must exist
+     * @param timeSeries
+     * @return
+     */
+    public List<String> getTrainedModels(TimeSeries timeSeries)
+    {
+        List<String> models = new ArrayList<>();
+
+        File directory = fileManager.getTrainedDirectory(timeSeries);
+        if (directory.exists())
+        {
+            for (File file : directory.listFiles())
+            {
+                String path = file.getPath();
+
+                if (!path.endsWith(".model")) continue;
+
+                String[] split = path.replace(".model", "").split(File.separator);
+                String modelName = split[split.length - 1];
+
+                File evaluation = fileManager.getModelEvaluationFile(timeSeries, modelName);
+                if (evaluation.exists())
+                    models.add(modelName);
+            }
+        }
+
+        return models;
+    }
+
+    //////////////////////////////////////////////////////////////////
+    //      MISC
+    //////////////////////////////////////////////////////////////////
+
     public List<TimeSeries> getTimeSeries()
     {
         return timeSeries;

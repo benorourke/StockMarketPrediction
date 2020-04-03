@@ -6,6 +6,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
+import javafx.scene.chart.LineChart;
 import javafx.scene.control.Label;
 import javafx.scene.control.SingleSelectionModel;
 import javafx.scene.control.Tab;
@@ -14,7 +15,6 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
 import javafx.scene.shape.Circle;
 import net.benorourke.stocks.framework.Framework;
 import net.benorourke.stocks.framework.series.TimeSeries;
@@ -24,13 +24,13 @@ import net.benorourke.stocks.userinterface.exception.InflationException;
 import net.benorourke.stocks.userinterface.scene.Controller;
 import net.benorourke.stocks.userinterface.scene.SceneHelper;
 import net.benorourke.stocks.userinterface.scene.dashboard.panes.DashboardPane;
+import net.benorourke.stocks.userinterface.scene.dashboard.panes.EvaluationPaneHandler;
 import net.benorourke.stocks.userinterface.scene.dashboard.panes.PaneHandler;
 import net.benorourke.stocks.userinterface.scene.dashboard.panes.TrainingPaneHandler;
 import net.benorourke.stocks.userinterface.util.FontFamily;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class DashboardController extends Controller
 {
@@ -76,6 +76,11 @@ public class DashboardController extends Controller
     @FXML private JFXButton trainButton;
     private TrainingPaneHandler trainingPaneHandler;
 
+    // EVALUATION:
+    @FXML private JFXComboBox<String> evaluationComboBox;
+    @FXML private LineChart<String, Number> evaluationChart;
+    private EvaluationPaneHandler evaluationPaneHandler;
+
     //////////////////////////////////////////////////////////////////
     //      MISC
     //////////////////////////////////////////////////////////////////
@@ -108,15 +113,15 @@ public class DashboardController extends Controller
             });
         }
 
-        model.loadTimeSeries( () -> updateTimeSeries() );
-
-        Framework.debug("Label null: " + (trainingHandlerCount == null));
+        model.acquireTimeSeries( () -> updateTimeSeries() );
 
         // Initialise pane handlers
         paneHandlers = new PaneHandler[DashboardPane.values().length];
         paneHandlers[DashboardPane.PRE_PROCESSING.ordinal()] =
                 new TrainingPaneHandler(this, model,
                                         trainingHandlerCount, trainingComboBox, trainingFieldBox, trainButton);
+        paneHandlers[DashboardPane.EVALUATION.ordinal()] =
+                new EvaluationPaneHandler(this, model, evaluationComboBox, evaluationChart);
 
         for (PaneHandler handler : paneHandlers)
         {
@@ -162,23 +167,28 @@ public class DashboardController extends Controller
                 name.setText(series.getName());
                 stock.setText(series.getStock().getExchange().getShortName() + ":" + series.getStock().getTicker());
 
-                parent.setOnMouseClicked(event ->
-                {
-                    for (PaneHandler handler : paneHandlers)
-                    {
-                        if (handler == null) continue;  // TODO Remove null check; shouldn't be null when completed
-
-                        handler.onTimeSeriesChanged(series);
-                    }
-                });
+                parent.setOnMouseClicked(event -> changeTimeSeries(series));
                 paneVBox.getChildren().add(parent);
             }
             catch (InflationException e)
             {
                 StockApplication.error("Unable to inflate " + SERIES_ROW_FXML, e);
             }
+        }
+
+        if (model.getTimeSeries().size() > 0)
+            changeTimeSeries(model.getTimeSeries().get(0));
 
     }
+
+    public void changeTimeSeries(TimeSeries series)
+    {
+        for (PaneHandler handler : paneHandlers)
+        {
+            if (handler == null) continue;  // TODO Remove null check; shouldn't be null when completed
+
+            handler.onTimeSeriesChanged(series);
+        }
     }
 
 }

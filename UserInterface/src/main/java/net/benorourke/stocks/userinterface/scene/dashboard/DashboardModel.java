@@ -21,19 +21,27 @@ public class DashboardModel
     // TRAINING
     private List<ModelHandlerManager.RuntimeCreator> modelHandlerCreators;
 
+    // EVALUATION
+    private List<String> trainedModels;
+
 
     protected DashboardModel(DashboardController controller)
     {
         this.controller = controller;
         timeSeries = new ArrayList<>();
         modelHandlerCreators = new ArrayList<>();
+        trainedModels = new ArrayList<>();
     }
+
+    //////////////////////////////////////////////////////////////////
+    //      TIMESERIES UNSPECIFIC (APPLIES TO ALL)
+    //////////////////////////////////////////////////////////////////
 
     /**
      *
      * @param onLoaded callback is called on the JavaFX UI thread
      */
-    public void loadTimeSeries(Runnable onLoaded)
+    public void acquireTimeSeries(Runnable onLoaded)
     {
         runBgThread(framework ->
         {
@@ -48,7 +56,7 @@ public class DashboardModel
         });
     }
 
-    public void getModelHandlers(Runnable onRetrieval)
+    public void acquireModelHandlers(Runnable onRetrieval)
     {
         runBgThread(framework ->
         {
@@ -64,6 +72,25 @@ public class DashboardModel
         });
     }
 
+    //////////////////////////////////////////////////////////////////
+    //      TIMESERIES SPECIFIC
+    //////////////////////////////////////////////////////////////////
+
+    public void acquireTrainedModels(TimeSeries seriesFor, Runnable onRetrieval)
+    {
+        runBgThread(framework ->
+        {
+            final List<String> trained = framework.getTimeSeriesManager().getTrainedModels(seriesFor);
+
+            runUIThread(() ->
+            {
+                trainedModels.clear();
+                trainedModels.addAll(trained);
+                onRetrieval.run();
+            });
+        });
+    }
+
     public List<TimeSeries> getTimeSeries()
     {
         return timeSeries;
@@ -72,6 +99,11 @@ public class DashboardModel
     public List<ModelHandlerManager.RuntimeCreator> getModelHandlerCreators()
     {
         return modelHandlerCreators;
+    }
+
+    public List<String> getTrainedModels()
+    {
+        return trainedModels;
     }
 
 }
