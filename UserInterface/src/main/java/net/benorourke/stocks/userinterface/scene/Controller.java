@@ -1,6 +1,9 @@
 package net.benorourke.stocks.userinterface.scene;
 
+import com.jfoenix.controls.JFXSnackbar;
+import com.jfoenix.controls.JFXSnackbarLayout;
 import javafx.fxml.FXML;
+import javafx.scene.control.Label;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 
@@ -17,36 +20,23 @@ public class Controller
         return root;
     }
 
-    public void bind(Region bind, Region to)
+    public void snackbar(SnackbarType type, String message)
     {
-        bind.prefWidthProperty().bind(to.prefWidthProperty());
-        bind.prefHeightProperty().bind(to.prefHeightProperty());
+        JFXSnackbar snackbar = new JFXSnackbar(root);
+        JFXSnackbarLayout content = new JFXSnackbarLayout(type.message, message, null);
+        snackbar.enqueue(new JFXSnackbar.SnackbarEvent(content));
     }
 
-    public void bind(Region bind, Region to, double coefficient)
+    public enum SnackbarType
     {
-        bind.prefWidthProperty().bind(to.widthProperty().multiply(coefficient));
-        bind.prefHeightProperty().bind(to.heightProperty().multiply(coefficient));
-    }
+        ERROR("Error");
 
-    public void bindX(Region bind, Region to, double coefficient)
-    {
-        bind.prefWidthProperty().bind(to.widthProperty().multiply(coefficient));
-    }
+        private String message;
 
-    public void bindX(Region bind, Region to)
-    {
-        bind.prefWidthProperty().bind(to.widthProperty());
-    }
-
-    public void bindY(Region bind, Region to, double coefficient)
-    {
-        bind.prefHeightProperty().bind(to.heightProperty().multiply(coefficient));
-    }
-
-    public void bindY(Region bind, Region to)
-    {
-        bind.prefHeightProperty().bind(to.heightProperty());
+        SnackbarType(String message)
+        {
+            this.message = message;
+        }
     }
 
 }

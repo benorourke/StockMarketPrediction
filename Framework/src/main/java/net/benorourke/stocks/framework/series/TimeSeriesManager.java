@@ -2,6 +2,7 @@ package net.benorourke.stocks.framework.series;
 
 import net.benorourke.stocks.framework.Framework;
 import net.benorourke.stocks.framework.collection.datasource.DataSource;
+import net.benorourke.stocks.framework.model.ModelEvaluation;
 import net.benorourke.stocks.framework.persistence.FileManager;
 import net.benorourke.stocks.framework.persistence.store.DataStore;
 import net.benorourke.stocks.framework.series.data.Data;
@@ -120,6 +121,8 @@ public class TimeSeriesManager implements Initialisable
                 Framework.error("Unable to load time series meta at " + infoFile.getPath());
             }
         }
+
+        Collections.sort(result, Comparator.comparing(TimeSeries::getName));
         return result;
     }
 

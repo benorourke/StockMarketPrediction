@@ -33,7 +33,7 @@ public class FeedForwardModelHandler extends ModelHandler<FeedForwardModel>
     private static final long SEED = 0;
     private static final List<HyperParameter> REQUIRED_HYPERPARAMETERS;
 
-    public static String HYPERPARAMETER_HIDDEN_NODES = "N_HIDDEN";
+    public static String HYPERPARAMETER_HIDDEN_NODES = "Hidden Nodes";
 
     static
     {

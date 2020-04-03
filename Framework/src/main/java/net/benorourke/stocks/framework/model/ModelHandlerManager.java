@@ -2,6 +2,7 @@ package net.benorourke.stocks.framework.model;
 
 import net.benorourke.stocks.framework.Framework;
 import net.benorourke.stocks.framework.model.feedforward.FeedForwardModelHandler;
+import net.benorourke.stocks.framework.model.param.HyperParameter;
 import net.benorourke.stocks.framework.util.Initialisable;
 
 import java.util.ArrayList;
@@ -22,6 +23,12 @@ public class ModelHandlerManager implements Initialisable
         public FeedForwardModelHandler createFromCorpus(ProcessedCorpus corpus)
         {
             return new FeedForwardModelHandler(corpus.getNumFeatures(), corpus.getNumLabels());
+        }
+
+        @Override
+        public List<HyperParameter> getRequiredParameters()
+        {
+            return new FeedForwardModelHandler(0, 0).getRequiredHyperParameters();
         }
 
     };
@@ -65,6 +72,8 @@ public class ModelHandlerManager implements Initialisable
         String name();
 
         T createFromCorpus(ProcessedCorpus corpus);
+
+        List<HyperParameter> getRequiredParameters();
 
     }
 

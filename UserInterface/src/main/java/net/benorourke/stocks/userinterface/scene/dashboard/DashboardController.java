@@ -1,7 +1,9 @@
 package net.benorourke.stocks.userinterface.scene.dashboard;
 
+import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXComboBox;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.Label;
@@ -11,8 +13,12 @@ import javafx.scene.control.TabPane;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
+import javafx.scene.shape.Circle;
 import net.benorourke.stocks.framework.Framework;
 import net.benorourke.stocks.framework.series.TimeSeries;
+import net.benorourke.stocks.framework.util.Tuple;
 import net.benorourke.stocks.userinterface.StockApplication;
 import net.benorourke.stocks.userinterface.exception.InflationException;
 import net.benorourke.stocks.userinterface.scene.Controller;
@@ -31,6 +37,15 @@ public class DashboardController extends Controller
     private static final double HEADER_SIZE = 24;
     private static final String NAV_BUTTON_STYLE_CLASS = "nav-row";
     private static final String SERIES_ROW_FXML = "/dashboard-series.fxml";
+
+    private static final Color[] SERIES_CIRCLE_FILLS = new Color[]
+    {
+            Color.rgb(0x1E, 0x90, 0xFF),    Color.rgb(0xFA, 0xA9, 0x16),
+            Color.rgb(0x2A, 0xF5, 0xFF),    Color.rgb(0xFF, 0xEE, 0xDD),
+            Color.rgb(0xB4, 0xED, 0xD2),    Color.rgb(0xF7, 0xAF, 0x9D),
+            Color.rgb(0xF7, 0xE3, 0xAF),    Color.rgb(0xE4, 0xFD, 0xE1),
+            Color.rgb(0xFF, 0xFC, 0xFF),    Color.rgb(0x32, 0xE8, 0x75),
+    };
 
     private final DashboardModel model;
 
@@ -57,6 +72,8 @@ public class DashboardController extends Controller
     // TRAINING:
     @FXML private Label trainingHandlerCount;
     @FXML private JFXComboBox<String> trainingComboBox;
+    @FXML private VBox trainingFieldBox;
+    @FXML private JFXButton trainButton;
     private TrainingPaneHandler trainingPaneHandler;
 
     //////////////////////////////////////////////////////////////////
@@ -98,7 +115,8 @@ public class DashboardController extends Controller
         // Initialise pane handlers
         paneHandlers = new PaneHandler[DashboardPane.values().length];
         paneHandlers[DashboardPane.PRE_PROCESSING.ordinal()] =
-                new TrainingPaneHandler(model, trainingHandlerCount, trainingComboBox);
+                new TrainingPaneHandler(this, model,
+                                        trainingHandlerCount, trainingComboBox, trainingFieldBox, trainButton);
 
         for (PaneHandler handler : paneHandlers)
         {
@@ -126,37 +144,41 @@ public class DashboardController extends Controller
     {
         StockApplication.debug("Updating time series");
         paneVBox.getChildren().clear();
-        for (int i = 0; i < 20; i ++)
+        for (TimeSeries series : model.getTimeSeries())
         {
-            paneVBox.getChildren().addAll(model.getTimeSeries()
-                    .stream()
-                    .map(t -> createTimeSeries(t))
-                    .collect(Collectors.toList()));
-        }
-    }
-
-    private Node createTimeSeries(final TimeSeries series)
-    {
-        StockApplication.debug("Creating Node from TimeSeries");
-        try
-        {
-            Parent parent = SceneHelper.inflate(SERIES_ROW_FXML);
-            parent.setOnMouseClicked(event ->
+            try
             {
-                for (PaneHandler handler : paneHandlers)
-                {
-                    if (handler == null) continue;  // TODO Remove null check; shouldn't be null when completed
+                Tuple<FXMLLoader, Parent> tuple = SceneHelper.inflate(SERIES_ROW_FXML);
+                FXMLLoader loader = tuple.getA();
+                Parent parent = tuple.getB();
 
-                    handler.onTimeSeriesChanged(series);
-                }
-            });
-            return parent;
-        }
-        catch (InflationException e)
-        {
-            StockApplication.error("Unable to inflate " + SERIES_ROW_FXML, e);
-            return null;
-        }
+                Circle circle = (Circle) loader.getNamespace().get("seriesCircle");
+                Label name = (Label) loader.getNamespace().get("seriesName");
+                Label stock = (Label) loader.getNamespace().get("seriesStock");
+
+                int index = series.getId().hashCode() % 10;
+                index = (index < 0) ? index * -1 : index; // Prevent negative indices
+                circle.setFill(SERIES_CIRCLE_FILLS[index]);
+                name.setText(series.getName());
+                stock.setText(series.getStock().getExchange().getShortName() + ":" + series.getStock().getTicker());
+
+                parent.setOnMouseClicked(event ->
+                {
+                    for (PaneHandler handler : paneHandlers)
+                    {
+                        if (handler == null) continue;  // TODO Remove null check; shouldn't be null when completed
+
+                        handler.onTimeSeriesChanged(series);
+                    }
+                });
+                paneVBox.getChildren().add(parent);
+            }
+            catch (InflationException e)
+            {
+                StockApplication.error("Unable to inflate " + SERIES_ROW_FXML, e);
+            }
+
+    }
     }
 
 }

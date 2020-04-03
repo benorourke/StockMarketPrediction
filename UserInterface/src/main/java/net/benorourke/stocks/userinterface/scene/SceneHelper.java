@@ -1,9 +1,12 @@
 package net.benorourke.stocks.userinterface.scene;
 
+import com.jfoenix.controls.JFXSnackbarLayout;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.stage.Stage;
+import net.benorourke.stocks.framework.util.Tuple;
 import net.benorourke.stocks.userinterface.exception.InflationException;
 import net.benorourke.stocks.userinterface.exception.SceneCreationDataException;
 import net.benorourke.stocks.userinterface.util.ResourceUtil;
@@ -15,12 +18,12 @@ public class SceneHelper
 	
 	private SceneHelper() {}
 
-	public static Parent inflate(String fxmlPath) throws InflationException
+	public static Tuple<FXMLLoader, Parent> inflate(String fxmlPath) throws InflationException
 	{
 		FXMLLoader loader = new FXMLLoader(ResourceUtil.getResource(fxmlPath));
 		try
 		{
-			return loader.load();
+			return new Tuple<>(loader, loader.load());
 		}
 		catch (IOException e)
 		{

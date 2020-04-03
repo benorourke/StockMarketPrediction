@@ -3,9 +3,9 @@ package net.benorourke.stocks.framework.model.param;
 public class HyperParameter
 {
     private final String name;
-    private final Object defaultValue;
+    private final int defaultValue;
 
-    public HyperParameter(String name, Object defaultValue)
+    public HyperParameter(String name, int defaultValue)
     {
         this.name = name;
         this.defaultValue = defaultValue;
@@ -16,7 +16,7 @@ public class HyperParameter
         return name;
     }
 
-    public Object getDefaultValue()
+    public int getDefaultValue()
     {
         return defaultValue;
     }

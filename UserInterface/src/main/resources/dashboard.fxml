@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import com.jfoenix.controls.JFXButton?>
 <?import com.jfoenix.controls.JFXComboBox?>
 <?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon?>
 <?import javafx.geometry.Insets?>
@@ -139,7 +140,7 @@
                         <ScrollPane hbarPolicy="NEVER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="386.0" prefWidth="217.0">
                            <content>
                               <AnchorPane prefHeight="382.0" prefWidth="213.0">
-                              <VBox fx:id="paneVBox" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="382.0" prefWidth="209.0" />
+                              <VBox fx:id="paneVBox" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="382.0" prefWidth="209.0" spacing="12.0" />
                               </AnchorPane>
                            </content>
                         </ScrollPane>
@@ -226,11 +227,23 @@
                                                 <Font size="20.0" />
                                              </font>
                                           </Label>
-                                          <ScrollPane prefHeight="322.0" prefWidth="298.0">
+                                          <ScrollPane prefHeight="322.0" prefWidth="298.0" styleClass="training-scrollpane">
                                             <content>
-                                              <AnchorPane prefHeight="316.0" prefWidth="294.0" />
+                                              <AnchorPane prefHeight="273.0" prefWidth="294.0">
+                                                   <children>
+                                                      <VBox fx:id="trainingFieldBox" alignment="TOP_CENTER" prefHeight="272.0" prefWidth="291.0" spacing="15.0" />
+                                                   </children></AnchorPane>
                                             </content>
                                           </ScrollPane>
+                                          <VBox alignment="CENTER" prefHeight="108.0" prefWidth="298.0">
+                                             <children>
+                                                <JFXButton fx:id="trainButton" buttonType="RAISED" prefHeight="15.0" prefWidth="150.0" styleClass="button-primary" text="Train">
+                                                   <font>
+                                                      <Font size="17.0" />
+                                                   </font>
+                                                </JFXButton>
+                                             </children>
+                                          </VBox>
                                        </children></VBox>
                                  </children>
                               </HBox>
@@ -239,7 +252,15 @@
                   </Tab>
                   <Tab fx:id="evaluationTab" text="Evaluation">
                     <content>
-                      <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+                      <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                           <children>
+                              <VBox prefHeight="695.0" prefWidth="1059.0">
+                                 <children>
+                                    <HBox prefHeight="100.0" prefWidth="200.0" />
+                                    <VBox prefHeight="595.0" prefWidth="100.0" />
+                                 </children>
+                              </VBox>
+                           </children></AnchorPane>
                     </content>
                   </Tab>
               </tabs>
