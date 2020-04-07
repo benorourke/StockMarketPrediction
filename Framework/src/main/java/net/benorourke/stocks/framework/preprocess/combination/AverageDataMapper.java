@@ -1,66 +1,96 @@
 package net.benorourke.stocks.framework.preprocess.combination;
 
-import net.benorourke.stocks.framework.Framework;
+import edu.stanford.nlp.maxent.Feature;
 import net.benorourke.stocks.framework.model.ModelData;
-import net.benorourke.stocks.framework.preprocess.document.Sentiment;
+import net.benorourke.stocks.framework.preprocess.FeatureRepresenter;
+import net.benorourke.stocks.framework.series.data.impl.Document;
 import net.benorourke.stocks.framework.series.data.impl.ProcessedDocument;
 import net.benorourke.stocks.framework.series.data.impl.StockQuote;
 import net.benorourke.stocks.framework.series.data.impl.StockQuoteDataType;
+import net.benorourke.stocks.framework.util.Tuple;
 
-import java.text.DecimalFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class AverageDataMapper implements ModelDataMapper
+public class AverageDataMapper extends ModelDataMapper
 {
-    private static final int QUOTE_INPUTS     = StockQuoteDataType.values().length;
-    private static final int SENTIMENT_INPUTS = Sentiment.values().length;
 
-    @Override
-    public int getFeatureCount(List<ProcessedDocument> documents, List<StockQuote> quotes)
+    /**
+     * @param documentRepresenters
+     * @param quoteRepresenters    the feature representers for extracting vectors from the stock quotes
+     * @param labelsToPredict
+     */
+    public AverageDataMapper(List<FeatureRepresenter<Document>> documentRepresenters,
+                             List<FeatureRepresenter<StockQuote>> quoteRepresenters,
+                             StockQuoteDataType[] labelsToPredict)
     {
-        // [0 .. 4] -> StockQuote Data (Real)
-        // [5 .. 9] -> Sentiment Data (Boolean; only 1 true)
-        // [10 .. 10 + number of top terms] -> Top Term Data (Boolean)
-        return QUOTE_INPUTS + SENTIMENT_INPUTS + documents.get(0).getTopTermVector().length;
-    }
-
-    @Override
-    public int getLabelCount(List<ProcessedDocument> documents, List<StockQuote> quotes)
-    {
-        return 1;
+        super(documentRepresenters, quoteRepresenters, labelsToPredict);
     }
 
     @Override
     public ModelData toModelData(Date date, List<ProcessedDocument> documents, List<StockQuote> quotes)
     {
-        // FEATURES
-        int numFeatures = getFeatureCount(documents, quotes);
+        // TODO: Document features (stored within processeddocument)
 
-        // quotes
-        int quoteFeaturesCols = quotes.get(0).getData().length;
-        double[][] quoteFeatures = new double[quotes.size()][quoteFeaturesCols];
+        // LABELS
+        double[] labels = labelsFromQuotes(quotes);
+
+
+        return new ModelData(date, featuresFromQuotes(quotes), labels);
+    }
+
+    private double[] combineFeatures(double[]... allFeatures)
+    {
+        int size = 0;
+        for (double[] features : allFeatures)
+            size += features.length;
+
+        double[] combined = new double[size];
+        int nextIdx = 0;
+        for (double[] features : allFeatures)
+            for (double feature : features)
+                combined[nextIdx ++] = feature;
+
+        return combined;
+    }
+
+    private double[] featuresFromQuotes(List<StockQuote> quotes)
+    {
+        double[] features = new double[0];
+        for (FeatureRepresenter<StockQuote> representer : getQuoteRepresenters())
+            features = combineFeatures(features, featureFromQuotes(representer, quotes));
+
+        return features;
+    }
+
+    private double[] featureFromQuotes(FeatureRepresenter<StockQuote> representer, List<StockQuote> quotes)
+    {
+        double[][] features = new double[quotes.size()][];
+
+        int idx = 0;
+        for (StockQuote quote : quotes)
+            features[idx ++] = representer.getVectorRepresentation(quote);
+
+        return handleAverage(representer.getCombinationPolicy(), features);
+    }
+
+    private double[] labelsFromQuotes(List<StockQuote> quotes)
+    {
+        // Take average of all quotes
+        int quoteCols = StockQuoteDataType.values().length;
+        double[][] quoteFeatures = new double[quotes.size()][quoteCols];
         int quoteFeaturesIdx = 0;
         for (StockQuote quote : quotes)
             quoteFeatures[quoteFeaturesIdx ++] = quote.getData();
-        double[] quoteFeaturesVector = takeAverage(quoteFeatures, quoteFeaturesCols);
-        // sentiment
-        double[] sentimentVector = getModeSentiment(documents).toInputVector();
-        // top terms
-        double[] topTermsVector = orTopTerms(documents);
+        double[] quoteFeaturesVector = takeMean(quoteFeatures, quoteCols);
 
-        double[] features = new double[numFeatures];
-        for (int i = 0; i < QUOTE_INPUTS; i ++)
-            features[i] = quoteFeaturesVector[i];
-        for (int i = 0; i < SENTIMENT_INPUTS; i ++)
-            features[QUOTE_INPUTS + i] = sentimentVector[i];
-        for (int i = 0; i < topTermsVector.length; i ++)
-            features[QUOTE_INPUTS + SENTIMENT_INPUTS + i] = topTermsVector[i];
-
-        // LABELS
-        double[] labels = new double[] {quoteFeaturesVector[StockQuoteDataType.CLOSE.index()]};
-
-        return new ModelData(date, features, labels);
+        double[] labels = new double[getLabelCount()];
+        for (int i = 0; i < getLabelsToPredict().length; i ++)
+        {
+            StockQuoteDataType type = getLabelsToPredict()[i];
+            labels[i] = quoteFeaturesVector[type.index()];
+        }
+        return labels;
     }
 
     /**
@@ -71,7 +101,7 @@ public class AverageDataMapper implements ModelDataMapper
      * @param cols
      * @return
      */
-    public double[] takeAverage(double[][] arrays, int cols)
+    public double[] takeMean(double[][] arrays, int cols)
     {
         double[] totals = new double[cols];
         for (int j = 0; j < arrays.length; j ++)
@@ -92,79 +122,78 @@ public class AverageDataMapper implements ModelDataMapper
         return averages;
     }
 
-    public Sentiment getModeSentiment(List<ProcessedDocument> documents)
+    // TODO - TEST
+    private double[] handleAverage(FeatureRepresenter.CombinationPolicy policy, double[][] toCombine)
     {
-        Map<Sentiment, Integer> sentimentCounts = new HashMap<>();
-        for (ProcessedDocument document : documents)
+        double[] result = new double[toCombine[0].length];
+        switch (policy)
         {
-            Sentiment sentiment = document.getSentiment();
-            if (sentimentCounts.containsKey(sentiment))
-                sentimentCounts.put(sentiment, sentimentCounts.get(sentiment) + 1);
-            else
-                sentimentCounts.put(sentiment, 1);
+            case TAKE_HIGHEST:
+
+                for (double[] features : toCombine)
+                {
+                    int idx = 0;
+                    for (double feature : features)
+                    {
+                        if (result[idx] < feature)
+                            result[idx] = feature;
+
+                        idx ++;
+                    }
+                }
+                break;
+
+            case TAKE_MEAN_AVERAGE:
+                result = takeMean(toCombine, toCombine[0].length);
+                break;
+
+            case TAKE_MODE_AVERAGE:
+
+                // Map:
+                //    Key (Tuple):
+                //       Key = feature index
+                //       Value = feature
+                //    Value: Frequency of feature for given index
+                Map<Tuple<Integer, Double>, Integer> frequencies = new HashMap<>();
+                for (double[] features : toCombine)
+                {
+                    int idx = 0;
+                    for (double feature : features)
+                    {
+                        Tuple<Integer, Double> tuple = new Tuple<>(idx, feature);
+
+                        if (!frequencies.containsKey(tuple))
+                            frequencies.put(tuple, 0);
+
+                        frequencies.put(tuple, frequencies.get(tuple));
+
+                        idx ++;
+                    }
+                }
+
+                for (int featureIndex = 0; featureIndex < result.length; featureIndex ++)
+                {
+                    final int finalFeatureIndex = featureIndex;
+                    List<Map.Entry<Tuple<Integer, Double>, Integer>> entries =
+                            frequencies.entrySet()
+                                            .stream()
+                                            .filter(e -> e.getKey().getA() == finalFeatureIndex)
+                                            .collect(Collectors.toList());
+
+                    int frequency = 0;
+
+                    for (Map.Entry<Tuple<Integer, Double>, Integer> entry : entries)
+                    {
+                        if (entry.getValue() > frequency)
+                        {
+                            result[featureIndex] = entry.getKey().getB();
+                            frequency = entry.getValue();
+                        }
+                    }
+                }
+                break;
         }
-
-        // Determine the mode Sentiment
-        Sentiment mode = Sentiment.NEUTRAL;
-        int cardinality = 0;
-        for (Map.Entry<Sentiment, Integer> entry : sentimentCounts.entrySet())
-        {
-            if (entry.getValue() > cardinality)
-            {
-                mode = entry.getKey();
-                cardinality = entry.getValue();
-            }
-        }
-
-        return mode;
-    }
-
-    public double[] orTopTerms(List<ProcessedDocument> documents)
-    {
-        double[] result = new double[documents.get(0).getTopTermVector().length];
-
-        for (ProcessedDocument document : documents)
-        {
-            boolean[] vector = document.getTopTermVector();
-            for (int i = 0; i < vector.length; i ++)
-            {
-                if (vector[i])
-                    result[i] = 1.0D;
-            }
-        }
-
         return result;
     }
-
-//    public double[] getModeTopTerms(List<ProcessedDocument> documents)
-//    {
-//        int[] zeroCounts = new int[documents.get(0).getTopTermVector().length];
-//        int[] onesCounts = new int[zeroCounts.length];
-//
-//        for (ProcessedDocument document : documents)
-//        {
-//            boolean[] vector = document.getTopTermVector();
-//            for (int i = 0; i < vector.length; i ++)
-//            {
-//                if (vector[i])
-//                    onesCounts[i] ++;
-//                else
-//                    zeroCounts[i] ++;
-//            }
-//        }
-//
-//        // Take the averages
-//        double[] result = new double[zeroCounts.length];
-//        for (int i = 0; i < onesCounts.length; i ++)
-//        {
-//            if (zeroCounts[i] == onesCounts[i])
-//                result[i] = 1.0; // Should this be the case?
-//            else if (zeroCounts[i] > onesCounts[i])
-//                result[i] = 0.0;
-//            else if (zeroCounts[i] < onesCounts[i])
-//                result[i] = 1.0;
-//        }
-//        return result;
-//    }
 
 }

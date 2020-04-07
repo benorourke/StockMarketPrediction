@@ -6,7 +6,6 @@ import net.benorourke.stocks.framework.series.TimeSeries;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static net.benorourke.stocks.userinterface.StockApplication.runUIThread;
 import static net.benorourke.stocks.userinterface.StockApplication.runBgThread;
@@ -23,7 +22,6 @@ public class DashboardModel
 
     // EVALUATION
     private List<String> trainedModels;
-
 
     protected DashboardModel(DashboardController controller)
     {
@@ -47,6 +45,7 @@ public class DashboardModel
         {
             final List<TimeSeries> clone = Collections.unmodifiableList(
                                                 framework.getTimeSeriesManager().getTimeSeries());
+
             runUIThread(() ->
             {
                 timeSeries.clear();

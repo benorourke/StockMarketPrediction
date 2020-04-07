@@ -3,10 +3,10 @@ package net.benorourke.stocks.framework.model.feedforward;
 import net.benorourke.stocks.framework.Framework;
 import net.benorourke.stocks.framework.model.ModelData;
 import net.benorourke.stocks.framework.model.ModelEvaluation;
+import net.benorourke.stocks.framework.model.ProcessedDataset;
 import net.benorourke.stocks.framework.model.param.HyperParameter;
 import net.benorourke.stocks.framework.model.param.ModelParameters;
 import net.benorourke.stocks.framework.model.ModelHandler;
-import net.benorourke.stocks.framework.model.ProcessedCorpus;
 import org.deeplearning4j.datasets.iterator.ExistingDataSetIterator;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
@@ -88,7 +88,7 @@ public class FeedForwardModelHandler extends ModelHandler<FeedForwardModel>
     }
 
     @Override
-    public void train(FeedForwardModel model, ProcessedCorpus corpus)
+    public void train(FeedForwardModel model, ProcessedDataset corpus)
     {
         DataSetIterator iterator = new ExistingDataSetIterator(Arrays.asList(corpus.toDataSet(SEED)));
 
@@ -106,14 +106,14 @@ public class FeedForwardModelHandler extends ModelHandler<FeedForwardModel>
 
     @Override
     public ModelEvaluation evaluate(FeedForwardModel trainedModel,
-                                    ProcessedCorpus trainingData, ProcessedCorpus testingData)
+                                    ProcessedDataset trainingData, ProcessedDataset testingData)
     {
         List<ModelEvaluation.Prediction> trainingPredictions = getPredictions(trainedModel, trainingData);
         List<ModelEvaluation.Prediction> testingPredictions = getPredictions(trainedModel, testingData);
         return new ModelEvaluation(getScore(trainedModel, testingData), trainingPredictions, testingPredictions);
     }
 
-    private double getScore(FeedForwardModel trainedModel, ProcessedCorpus testingData)
+    private double getScore(FeedForwardModel trainedModel, ProcessedDataset testingData)
     {
         RegressionEvaluation regressionEvaluation =  new RegressionEvaluation(numLabels);
         DataSet dataset = testingData.toDataSet(SEED);
@@ -125,7 +125,7 @@ public class FeedForwardModelHandler extends ModelHandler<FeedForwardModel>
         return regressionEvaluation.rootMeanSquaredError(0); // TODO - Should we take an average of all the cols, in case there is?
     }
 
-    private List<ModelEvaluation.Prediction> getPredictions(FeedForwardModel model, ProcessedCorpus data)
+    private List<ModelEvaluation.Prediction> getPredictions(FeedForwardModel model, ProcessedDataset data)
     {
         List<ModelEvaluation.Prediction> days = new ArrayList<>();
         for (ModelData elem : data.getData())

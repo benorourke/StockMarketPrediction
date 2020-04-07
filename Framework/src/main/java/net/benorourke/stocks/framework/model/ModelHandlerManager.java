@@ -1,6 +1,5 @@
 package net.benorourke.stocks.framework.model;
 
-import net.benorourke.stocks.framework.Framework;
 import net.benorourke.stocks.framework.model.feedforward.FeedForwardModelHandler;
 import net.benorourke.stocks.framework.model.param.HyperParameter;
 import net.benorourke.stocks.framework.util.Initialisable;
@@ -20,7 +19,7 @@ public class ModelHandlerManager implements Initialisable
         }
 
         @Override
-        public FeedForwardModelHandler createFromCorpus(ProcessedCorpus corpus)
+        public FeedForwardModelHandler createFromCorpus(ProcessedDataset corpus)
         {
             return new FeedForwardModelHandler(corpus.getNumFeatures(), corpus.getNumLabels());
         }
@@ -46,7 +45,7 @@ public class ModelHandlerManager implements Initialisable
         creators.add(FEED_FORWARD_CREATOR);
     }
 
-    public ModelHandler createByName(String name, ProcessedCorpus corpus)
+    public ModelHandler createByName(String name, ProcessedDataset corpus)
     {
         return creators.stream()
                         .filter(c -> c.name().equalsIgnoreCase(name))
@@ -71,7 +70,7 @@ public class ModelHandlerManager implements Initialisable
 
         String name();
 
-        T createFromCorpus(ProcessedCorpus corpus);
+        T createFromCorpus(ProcessedDataset corpus);
 
         List<HyperParameter> getRequiredParameters();
 

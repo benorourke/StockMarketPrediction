@@ -5,15 +5,15 @@ import net.benorourke.stocks.framework.collection.datasource.DataSource;
 import net.benorourke.stocks.framework.exception.InsuficcientRawDataException;
 import net.benorourke.stocks.framework.model.ModelData;
 import net.benorourke.stocks.framework.persistence.store.DataStore;
+import net.benorourke.stocks.framework.preprocess.FeatureRepresenter;
 import net.benorourke.stocks.framework.preprocess.Preprocess;
 import net.benorourke.stocks.framework.preprocess.ProgressCallback;
 import net.benorourke.stocks.framework.preprocess.combination.LabelAssignment;
 import net.benorourke.stocks.framework.preprocess.combination.MissingDataPolicy;
 import net.benorourke.stocks.framework.preprocess.combination.ModelDataMapper;
-import net.benorourke.stocks.framework.preprocess.document.DimensionalityReducer;
-import net.benorourke.stocks.framework.preprocess.document.FeatureRepresenter;
-import net.benorourke.stocks.framework.model.ProcessedCorpus;
-import net.benorourke.stocks.framework.preprocess.document.relevancy.RelevancyMetric;
+import net.benorourke.stocks.framework.preprocess.document.DimensionalityReduction;
+import net.benorourke.stocks.framework.preprocess.document.FeatureRepresentation;
+import net.benorourke.stocks.framework.model.ProcessedDataset;
 import net.benorourke.stocks.framework.series.data.DataType;
 import net.benorourke.stocks.framework.series.data.impl.*;
 import net.benorourke.stocks.framework.thread.Task;
@@ -32,10 +32,13 @@ public class PreprocessingTask implements Task<TaskDescription, PreprocessingRes
 {
     private final DataStore store;
     private final Map<DataSource, Integer> collectedDataCounts;
+    private final List<FeatureRepresenter<CleanedDocument>> documentFeatureRepresenters;
+    private final List<FeatureRepresenter<StockQuote>> quoteFeatureRepresenters;
+
 
     // Document Pre-processes
-    private final DimensionalityReducer dimensionalityReducer;
-    private final FeatureRepresenter featureRepresenter;
+    private final DimensionalityReduction dimensionalityReduction;
+    private final FeatureRepresentation featureRepresentation;
     // Document & StockQuote Preprocesses
     private final LabelAssignment labelAssignment;
     // All Preprocesses
@@ -56,27 +59,41 @@ public class PreprocessingTask implements Task<TaskDescription, PreprocessingRes
     @Nullable
     private List<ProcessedDocument> representedCorpus;
     @Nullable
-    private ProcessedCorpus result;
+    private ProcessedDataset result;
 
-    public PreprocessingTask(DataStore store,
-                             Map<DataSource, Integer> collectedDataCounts,
-                             RelevancyMetric documentRelevancyMetric, int maximumRelevantTerms,
+    /**
+     * Any FeatureRepresenter, for either CleanedDocuments or StockQuotes should have an associated, registered GSON
+     * TypeAdapter to ensure their persistence.
+     *
+     * @param store
+     * @param collectedDataCounts
+     * @param documentFeatureRepresenters
+     * @param quoteFeatureRepresenters
+     * @param missingDataPolicy
+     * @param modelDataMapper
+     * @throws InsuficcientRawDataException
+     */
+    public PreprocessingTask(DataStore store, Map<DataSource, Integer> collectedDataCounts,
+                             List<FeatureRepresenter<CleanedDocument>> documentFeatureRepresenters,
+                             List<FeatureRepresenter<StockQuote>> quoteFeatureRepresenters,
                              MissingDataPolicy missingDataPolicy,
                              ModelDataMapper modelDataMapper)
             throws InsuficcientRawDataException
     {
         this.store = store;
         this.collectedDataCounts = collectedDataCounts;
+        this.documentFeatureRepresenters = documentFeatureRepresenters;
+        this.quoteFeatureRepresenters = quoteFeatureRepresenters;
 
         loadedQuotes = new ArrayList<>();
         loadedCorpus = new ArrayList<>();
         reducedCorpus = new ArrayList<>();
 
         // Processes
-        dimensionalityReducer = new DimensionalityReducer();
-        featureRepresenter = new FeatureRepresenter(documentRelevancyMetric, maximumRelevantTerms);
+        dimensionalityReduction = new DimensionalityReduction();
+        featureRepresentation = new FeatureRepresentation(documentFeatureRepresenters);
         labelAssignment = new LabelAssignment(missingDataPolicy, modelDataMapper);
-        preprocesses = new Preprocess[] {dimensionalityReducer, featureRepresenter, labelAssignment};
+        preprocesses = new Preprocess[] {dimensionalityReduction, featureRepresentation, labelAssignment};
 
         stage = PreprocessingStage.first();
 
@@ -235,7 +252,7 @@ public class PreprocessingTask implements Task<TaskDescription, PreprocessingRes
 
     private void executeReduceDimensionality()
     {
-        reducedCorpus.addAll(dimensionalityReducer.preprocess(loadedCorpus));
+        reducedCorpus.addAll(dimensionalityReduction.preprocess(loadedCorpus));
         Framework.info("[Pre-processing] Reduced Dimensionality of Entire Corpus ("
                             + reducedCorpus.size() + ")");
         loadedCorpus.clear();
@@ -244,7 +261,7 @@ public class PreprocessingTask implements Task<TaskDescription, PreprocessingRes
 
     private void executeRepresentFeatures()
     {
-        representedCorpus = featureRepresenter.preprocess(reducedCorpus);
+        representedCorpus = featureRepresentation.preprocess(reducedCorpus);
         Framework.info("[Pre-processing] Represented Entire Corpus");
         reducedCorpus.clear();
         reducedCorpus = null;
@@ -253,11 +270,11 @@ public class PreprocessingTask implements Task<TaskDescription, PreprocessingRes
     private void executeAssignLabels()
     {
         Framework.info("[Pre-processing] Assigning Labels");
-        int features = labelAssignment.getMapper().getFeatureCount(representedCorpus, loadedQuotes);
-        int labels = labelAssignment.getMapper().getLabelCount(representedCorpus, loadedQuotes);
+        int features = labelAssignment.getMapper().getFeatureCount();
+        int labels = labelAssignment.getMapper().getLabelCount();
         List<ModelData> data = labelAssignment.preprocess(new Tuple<>(representedCorpus, loadedQuotes));
         Framework.info("[Pre-processing] Producing Corpus");
-        result = new ProcessedCorpus(features, labels,featureRepresenter.getTopTerms(), data);
+        result = new ProcessedDataset(documentFeatureRepresenters, quoteFeatureRepresenters, features, labels, data);
         Framework.info("[Pre-processing] Normalising Corpus");
         result.calculateFeatureMinsMaxes();
         result.normalise();

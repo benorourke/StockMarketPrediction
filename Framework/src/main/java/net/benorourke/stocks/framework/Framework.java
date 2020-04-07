@@ -6,15 +6,21 @@ import net.benorourke.stocks.framework.collection.datasource.DataSourceManager;
 import net.benorourke.stocks.framework.model.ModelData;
 import net.benorourke.stocks.framework.model.ModelEvaluation;
 import net.benorourke.stocks.framework.model.ModelHandlerManager;
-import net.benorourke.stocks.framework.model.ProcessedCorpus;
+import net.benorourke.stocks.framework.model.ProcessedDataset;
 import net.benorourke.stocks.framework.persistence.FileManager;
 import net.benorourke.stocks.framework.persistence.gson.StockAdapter;
 import net.benorourke.stocks.framework.persistence.gson.TimeSeriesAdapter;
 import net.benorourke.stocks.framework.persistence.gson.data.DocumentAdapter;
 import net.benorourke.stocks.framework.persistence.gson.data.StockQuoteAdapter;
+import net.benorourke.stocks.framework.persistence.gson.data.representer.SentimentFeatureRepresenterAdapter;
+import net.benorourke.stocks.framework.persistence.gson.data.representer.StockQuoteFeatureRepresenterAdapter;
+import net.benorourke.stocks.framework.persistence.gson.data.representer.TopTermFeatureRepresenterAdapter;
 import net.benorourke.stocks.framework.persistence.gson.model.ModelDataAdapter;
 import net.benorourke.stocks.framework.persistence.gson.model.ModelEvaluationAdapter;
-import net.benorourke.stocks.framework.persistence.gson.model.ProcessedCorpusAdapter;
+import net.benorourke.stocks.framework.persistence.gson.model.ProcessedDatasetAdapter;
+import net.benorourke.stocks.framework.preprocess.document.representer.sentiment.SentimentFeatureRepresenter;
+import net.benorourke.stocks.framework.preprocess.document.representer.topterm.TopTermFeatureRepresenter;
+import net.benorourke.stocks.framework.preprocess.quote.StockQuoteFeatureRepresenter;
 import net.benorourke.stocks.framework.series.TimeSeries;
 import net.benorourke.stocks.framework.series.TimeSeriesManager;
 import net.benorourke.stocks.framework.series.data.impl.Document;
@@ -56,16 +62,23 @@ public class Framework implements Initialisable
         taskManager = new TaskManager(config);
         modelHandlerManager = new ModelHandlerManager();
 
-        gson = new GsonBuilder()
+        GsonBuilder builder = new GsonBuilder()
                         .setPrettyPrinting()
                         .registerTypeAdapter(Stock.class, new StockAdapter(stockExchangeManager))
                         .registerTypeAdapter(TimeSeries.class, new TimeSeriesAdapter())
                         .registerTypeAdapter(StockQuote.class, new StockQuoteAdapter())
                         .registerTypeAdapter(Document.class, new DocumentAdapter())
                         .registerTypeAdapter(ModelData.class, new ModelDataAdapter())
-                        .registerTypeAdapter(ProcessedCorpus.class, new ProcessedCorpusAdapter())
+                        .registerTypeAdapter(ProcessedDataset.class, new ProcessedDatasetAdapter())
                         .registerTypeAdapter(ModelEvaluation.class, new ModelEvaluationAdapter())
-                        .create();
+                        .registerTypeAdapter(TopTermFeatureRepresenter.class, new TopTermFeatureRepresenterAdapter())
+                        .registerTypeAdapter(SentimentFeatureRepresenter.class, new SentimentFeatureRepresenterAdapter())
+                        .registerTypeAdapter(StockQuoteFeatureRepresenter.class, new StockQuoteFeatureRepresenterAdapter());
+        // Register the type adapters specified in the configuration
+        config.getGsonTypeAdapters().entrySet()
+                        .stream()
+                        .forEach(e -> builder.registerTypeAdapter(e.getKey(), e.getValue()));
+        gson = builder.create();
     }
 
     public Framework()

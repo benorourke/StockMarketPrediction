@@ -3,7 +3,6 @@ package net.benorourke.stocks.framework.model;
 import net.benorourke.stocks.framework.model.param.HyperParameter;
 import net.benorourke.stocks.framework.model.param.ModelParameters;
 import org.nd4j.linalg.api.ndarray.INDArray;
-import org.nd4j.linalg.dataset.DataSet;
 
 import java.io.File;
 import java.util.List;
@@ -18,9 +17,9 @@ public abstract class ModelHandler<T extends PredictionModel>
      */
     public abstract List<HyperParameter> getRequiredHyperParameters();
 
-    public abstract void train(T model, ProcessedCorpus corpus);
+    public abstract void train(T model, ProcessedDataset corpus);
 
-    public abstract ModelEvaluation evaluate(T trainedModel, ProcessedCorpus trainingData, ProcessedCorpus testingData);
+    public abstract ModelEvaluation evaluate(T trainedModel, ProcessedDataset trainingData, ProcessedDataset testingData);
 
     public abstract double[] predictOne(T trainedModel, double[] features);
 

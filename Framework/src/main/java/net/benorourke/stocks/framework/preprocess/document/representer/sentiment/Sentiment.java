@@ -1,4 +1,4 @@
-package net.benorourke.stocks.framework.preprocess.document;
+package net.benorourke.stocks.framework.preprocess.document.representer.sentiment;
 
 import java.util.Arrays;
 

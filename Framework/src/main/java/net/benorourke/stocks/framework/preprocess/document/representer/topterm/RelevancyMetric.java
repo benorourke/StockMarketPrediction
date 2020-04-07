@@ -1,8 +1,7 @@
-package net.benorourke.stocks.framework.preprocess.document.relevancy;
+package net.benorourke.stocks.framework.preprocess.document.representer.topterm;
 
 import net.benorourke.stocks.framework.series.data.impl.CleanedDocument;
 
-import java.util.Date;
 import java.util.List;
 
 /**

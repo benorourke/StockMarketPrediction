@@ -1,4 +1,4 @@
-package net.benorourke.stocks.framework.preprocess.document.relevancy;
+package net.benorourke.stocks.framework.preprocess.document.representer.topterm;
 
 import net.benorourke.stocks.framework.series.data.impl.CleanedDocument;
 
@@ -6,10 +6,6 @@ import java.util.*;
 
 public class TF_IDF implements RelevancyMetric
 {
-
-    public enum Logarithm {BASE_10, NATURAL}
-
-    private final Logarithm logarithm;
     private final List<CleanedDocument> corpus;
     /**
      * The Map of terms against the number of documents they appear in.
@@ -20,9 +16,8 @@ public class TF_IDF implements RelevancyMetric
 
     private double corpusSize;
 
-    public TF_IDF(Logarithm logarithm)
+    public TF_IDF()
     {
-        this.logarithm = logarithm;
         corpus = new ArrayList<>();
         idfMap = new LinkedHashMap<>();
     }
@@ -33,7 +28,7 @@ public class TF_IDF implements RelevancyMetric
         corpus.clear();
         idfMap.clear();
 
-        // Create the map of terms against the number of documents where a term appears
+        // Create the map of terms against the number of documents where a representer appears
         corpus.addAll(data);
         corpusSize = (double) corpus.size();
 
@@ -43,7 +38,7 @@ public class TF_IDF implements RelevancyMetric
 
             inner: for (String term : document.getCleanedTerms())
             {
-                // Don't want to increment this term in the idfMap if we already have
+                // Don't want to increment this representer in the idfMap if we already have
                 // for this document
                 if (!termsSeenThisDocument.contains(term))
                 {
@@ -103,8 +98,8 @@ public class TF_IDF implements RelevancyMetric
 
     public double inverseDocumentFrequency(String term)
     {
-        double denominator = (double) idfMap.get(term); // Can add 1, but a term should never be missings
-        return log( corpusSize / (denominator) );
+        double denominator = (double) idfMap.get(term); // Can add 1, but a representer should never be missings
+        return Math.log10( corpusSize / (denominator) );
     }
 
     public double tfidf(String term, CleanedDocument document)
@@ -122,20 +117,8 @@ public class TF_IDF implements RelevancyMetric
         return sum / corpusSize;
     }
 
-    private double log(double a)
-    {
-        switch (logarithm)
-        {
-            case BASE_10:
-                return Math.log10(a);
-            case NATURAL:
-            default:
-                return Math.log(a);
-        }
-    }
-
     /**
-     * Get every possible term in the dictionary
+     * Get every possible top term in the dictionary
      * @return
      */
     private final Set<String> getLexicon()

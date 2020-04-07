@@ -39,7 +39,7 @@ public class PlottingHelper
     }
 
 //    private static <T extends PredictionModel> LineChart<Number, Number>
-//                predictAndPlot(ModelHandler<T> handler, T model, ProcessedCorpus data)
+//                predictAndPlot(ModelHandler<T> handler, T model, ProcessedDataset data)
 //    {
 //
 //    }

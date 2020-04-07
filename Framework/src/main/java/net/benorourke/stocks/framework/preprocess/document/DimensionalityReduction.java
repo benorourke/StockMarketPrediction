@@ -14,7 +14,7 @@ import net.benorourke.stocks.framework.util.DateUtil;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class DimensionalityReducer extends Preprocess<List<Document>, List<CleanedDocument>>
+public class DimensionalityReduction extends Preprocess<List<Document>, List<CleanedDocument>>
 {
     private static final int PROGRESS_ITERATIONS = 50;
     private static final Set<String> STOPWORDS = new HashSet<>(Arrays.asList(new String[]

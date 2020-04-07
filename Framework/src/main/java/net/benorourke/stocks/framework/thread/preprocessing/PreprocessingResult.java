@@ -1,18 +1,18 @@
 package net.benorourke.stocks.framework.thread.preprocessing;
 
-import net.benorourke.stocks.framework.model.ProcessedCorpus;
+import net.benorourke.stocks.framework.model.ProcessedDataset;
 import net.benorourke.stocks.framework.thread.Result;
 
 public class PreprocessingResult extends Result
 {
-    private final ProcessedCorpus corpus;
+    private final ProcessedDataset corpus;
 
-    public PreprocessingResult(ProcessedCorpus corpus)
+    public PreprocessingResult(ProcessedDataset corpus)
     {
         this.corpus = corpus;
     }
 
-    public ProcessedCorpus getCorpus()
+    public ProcessedDataset getCorpus()
     {
         return corpus;
     }

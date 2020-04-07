@@ -5,7 +5,7 @@ import net.benorourke.stocks.framework.model.ModelEvaluation;
 import net.benorourke.stocks.framework.model.ModelHandler;
 import net.benorourke.stocks.framework.model.param.ModelParameters;
 import net.benorourke.stocks.framework.model.PredictionModel;
-import net.benorourke.stocks.framework.model.ProcessedCorpus;
+import net.benorourke.stocks.framework.model.ProcessedDataset;
 import net.benorourke.stocks.framework.thread.*;
 import net.benorourke.stocks.framework.util.DateUtil;
 import net.benorourke.stocks.framework.util.Nullable;
@@ -23,7 +23,7 @@ public class TrainingTask<T extends PredictionModel> implements Task<TaskDescrip
 {
     private final ModelHandler<T> modelHandler;
     private final ModelParameters modelParameters;
-    private final ProcessedCorpus training, testing;
+    private final ProcessedDataset training, testing;
     private final long seed;
 
     private TrainingStage stage;
@@ -35,7 +35,7 @@ public class TrainingTask<T extends PredictionModel> implements Task<TaskDescrip
     private ModelEvaluation evaluation;
 
     public TrainingTask(ModelHandler<T> modelHandler, ModelParameters modelParameters,
-                        ProcessedCorpus training, ProcessedCorpus testing, long seed)
+                        ProcessedDataset training, ProcessedDataset testing, long seed)
     {
         this.modelHandler = modelHandler;
         this.modelParameters = modelParameters;
