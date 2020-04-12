@@ -1,13 +1,16 @@
 package net.benorourke.stocks.framework.preprocess.document.representer.topterm;
 
+import net.benorourke.stocks.framework.Framework;
 import net.benorourke.stocks.framework.preprocess.FeatureRepresenter;
 import net.benorourke.stocks.framework.series.data.DataType;
 import net.benorourke.stocks.framework.series.data.impl.CleanedDocument;
+import net.benorourke.stocks.framework.util.StringUtil;
 
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class TopTermFeatureRepresenter implements FeatureRepresenter<CleanedDocument>
 {
@@ -33,6 +36,12 @@ public class TopTermFeatureRepresenter implements FeatureRepresenter<CleanedDocu
     {
         relevancyMetric.initialise(corpus);
         topTerms = relevancyMetric.getMostRelevant(maxTopTerms);
+
+        for (CleanedDocument cleanedDocument : corpus)
+        {
+            Framework.debug(cleanedDocument.getCleanedTerms().stream().collect(Collectors.joining(", "))
+                                + " -> " + StringUtil.formatDoubles(getVectorRepresentation(cleanedDocument)));
+        }
     }
 
     @Override

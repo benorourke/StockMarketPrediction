@@ -1,4 +1,4 @@
-package net.benorourke.stocks.framework.preprocess.combination;
+package net.benorourke.stocks.framework.preprocess.assignment;
 
 import net.benorourke.stocks.framework.Framework;
 import net.benorourke.stocks.framework.model.ModelData;
@@ -37,6 +37,16 @@ public class LabelAssignment extends Preprocess< Tuple<List<ProcessedDocument>,
         Framework.info("[Label Assignment] Combining Documents");
         Map<Date, List<Data>> combined = DatasetHelper.combine(data);
         Framework.info("[Label Assignment] " + combined.size() + " Days Found");
+
+        for (Map.Entry<Date, List<Data>> entry : combined.entrySet())
+        {
+            Framework.debug("COMBINED DAY " + DateUtil.formatSimple(entry.getKey()));
+
+            for (Data elem : entry.getValue())
+            {
+                Framework.debug("   " + elem.getClass().toString());
+            }
+        }
 
         Framework.info("[Label Assignment] Combining Saturday/Sunday Documents with Monday");
         combined = DatasetHelper.handleWeekends(combined);

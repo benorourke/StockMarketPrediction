@@ -5,16 +5,16 @@ import net.benorourke.stocks.framework.thread.Result;
 
 public class PreprocessingResult extends Result
 {
-    private final ProcessedDataset corpus;
+    private final ProcessedDataset dataset;
 
-    public PreprocessingResult(ProcessedDataset corpus)
+    public PreprocessingResult(ProcessedDataset dataset)
     {
-        this.corpus = corpus;
+        this.dataset = dataset;
     }
 
-    public ProcessedDataset getCorpus()
+    public ProcessedDataset getDataset()
     {
-        return corpus;
+        return dataset;
     }
 
 }

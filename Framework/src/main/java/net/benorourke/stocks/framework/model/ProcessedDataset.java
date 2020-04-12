@@ -22,8 +22,7 @@ public class ProcessedDataset implements Iterable<ModelData>
 
     public ProcessedDataset(List<FeatureRepresenter<CleanedDocument>> documentFeatureRepresenters,
                             List<FeatureRepresenter<StockQuote>> quoteFeatureRepresenters,
-                            int numFeatures, int numLabels,
-                            List<ModelData> data)
+                            int numFeatures, int numLabels, List<ModelData> data)
     {
         this.documentFeatureRepresenters = documentFeatureRepresenters;
         this.quoteFeatureRepresenters = quoteFeatureRepresenters;
@@ -73,7 +72,7 @@ public class ProcessedDataset implements Iterable<ModelData>
                 else
                 {
                     double normalised = (unnormalised - featureMinimums[i])
-                            / (featureMaximums[i] - featureMinimums[i]);
+                                            / (featureMaximums[i] - featureMinimums[i]);
                     modelData.getFeatures()[i] = normalised;
                 }
             }
@@ -90,22 +89,47 @@ public class ProcessedDataset implements Iterable<ModelData>
      */
     public void calculateFeatureMinsMaxes()
     {
-        featureMinimums = new double[numFeatures];
-        Arrays.fill(featureMinimums, Double.MAX_VALUE);
-        featureMaximums = new double[numFeatures];
-        Arrays.fill(featureMaximums, Double.MIN_VALUE);
+        Framework.debug("Calculating Feature Mins/Maxes (" + numFeatures + ", " + numLabels + ")");
+
+        featureMinimums = featureMaximums = null;
         for (ModelData elem : data)
         {
-            double[] quoteData = elem.getFeatures();
+            if (featureMinimums == null)
+            {
+                featureMinimums = Arrays.copyOf(elem.getFeatures(), numFeatures);
+                featureMaximums = Arrays.copyOf(elem.getFeatures(), numFeatures);
+                continue;
+            }
+
+            double[] features = elem.getFeatures();
             for (int i = 0; i < numFeatures; i ++)
             {
-
-                if (featureMinimums[i] > quoteData[i])
-                    featureMinimums[i] = quoteData[i];
-                if (featureMaximums[i] < quoteData[i])
-                    featureMaximums[i] = quoteData[i];
+                if (featureMinimums[i] > features[i])
+                    featureMinimums[i] = features[i];
+                if (featureMaximums[i] < features[i])
+                    featureMaximums[i] = features[i];
             }
         }
+
+        for (ModelData elem : data)
+        {
+            StringBuilder SB = new StringBuilder();
+            for (double val : elem.getFeatures())
+                SB.append(val + ", ");
+            Framework.debug("Datapoint: " + SB.toString());
+        }
+
+        StringBuilder SB = new StringBuilder();
+        for (double val : featureMaximums)
+            SB.append(val + ", ");
+        Framework.debug("Maximums: " + SB.toString());
+
+        StringBuilder SB2 = new StringBuilder();
+        for (double val : featureMinimums)
+            SB2.append(val + ", ");
+        Framework.debug("Minimums: " + SB2.toString());
+
+        Framework.debug("Calculated Feature Mins/Maxes");
     }
 
     /**

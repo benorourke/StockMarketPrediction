@@ -10,16 +10,16 @@ import java.util.Map;
 
 public class ProcessedDocument extends Data
 {
-    private final LinkedHashMap<FeatureRepresenter<CleanedDocument>, Double[]> featureVectors;
+    private final Map<FeatureRepresenter<CleanedDocument>, double[]> featureVectors;
 
-    public ProcessedDocument(Date date, LinkedHashMap<FeatureRepresenter<CleanedDocument>, Double[]> featureVectors)
+    public ProcessedDocument(Date date, Map<FeatureRepresenter<CleanedDocument>, double[]> featureVectors)
     {
         super(DataType.PROCESSED_DOCUMENT, date);
 
         this.featureVectors = featureVectors;
     }
 
-    public LinkedHashMap<FeatureRepresenter<CleanedDocument>, Double[]> getFeatureVectors()
+    public Map<FeatureRepresenter<CleanedDocument>, double[]> getFeatureVectors()
     {
         return featureVectors;
     }

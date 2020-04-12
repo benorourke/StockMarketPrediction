@@ -1,4 +1,4 @@
-package net.benorourke.stocks.framework.preprocess.combination;
+package net.benorourke.stocks.framework.preprocess.assignment;
 
 import net.benorourke.stocks.framework.series.data.Data;
 import net.benorourke.stocks.framework.series.data.DataType;

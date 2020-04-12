@@ -1,25 +1,22 @@
-package net.benorourke.stocks.framework.preprocess.combination;
+package net.benorourke.stocks.framework.preprocess.assignment;
 
 import net.benorourke.stocks.framework.model.ModelData;
 import net.benorourke.stocks.framework.preprocess.FeatureRepresenter;
-import net.benorourke.stocks.framework.series.data.impl.Document;
-import net.benorourke.stocks.framework.series.data.impl.ProcessedDocument;
-import net.benorourke.stocks.framework.series.data.impl.StockQuote;
-import net.benorourke.stocks.framework.series.data.impl.StockQuoteDataType;
+import net.benorourke.stocks.framework.series.data.impl.*;
 
 import java.util.Date;
 import java.util.List;
 
 public abstract class ModelDataMapper
 {
-    private final List<FeatureRepresenter<Document>> documentRepresenters;
+    private final List<FeatureRepresenter<CleanedDocument>> documentRepresenters;
     private final List<FeatureRepresenter<StockQuote>> quoteRepresenters;
     private final StockQuoteDataType[] labelsToPredict;
 
     /**
      * @param quoteRepresenters the feature representers for extracting vectors from the stock quotes
      */
-    public ModelDataMapper(List<FeatureRepresenter<Document>> documentRepresenters,
+    public ModelDataMapper(List<FeatureRepresenter<CleanedDocument>> documentRepresenters,
                            List<FeatureRepresenter<StockQuote>> quoteRepresenters,
                            StockQuoteDataType[] labelsToPredict)
     {
@@ -37,7 +34,7 @@ public abstract class ModelDataMapper
      */
     public abstract ModelData toModelData(Date date, List<ProcessedDocument> documents, List<StockQuote> quotes);
 
-    public List<FeatureRepresenter<Document>> getDocumentRepresenters()
+    public List<FeatureRepresenter<CleanedDocument>> getDocumentRepresenters()
     {
         return documentRepresenters;
     }

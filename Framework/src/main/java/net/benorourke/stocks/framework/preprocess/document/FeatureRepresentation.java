@@ -40,6 +40,7 @@ public class FeatureRepresentation extends Preprocess<List<CleanedDocument>, Lis
             {
                 vectors.put(representer, representer.getVectorRepresentation(document));
             }
+            processed.add(new ProcessedDocument(document.getDate(), vectors));
         }
         Framework.info("[FeatureRepresentation (2/2)] Finished CleanedDocument -> ProcesesdDocument using features");
         return processed;
