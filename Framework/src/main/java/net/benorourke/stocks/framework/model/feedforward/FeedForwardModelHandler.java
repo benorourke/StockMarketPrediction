@@ -31,60 +31,73 @@ import java.util.*;
 public class FeedForwardModelHandler extends ModelHandler<FeedForwardModel>
 {
     private static final long SEED = 0;
-    private static final List<HyperParameter> REQUIRED_HYPERPARAMETERS;
 
-    public static String HYPERPARAMETER_HIDDEN_NODES = "Hidden Nodes";
+    public static final List<HyperParameter> REQUIRED_HYPERPARAMETERS;
+    public static final String HYPERPARAMETER_INPUT_NODES = "Input Nodes";
+    public static final String HYPERPARAMETER_HIDDEN_NODES = "Hidden Nodes";
+    public static final String HYPERPARAMETER_OUTPUT_NODES = "Output Nodes";
+    public static final int    HYPERPARAMETER_HIDDEN_NODES_DEFAULT = 30;
 
     static
     {
         List<HyperParameter> list = new ArrayList<>();
-        list.add(new HyperParameter(HYPERPARAMETER_HIDDEN_NODES, 30));
+        list.add(new HyperParameter(HYPERPARAMETER_INPUT_NODES, false,0)); // Must be specified
+        list.add(new HyperParameter(HYPERPARAMETER_HIDDEN_NODES, true, HYPERPARAMETER_HIDDEN_NODES_DEFAULT));
+        list.add(new HyperParameter(HYPERPARAMETER_OUTPUT_NODES, false, 0)); // Must be specified
+
         REQUIRED_HYPERPARAMETERS = Collections.unmodifiableList(list);
     }
 
-    private final int numFeatures, numLabels;
+    private final ModelParameters configuration;
 
-    public FeedForwardModelHandler(int numFeatures, int numLabels)
+    protected FeedForwardModelHandler(ModelParameters configuration)
     {
-        this.numFeatures = numFeatures;
-        this.numLabels = numLabels;
+        this.configuration = configuration;
+        configuration.setMissingDefaults(getRequiredHyperParameters());
     }
 
-    @Override
-    public FeedForwardModel create(ModelParameters configuration)
+    public FeedForwardModelHandler(int numInputs, int numHidden, int numOutputs)
     {
-        configuration.addMissingDefaults(getRequiredHyperParameters());
-        int paramHidden = configuration.getInt(HYPERPARAMETER_HIDDEN_NODES);
-
-        Framework.debug("Creating with features " + numFeatures + ", labels " + numLabels);
-        Framework.debug("d1");
-        MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
-                .seed(SEED)
-                .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
-                .updater(new Adam())
-                .l2(1e-4)
-                .list()
-                .layer(0, new DenseLayer.Builder().nIn(numFeatures).nOut(paramHidden)
-                        .activation(Activation.TANH)
-                        .build())
-                .layer(1, new OutputLayer.Builder(LossFunctions.LossFunction.MSE)
-                        .activation(Activation.IDENTITY)
-                        .nIn(paramHidden).nOut(numLabels).build())
-                .build();
-        Framework.debug("d2");
-
-        MultiLayerNetwork net = new MultiLayerNetwork(conf);
-        net.init();
-        net.setListeners(new ScoreIterationListener(1));
-        Framework.debug("d3");
-
-        return new FeedForwardModel(net);
+        configuration = new ModelParameters();
+        configuration.set(HYPERPARAMETER_INPUT_NODES, numInputs);
+        configuration.set(HYPERPARAMETER_OUTPUT_NODES, numHidden);
+        configuration.set(HYPERPARAMETER_HIDDEN_NODES, numOutputs);
+        configuration.setMissingDefaults(getRequiredHyperParameters());
     }
 
     @Override
     public List<HyperParameter> getRequiredHyperParameters()
     {
         return REQUIRED_HYPERPARAMETERS;
+    }
+
+    @Override
+    public FeedForwardModel create()
+    {
+        int paramFeatures = configuration.get(HYPERPARAMETER_INPUT_NODES);
+        int paramHidden = configuration.get(HYPERPARAMETER_HIDDEN_NODES);
+        int paramLabels = configuration.get(HYPERPARAMETER_OUTPUT_NODES);
+
+        Framework.debug("Creating Feed Forward Model with features " + paramFeatures + ", labels " + paramLabels);
+        MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
+                .seed(SEED)
+                .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
+                .updater(new Adam())
+                .l2(1e-4)
+                .list()
+                .layer(0, new DenseLayer.Builder().nIn(paramFeatures).nOut(paramHidden)
+                        .activation(Activation.TANH)
+                        .build())
+                .layer(1, new OutputLayer.Builder(LossFunctions.LossFunction.MSE)
+                        .activation(Activation.IDENTITY)
+                        .nIn(paramHidden).nOut(paramLabels).build())
+                .build();
+
+        MultiLayerNetwork net = new MultiLayerNetwork(conf);
+        net.init();
+        net.setListeners(new ScoreIterationListener(1));
+
+        return new FeedForwardModel(net);
     }
 
     @Override
@@ -115,7 +128,7 @@ public class FeedForwardModelHandler extends ModelHandler<FeedForwardModel>
 
     private double getScore(FeedForwardModel trainedModel, ProcessedDataset testingData)
     {
-        RegressionEvaluation regressionEvaluation =  new RegressionEvaluation(numLabels);
+        RegressionEvaluation regressionEvaluation =  new RegressionEvaluation(configuration.get(HYPERPARAMETER_OUTPUT_NODES));
         DataSet dataset = testingData.toDataSet(SEED);
         INDArray labels = dataset.getLabels();
         INDArray features = dataset.getFeatures();

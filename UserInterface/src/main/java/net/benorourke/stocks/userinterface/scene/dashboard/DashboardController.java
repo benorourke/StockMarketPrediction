@@ -23,10 +23,7 @@ import net.benorourke.stocks.userinterface.StockApplication;
 import net.benorourke.stocks.userinterface.exception.InflationException;
 import net.benorourke.stocks.userinterface.scene.Controller;
 import net.benorourke.stocks.userinterface.scene.SceneHelper;
-import net.benorourke.stocks.userinterface.scene.dashboard.panes.DashboardPane;
-import net.benorourke.stocks.userinterface.scene.dashboard.panes.EvaluationPaneHandler;
-import net.benorourke.stocks.userinterface.scene.dashboard.panes.PaneHandler;
-import net.benorourke.stocks.userinterface.scene.dashboard.panes.TrainingPaneHandler;
+import net.benorourke.stocks.userinterface.scene.dashboard.panes.*;
 import net.benorourke.stocks.userinterface.util.FontFamily;
 
 import java.util.ArrayList;
@@ -36,6 +33,10 @@ public class DashboardController extends Controller
 {
     private static final double HEADER_SIZE = 24;
     private static final String NAV_BUTTON_STYLE_CLASS = "nav-row";
+    private static final String NAV_BUTTON_ICON_STYLE_CLASS = "nav-icon";
+    private static final String NAV_BUTTON_TEXT_STYLE_CLASS = "nav-text";
+    private static final String NAV_BUTTON_ICON_SELECTED_STYLE_CLASS = "nav-icon-selected";
+    private static final String NAV_BUTTON_TEXT_SELECTED_STYLE_CLASS = "nav-text-selected";
     private static final String SERIES_ROW_FXML = "/dashboard-series.fxml";
 
     private static final Color[] SERIES_CIRCLE_FILLS = new Color[]
@@ -68,6 +69,10 @@ public class DashboardController extends Controller
     //      PANE HANDLERS
     //////////////////////////////////////////////////////////////////
     private PaneHandler[] paneHandlers;
+
+    // COLLECTION:
+    @FXML private JFXComboBox<String> collectionComboBox;
+    @FXML private TabPane collectionTabPane;
 
     // TRAINING:
     @FXML private Label trainingHandlerCount;
@@ -107,9 +112,7 @@ public class DashboardController extends Controller
             {
                 String id = row.getId();
 
-                SingleSelectionModel<Tab> model = tabPane.getSelectionModel();
-                model.select(paneFor.ordinal());
-                Framework.debug("Clicked row " + row.getId() + " (" + paneFor.toString() + ")");
+                selectNavbarBox(row, paneFor);
             });
         }
 
@@ -117,6 +120,8 @@ public class DashboardController extends Controller
 
         // Initialise pane handlers
         paneHandlers = new PaneHandler[DashboardPane.values().length];
+        paneHandlers[DashboardPane.COLLECTION.ordinal()] =
+                new CollectionPaneHandler(this, model, collectionComboBox, collectionTabPane);
         paneHandlers[DashboardPane.PRE_PROCESSING.ordinal()] =
                 new TrainingPaneHandler(this, model,
                                         trainingHandlerCount, trainingComboBox, trainingFieldBox, trainButton);
@@ -143,6 +148,44 @@ public class DashboardController extends Controller
                 boxes.add((HBox) child);
         }
         return boxes;
+    }
+
+    private void selectNavbarBox(HBox toSelect, DashboardPane paneFor)
+    {
+        SingleSelectionModel<Tab> model = tabPane.getSelectionModel();
+        model.select(paneFor.ordinal());
+
+        for (HBox row : navRows)
+            changeNavbarClassRecursive(row, toSelect.equals(row));
+    }
+
+    private void changeNavbarClassRecursive(Parent node, boolean selected)
+    {
+        for (Node child : node.getChildrenUnmodifiable())
+        {
+            if (child instanceof Parent)
+                changeNavbarClassRecursive((Parent) child, selected);
+            else
+                changeNavbarClass(child, selected);
+        }
+
+        changeNavbarClass(node, selected);
+    }
+
+    private void changeNavbarClass(Node node, boolean selected)
+    {
+        if (node.getStyleClass().contains(NAV_BUTTON_ICON_STYLE_CLASS)
+                || node.getStyleClass().contains(NAV_BUTTON_ICON_SELECTED_STYLE_CLASS))
+        {
+            node.getStyleClass().clear();
+            node.getStyleClass().add(selected ? NAV_BUTTON_ICON_SELECTED_STYLE_CLASS : NAV_BUTTON_ICON_STYLE_CLASS);
+        }
+        else if (node.getStyleClass().contains(NAV_BUTTON_TEXT_STYLE_CLASS)
+                || node.getStyleClass().contains(NAV_BUTTON_TEXT_SELECTED_STYLE_CLASS))
+        {
+            node.getStyleClass().clear();
+            node.getStyleClass().add(selected ? NAV_BUTTON_TEXT_SELECTED_STYLE_CLASS : NAV_BUTTON_TEXT_STYLE_CLASS);
+        }
     }
 
     private void updateTimeSeries()

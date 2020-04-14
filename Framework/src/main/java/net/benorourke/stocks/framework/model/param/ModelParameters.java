@@ -6,9 +6,9 @@ import java.util.Map;
 
 public class ModelParameters
 {
-    private Map<String, Object> parameters;
+    private Map<String, Integer> parameters;
 
-    public ModelParameters(Map<String, Object> parameters)
+    public ModelParameters(Map<String, Integer> parameters)
     {
         this.parameters = parameters;
     }
@@ -18,7 +18,7 @@ public class ModelParameters
         this(new HashMap<>());
     }
 
-    public void addMissingDefaults(Collection<HyperParameter> hyperParameters)
+    public void setMissingDefaults(Collection<HyperParameter> hyperParameters)
     {
         for (HyperParameter param : hyperParameters)
         {
@@ -29,22 +29,17 @@ public class ModelParameters
         }
     }
 
-    public void add(String key, Object value)
+    public void set(String key, Integer value)
     {
         parameters.put(key.toUpperCase(), value);
     }
 
-    public Object get(String key)
+    public int get(String key)
     {
         return parameters.get(key.toUpperCase());
     }
 
-    public int getInt(String key)
-    {
-        return (int) get(key);
-    }
-
-    public Map<String, Object> getParameters()
+    public Map<String, Integer> getParameters()
     {
         return parameters;
     }

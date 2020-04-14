@@ -62,7 +62,6 @@ public class TrainingPaneHandler extends PaneHandler
                                                     .stream().map(c -> c.name())
                                                     .collect(Collectors.toList()));
 
-
             // We can always assume there will be at least one - the Feed Forward Neural Network Handler
             selectHandler.getSelectionModel().select(0);
 
@@ -84,7 +83,7 @@ public class TrainingPaneHandler extends PaneHandler
     {
         trainingFieldBox.getChildren().clear();
         // + 1 for the name
-        inputFields = new JFXTextField[1 + selectHandler.getItems().size()];
+        inputFields = new JFXTextField[1 + creator.getRequiredParameters().size()];
 
         inputFields[0] = generateInputField("Model Name", "Enter Name");
         for (int i = 0; i < creator.getRequiredParameters().size(); i ++)
@@ -92,7 +91,8 @@ public class TrainingPaneHandler extends PaneHandler
             HyperParameter param = (HyperParameter) creator.getRequiredParameters().get(i);
             inputFields[i + 1] = generateInputField(param.getName(), "");
 
-            Framework.debug("Param null: " + (inputFields[i + 1] == null));
+            if (!param.isSelfGenerated())
+                inputFields[i + 1].setDisable(true);
 
             inputFields[i + 1].setText(String.valueOf(param.getDefaultValue()));
         }

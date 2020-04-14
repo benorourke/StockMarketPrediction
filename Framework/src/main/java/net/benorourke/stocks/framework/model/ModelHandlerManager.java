@@ -1,7 +1,9 @@
 package net.benorourke.stocks.framework.model;
 
 import net.benorourke.stocks.framework.model.feedforward.FeedForwardModelHandler;
+import net.benorourke.stocks.framework.model.feedforward.FeedForwardRuntimeCreator;
 import net.benorourke.stocks.framework.model.param.HyperParameter;
+import net.benorourke.stocks.framework.model.param.ModelParameters;
 import net.benorourke.stocks.framework.util.Initialisable;
 
 import java.util.ArrayList;
@@ -9,28 +11,7 @@ import java.util.List;
 
 public class ModelHandlerManager implements Initialisable
 {
-    public static final RuntimeCreator<FeedForwardModelHandler> FEED_FORWARD_CREATOR = new RuntimeCreator<FeedForwardModelHandler>()
-    {
-
-        @Override
-        public String name()
-        {
-            return "FEED_FORWARD";
-        }
-
-        @Override
-        public FeedForwardModelHandler createFromCorpus(ProcessedDataset corpus)
-        {
-            return new FeedForwardModelHandler(corpus.getNumFeatures(), corpus.getNumLabels());
-        }
-
-        @Override
-        public List<HyperParameter> getRequiredParameters()
-        {
-            return new FeedForwardModelHandler(0, 0).getRequiredHyperParameters();
-        }
-
-    };
+    public static final RuntimeCreator<FeedForwardModelHandler> FEED_FORWARD_CREATOR = new FeedForwardRuntimeCreator();
 
     private final List<RuntimeCreator> creators;
 
@@ -45,13 +26,13 @@ public class ModelHandlerManager implements Initialisable
         creators.add(FEED_FORWARD_CREATOR);
     }
 
-    public ModelHandler createByName(String name, ProcessedDataset corpus)
+    public ModelHandler createByName(String name, ModelParameters parameters)
     {
         return creators.stream()
                         .filter(c -> c.name().equalsIgnoreCase(name))
                         .findFirst()
                         .orElse(null)
-                    .createFromCorpus(corpus);
+                    .createFromParameters(parameters);
     }
 
     public List<RuntimeCreator> getCreators()
@@ -70,9 +51,11 @@ public class ModelHandlerManager implements Initialisable
 
         String name();
 
-        T createFromCorpus(ProcessedDataset corpus);
-
         List<HyperParameter> getRequiredParameters();
+
+        T createFromParameters(ModelParameters parameters);
+
+        T createFromDataset(ProcessedDataset dataset);
 
     }
 

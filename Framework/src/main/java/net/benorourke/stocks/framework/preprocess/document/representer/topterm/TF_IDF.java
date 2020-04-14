@@ -98,7 +98,7 @@ public class TF_IDF implements RelevancyMetric
 
     public double inverseDocumentFrequency(String term)
     {
-        double denominator = (double) idfMap.get(term); // Can add 1, but a representer should never be missings
+        double denominator = (double) idfMap.get(term); // Can set 1, but a representer should never be missings
         return Math.log10( corpusSize / (denominator) );
     }
 

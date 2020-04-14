@@ -18,6 +18,12 @@
 .navbar .nav-row .nav-text {
     -fx-text-fill: #9198a3;
 }
+.navbar .nav-row .nav-icon-selected {
+    -fx-fill: #ffffff;
+}
+.navbar .nav-row .nav-text-selected {
+    -fx-text-fill: #ffffff;
+}
 .scroll-pane {
    -fx-background: #414b56;
    -fx-border-color: #414b56;

@@ -63,7 +63,7 @@ public class Framework implements Initialisable
         modelHandlerManager = new ModelHandlerManager();
 
         GsonBuilder builder = new GsonBuilder()
-                        .setPrettyPrinting()
+//                        .setPrettyPrinting()
                         .registerTypeAdapter(Stock.class, new StockAdapter(stockExchangeManager))
                         .registerTypeAdapter(TimeSeries.class, new TimeSeriesAdapter())
                         .registerTypeAdapter(StockQuote.class, new StockQuoteAdapter())

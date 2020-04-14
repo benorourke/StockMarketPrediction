@@ -29,13 +29,6 @@ public class AverageDataMapper extends ModelDataMapper
     @Override
     public ModelData toModelData(Date date, List<ProcessedDocument> documents, List<StockQuote> quotes)
     {
-        // DEBUG
-        Framework.debug(DateUtil.formatSimple(date));
-        for (ProcessedDocument document : documents)
-        {
-            Framework.debug("   " + StringUtil.formatDoubles(document.getFeatureVectors().get(getDocumentRepresenters().get(1))));
-        }
-
         // FEATURES FROM DOCUMENTS
         double[] documentFeatures = new double[0];
         for (FeatureRepresenter<CleanedDocument> representer : getDocumentRepresenters())

@@ -1,17 +1,24 @@
 package net.benorourke.stocks.userinterface.scene.dashboard.panes;
 
 import com.jfoenix.controls.JFXComboBox;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.XYChart;
+import net.benorourke.stocks.framework.model.ModelEvaluation;
+import net.benorourke.stocks.framework.persistence.store.DataStore;
 import net.benorourke.stocks.framework.series.TimeSeries;
+import net.benorourke.stocks.framework.util.DateUtil;
 import net.benorourke.stocks.userinterface.scene.dashboard.DashboardController;
 import net.benorourke.stocks.userinterface.scene.dashboard.DashboardModel;
 
-import java.util.List;
+import java.util.*;
 
 public class EvaluationPaneHandler extends PaneHandler
 {
+    private static final int LABEL_COL = 0;
+
     private JFXComboBox<String> evaluationComboBox;
     private LineChart<String, Number> chart;
 
@@ -27,25 +34,51 @@ public class EvaluationPaneHandler extends PaneHandler
     @Override
     public void initialise()
     {
-        XYChart.Series<String, Number> series = new XYChart.Series<String, Number>();
-        for (int i = 0; i < 150; i ++)
-        {
-            series.getData().add(new XYChart.Data<String, Number>("" + i, i*2 + 5));
-        }
-        chart.getData().add(series);
+        chart.getYAxis().setLabel("Stock Value");
     }
 
     @Override
     public void onTimeSeriesChanged(TimeSeries series)
     {
-        model.acquireTrainedModels(series, () -> updateOptions(model.getTrainedModels()));
+        model.acquireTrainedModels(series, () -> updateOptions(series, model.getTrainedModels()));
     }
 
-    public void updateOptions(List<String> trainedModels)
+    public void updateOptions(TimeSeries series, List<String> trainedModels)
     {
         evaluationComboBox.getSelectionModel().clearSelection();
         evaluationComboBox.getItems().clear();
         evaluationComboBox.getItems().addAll(trainedModels);
+
+        evaluationComboBox.valueProperty().addListener((observable, oldValue, newValue) -> {
+            model.acquireEvaluation(series, newValue, () -> plotGraph(model.getLastAcquiredEvaluation(), LABEL_COL));
+        });
+
+        // Select the first
+        if (evaluationComboBox.getItems().size() > 0)
+            evaluationComboBox.getSelectionModel().select(0);
+    }
+
+    public void plotGraph(ModelEvaluation evaluation, int column)
+    {
+        XYChart.Series<String, Number> predictedSeries = new XYChart.Series<>();
+        predictedSeries.setName("Predicted");
+        XYChart.Series<String, Number> labelSeries = new XYChart.Series<>();
+        labelSeries.setName("Actual");
+
+        List<ModelEvaluation.Prediction> predictions = new ArrayList<>();
+        predictions.addAll(evaluation.getTrainingPredictions());
+        predictions.addAll(evaluation.getTestingPredictions());
+        Collections.sort(predictions, Comparator.comparing(ModelEvaluation.Prediction::getDate));
+        for (ModelEvaluation.Prediction prediction : predictions)
+        {
+            String date = DateUtil.formatSimple(prediction.getDate());
+
+            predictedSeries.getData().add(new XYChart.Data<>(date, prediction.getPredicted()[column]));
+            labelSeries.getData().add(new XYChart.Data<>(date, prediction.getLabels()[column]));
+        }
+
+        chart.getData().clear();
+        chart.getData().addAll(predictedSeries, labelSeries);
     }
 
 }

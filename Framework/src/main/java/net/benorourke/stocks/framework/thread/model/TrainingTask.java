@@ -22,9 +22,8 @@ import java.util.List;
 public class TrainingTask<T extends PredictionModel> implements Task<TaskDescription, TrainingResult<T>>
 {
     private final ModelHandler<T> modelHandler;
-    private final ModelParameters modelParameters;
     private final ProcessedDataset training, testing;
-    private final long seed;
+    private final long seed; // TODO - Do something with this
 
     private TrainingStage stage;
     private Progress progress;
@@ -34,11 +33,9 @@ public class TrainingTask<T extends PredictionModel> implements Task<TaskDescrip
     @Nullable
     private ModelEvaluation evaluation;
 
-    public TrainingTask(ModelHandler<T> modelHandler, ModelParameters modelParameters,
-                        ProcessedDataset training, ProcessedDataset testing, long seed)
+    public TrainingTask(ModelHandler<T> modelHandler, ProcessedDataset training, ProcessedDataset testing, long seed)
     {
         this.modelHandler = modelHandler;
-        this.modelParameters = modelParameters;
         this.training = training;
         this.testing = testing;
         this.seed = seed;
@@ -101,7 +98,7 @@ public class TrainingTask<T extends PredictionModel> implements Task<TaskDescrip
 
     private void executeCreate()
     {
-        predictionModel = modelHandler.create(modelParameters);
+        predictionModel = modelHandler.create();
     }
 
     private void executeTrain()

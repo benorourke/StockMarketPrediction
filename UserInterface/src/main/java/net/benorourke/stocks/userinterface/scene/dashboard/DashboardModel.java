@@ -1,8 +1,10 @@
 package net.benorourke.stocks.userinterface.scene.dashboard;
 
+import net.benorourke.stocks.framework.model.ModelEvaluation;
 import net.benorourke.stocks.framework.model.ModelHandlerManager;
 import net.benorourke.stocks.framework.series.TimeSeries;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -22,6 +24,7 @@ public class DashboardModel
 
     // EVALUATION
     private List<String> trainedModels;
+    private ModelEvaluation lastAcquiredEvaluation;
 
     protected DashboardModel(DashboardController controller)
     {
@@ -90,6 +93,23 @@ public class DashboardModel
         });
     }
 
+    public void acquireEvaluation(TimeSeries seriesFor, String modelName, Runnable onRetrieval)
+    {
+        runBgThread(framework ->
+        {
+            File evalFile = framework.getFileManager().getModelEvaluationFile(seriesFor, modelName);
+            final ModelEvaluation eval = framework.getFileManager().loadJson(evalFile, ModelEvaluation.class).get();
+
+            if (eval == null) return;
+
+            runUIThread(() ->
+            {
+                this.lastAcquiredEvaluation = eval;
+                onRetrieval.run();
+            });
+        });
+    }
+
     public List<TimeSeries> getTimeSeries()
     {
         return timeSeries;
@@ -105,4 +125,8 @@ public class DashboardModel
         return trainedModels;
     }
 
+    public ModelEvaluation getLastAcquiredEvaluation()
+    {
+        return lastAcquiredEvaluation;
+    }
 }

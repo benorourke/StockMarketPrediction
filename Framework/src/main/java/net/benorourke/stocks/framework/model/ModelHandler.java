@@ -9,13 +9,14 @@ import java.util.List;
 
 public abstract class ModelHandler<T extends PredictionModel>
 {
-    public abstract T create(ModelParameters configuration);
 
     /**
      *
      * @return values are the default values for the hyper-parameters
      */
     public abstract List<HyperParameter> getRequiredHyperParameters();
+
+    public abstract T create();
 
     public abstract void train(T model, ProcessedDataset corpus);
 
