@@ -62,14 +62,14 @@ public class AlphaVantage extends DataSource<StockQuote>
     }
 
     @Override
-    public ConnectionResponse<StockQuote> retrieve(Query query)
+    public ConnectionResponse<StockQuote> retrieve(Query query, String apiKey)
             throws FailedCollectionException, ConstraintException
     {
         checkConstraints(query);
 
         try
         {
-            String url = BASE_URL.concat(buildUrlExtension(query));
+            String url = BASE_URL.concat(buildUrlExtension(query, apiKey));
             Framework.info("Connecting to " + url);
 
             URLConnector connector = URLConnector.connect(url);
@@ -149,14 +149,14 @@ public class AlphaVantage extends DataSource<StockQuote>
         }
     }
 
-    private String buildUrlExtension(Query query)
+    private String buildUrlExtension(Query query, String apiKey)
     {
         //https://www.alphavantage.co/query?function=TIME_SERIES_WEEKLY&symbol=LON:VOD&apikey=ZJULNKK5LP9TFN4P
         return "query"
                 .concat("?function=TIME_SERIES_DAILY")
                 .concat("&symbol=LON:VOD") // TODO - make symbol resolving automatic
                 .concat("&outputsize=full")
-                .concat("&apikey=".concat(getApiKey()));
+                .concat("&apikey=".concat(apiKey));
     }
 
 }

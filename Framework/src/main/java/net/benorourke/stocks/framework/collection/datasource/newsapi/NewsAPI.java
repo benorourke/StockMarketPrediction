@@ -65,7 +65,7 @@ public class NewsAPI extends DataSource<Document>
     }
 
     @Override
-    public ConnectionResponse<Document> retrieve(Query query)
+    public ConnectionResponse<Document> retrieve(Query query, String apiKey)
             throws ConstraintException, FailedCollectionException
     {
         checkConstraints(query);
@@ -75,7 +75,7 @@ public class NewsAPI extends DataSource<Document>
 
         try
         {
-            String url = BASE_URL.concat(buildUrlExtension(query));
+            String url = BASE_URL.concat(buildUrlExtension(query, apiKey));
             Framework.info("Connecting to " + url);
 
             URLConnector connector = URLConnector.connect(url);
@@ -138,7 +138,7 @@ public class NewsAPI extends DataSource<Document>
     }
 
     ///v2/everything?q=apple&from=2019-12-20&to=2019-12-20&sortBy=popularity&apiKey=78d93a9d68584e61be38b1d90217d1e7
-    private String buildUrlExtension(Query query)
+    private String buildUrlExtension(Query query, String apiKey)
     {
         Calendar calendar = Calendar.getInstance();
 
@@ -157,7 +157,7 @@ public class NewsAPI extends DataSource<Document>
                     .concat("&from=".concat(strFrom))
                     .concat("&to=".concat(strTo))
                     .concat("&sortBy=popularity")
-                    .concat("&apiKey=" + getApiKey())
+                    .concat("&apiKey=" + apiKey)
                     .concat("&pageSize=" + MAX_PAGE_SIZE);
 //        return "v2/top-headlines?country=gb&apiKey=" + apiKey;
     }

@@ -1,21 +1,27 @@
 package net.benorourke.stocks.userinterface.scene.dashboard.panes;
 
 import com.jfoenix.controls.JFXComboBox;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.control.Label;
 import javafx.scene.control.TabPane;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import net.benorourke.stocks.framework.collection.datasource.DataSource;
 import net.benorourke.stocks.framework.series.TimeSeries;
+import net.benorourke.stocks.userinterface.scene.SceneHelper;
 import net.benorourke.stocks.userinterface.scene.dashboard.DashboardController;
 import net.benorourke.stocks.userinterface.scene.dashboard.DashboardModel;
 
 import java.util.Map;
 
 import static net.benorourke.stocks.userinterface.StockApplication.runBgThread;
+import static net.benorourke.stocks.userinterface.StockApplication.runUIThread;
 
 public class CollectionPaneHandler extends PaneHandler
 {
-    private static final String COLLECTION_DATA_FXML = "/dashboard-series.fxml";
-    private static final String[] COMBO_OPTIONS = new String[] {"OVERVIEW", "COLLECT DATA", "MISSING DATA"};
+    private static final String COLLECTION_DATA_FXML = "/dashboard-collection-data.fxml";
+    private static final String[] COMBO_OPTIONS = new String[] {"Overview", "Collect Data", "Missing Data"};
 
     private final JFXComboBox<String> collectionComboBox;
     private final TabPane collectionTabPane;
@@ -70,12 +76,31 @@ public class CollectionPaneHandler extends PaneHandler
             final int count = entry.getValue();
             runBgThread(framework ->
             {
-                DataSource src = framework.getDataSourceManager().getDataSourceByClass(clazz);
+                final DataSource src = framework.getDataSourceManager().getDataSourceByClass(clazz);
                 if (src == null) return;
 
-                // TODO
+                runUIThread(() -> inflateCollectionDataSync(src, count));
             });
         }
+    }
+
+    public void inflateCollectionDataSync(DataSource src, int count)
+    {
+        SceneHelper.inflateAsync(COLLECTION_DATA_FXML, result -> {
+            if (!result.isSuccess()) return;
+
+            FXMLLoader loader = result.getLoader();
+            Parent parent = result.getLoaded();
+
+            Label dataType = (Label) loader.getNamespace().get("dataType");
+            dataType.setText(src.getName());
+
+            Pane contentPane = (Pane) loader.getNamespace().get("contentPane");
+            Label label = new Label(String.valueOf(count));
+            contentPane.getChildren().add(label);
+
+            collectionDataPresentBox.getChildren().add(parent);
+        });
     }
 
 }

@@ -12,14 +12,15 @@ public class DataSourceManager
 {
     private final List<DataSource> dataSources;
 
-    // TODO - API Key Cycling
+    // NewsAPI: 78d93a9d68584e61be38b1d90217d1e7
+    // AlphaVantage: ZJULNKK5LP9TFN4P
 
     public DataSourceManager()
     {
         dataSources = new ArrayList<DataSource>()
         {{
-            add(new NewsAPI("78d93a9d68584e61be38b1d90217d1e7")); // TODO - Make this configurable
-            add(new AlphaVantage("ZJULNKK5LP9TFN4P")); // TODO - make this configurable
+            add(new NewsAPI("NewsAPI"));
+            add(new AlphaVantage("AlphaVantage"));
         }};
     }
 

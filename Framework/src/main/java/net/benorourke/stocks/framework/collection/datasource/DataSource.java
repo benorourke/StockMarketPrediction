@@ -12,11 +12,11 @@ import net.benorourke.stocks.framework.series.data.DataType;
 
 public abstract class DataSource<T extends Data>
 {
-    private final String apiKey;
+    private final String name;
 
-    public DataSource(String apiKey)
+    public DataSource(String name)
     {
-        this.apiKey = apiKey;
+        this.name = name;
     }
 
     public abstract Class<? extends T> getDataClass();
@@ -27,7 +27,8 @@ public abstract class DataSource<T extends Data>
 
     public abstract APICollectionSession<T> newSession(Query completeQuery, CollectionFilter<T> collectionFilter);
 
-    public abstract ConnectionResponse<T> retrieve(Query query) throws ConstraintException, FailedCollectionException;
+    public abstract ConnectionResponse<T> retrieve(Query query, String apiKey)
+            throws ConstraintException, FailedCollectionException;
 
     public void checkConstraints(final Query query) throws ConstraintException
     {
@@ -37,9 +38,9 @@ public abstract class DataSource<T extends Data>
         }
     }
 
-    public String getApiKey()
+    public String getName()
     {
-        return apiKey;
+        return name;
     }
 
 }

@@ -75,7 +75,7 @@ public class TrainingPaneHandler extends PaneHandler
     }
 
     /**
-     * {@link #parents} along with {@link #inputFields} will be set to null, followed by each parent being
+     * {@link #inputParents} along with {@link #inputFields} will be set to null, followed by each parent being
      * asynchronously inflated (on differing threads).
      *
      * Each element in {@link #inputFields} will be NOT NULL when the box has been fully generated.
@@ -104,6 +104,8 @@ public class TrainingPaneHandler extends PaneHandler
                                         boolean disableInput)
     {
         SceneHelper.inflateAsync(DashboardController.INPUT_FIELD_FXML, result -> {
+            if (!result.isSuccess()) return;
+
             FXMLLoader loader = result.getLoader();
             Parent parent = result.getLoaded();
 
