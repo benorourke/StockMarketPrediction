@@ -40,6 +40,9 @@ public class BackgroundThread extends Thread
                 }
             }
 
+            // Consume all the Task callbacks within the Framework
+            framework.getTaskManager().consumeCallbacks();
+
             // Sleep before next thread iteration
             try
             {

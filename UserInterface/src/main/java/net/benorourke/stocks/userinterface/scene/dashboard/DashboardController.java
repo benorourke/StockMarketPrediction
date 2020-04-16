@@ -16,11 +16,8 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
-import net.benorourke.stocks.framework.Framework;
 import net.benorourke.stocks.framework.series.TimeSeries;
-import net.benorourke.stocks.framework.util.Tuple;
 import net.benorourke.stocks.userinterface.StockApplication;
-import net.benorourke.stocks.userinterface.exception.InflationException;
 import net.benorourke.stocks.userinterface.scene.Controller;
 import net.benorourke.stocks.userinterface.scene.SceneHelper;
 import net.benorourke.stocks.userinterface.scene.dashboard.panes.*;
@@ -38,6 +35,7 @@ public class DashboardController extends Controller
     private static final String NAV_BUTTON_ICON_SELECTED_STYLE_CLASS = "nav-icon-selected";
     private static final String NAV_BUTTON_TEXT_SELECTED_STYLE_CLASS = "nav-text-selected";
     private static final String SERIES_ROW_FXML = "/dashboard-series.fxml";
+    public static final String INPUT_FIELD_FXML = "/dashboard-input-field.fxml";
 
     private static final Color[] SERIES_CIRCLE_FILLS = new Color[]
     {
@@ -73,6 +71,7 @@ public class DashboardController extends Controller
     // COLLECTION:
     @FXML private JFXComboBox<String> collectionComboBox;
     @FXML private TabPane collectionTabPane;
+    @FXML private VBox collectionDataPresentBox;
 
     // TRAINING:
     @FXML private Label trainingHandlerCount;
@@ -121,7 +120,8 @@ public class DashboardController extends Controller
         // Initialise pane handlers
         paneHandlers = new PaneHandler[DashboardPane.values().length];
         paneHandlers[DashboardPane.COLLECTION.ordinal()] =
-                new CollectionPaneHandler(this, model, collectionComboBox, collectionTabPane);
+                new CollectionPaneHandler(this, model, collectionComboBox, collectionTabPane,
+                                          collectionDataPresentBox);
         paneHandlers[DashboardPane.PRE_PROCESSING.ordinal()] =
                 new TrainingPaneHandler(this, model,
                                         trainingHandlerCount, trainingComboBox, trainingFieldBox, trainButton);
@@ -194,11 +194,11 @@ public class DashboardController extends Controller
         paneVBox.getChildren().clear();
         for (TimeSeries series : model.getTimeSeries())
         {
-            try
-            {
-                Tuple<FXMLLoader, Parent> tuple = SceneHelper.inflate(SERIES_ROW_FXML);
-                FXMLLoader loader = tuple.getA();
-                Parent parent = tuple.getB();
+            SceneHelper.inflateAsync(SERIES_ROW_FXML, result -> {
+                if (!result.isSuccess()) return;
+
+                FXMLLoader loader = result.getLoader();
+                Parent parent = result.getLoaded();
 
                 Circle circle = (Circle) loader.getNamespace().get("seriesCircle");
                 Label name = (Label) loader.getNamespace().get("seriesName");
@@ -212,11 +212,7 @@ public class DashboardController extends Controller
 
                 parent.setOnMouseClicked(event -> changeTimeSeries(series));
                 paneVBox.getChildren().add(parent);
-            }
-            catch (InflationException e)
-            {
-                StockApplication.error("Unable to inflate " + SERIES_ROW_FXML, e);
-            }
+            });
         }
 
         if (model.getTimeSeries().size() > 0)

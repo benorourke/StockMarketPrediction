@@ -1,19 +1,18 @@
 package net.benorourke.stocks.userinterface.scene.dashboard.panes;
 
 import com.jfoenix.controls.JFXComboBox;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
-import javafx.fxml.FXML;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.XYChart;
 import net.benorourke.stocks.framework.model.ModelEvaluation;
-import net.benorourke.stocks.framework.persistence.store.DataStore;
 import net.benorourke.stocks.framework.series.TimeSeries;
 import net.benorourke.stocks.framework.util.DateUtil;
 import net.benorourke.stocks.userinterface.scene.dashboard.DashboardController;
 import net.benorourke.stocks.userinterface.scene.dashboard.DashboardModel;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 public class EvaluationPaneHandler extends PaneHandler
 {

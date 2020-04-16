@@ -1,5 +1,6 @@
 package net.benorourke.stocks.userinterface.scene.dashboard;
 
+import net.benorourke.stocks.framework.collection.datasource.DataSource;
 import net.benorourke.stocks.framework.model.ModelEvaluation;
 import net.benorourke.stocks.framework.model.ModelHandlerManager;
 import net.benorourke.stocks.framework.series.TimeSeries;
@@ -19,6 +20,9 @@ public class DashboardModel
     // NAVBAR
     private List<TimeSeries> timeSeries;
 
+    // COLLECTION
+    private List<DataSource> dataSources;
+
     // TRAINING
     private List<ModelHandlerManager.RuntimeCreator> modelHandlerCreators;
 
@@ -30,6 +34,7 @@ public class DashboardModel
     {
         this.controller = controller;
         timeSeries = new ArrayList<>();
+        dataSources = new ArrayList<>();
         modelHandlerCreators = new ArrayList<>();
         trainedModels = new ArrayList<>();
     }
@@ -38,11 +43,7 @@ public class DashboardModel
     //      TIMESERIES UNSPECIFIC (APPLIES TO ALL)
     //////////////////////////////////////////////////////////////////
 
-    /**
-     *
-     * @param onLoaded callback is called on the JavaFX UI thread
-     */
-    public void acquireTimeSeries(Runnable onLoaded)
+    public void acquireTimeSeries(Runnable onRetrieval)
     {
         runBgThread(framework ->
         {
@@ -53,7 +54,23 @@ public class DashboardModel
             {
                 timeSeries.clear();
                 timeSeries.addAll(clone);
-                onLoaded.run();
+                onRetrieval.run();
+            });
+        });
+    }
+
+    public void acquireDataSources(Runnable onRetrieval)
+    {
+        runBgThread(framework ->
+        {
+            final List<DataSource> clone = Collections.unmodifiableList(
+                                                            framework.getDataSourceManager().getDataSources());
+
+            runUIThread(() ->
+            {
+                dataSources.clear();
+                dataSources.addAll(clone);
+                onRetrieval.run();
             });
         });
     }

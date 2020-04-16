@@ -11,6 +11,7 @@ import net.benorourke.stocks.framework.util.Initialisable;
 
 import java.io.File;
 import java.util.*;
+import java.util.regex.Pattern;
 
 public class TimeSeriesManager implements Initialisable
 {
@@ -190,8 +191,8 @@ public class TimeSeriesManager implements Initialisable
 
                 if (!path.endsWith(".model")) continue;
 
-                String[] split = path.replace(".model", "").split(File.separator);
-                String modelName = split[split.length - 1];
+                String[] split = path.split(Pattern.quote(System.getProperty("file.separator")));
+                String modelName = split[split.length - 1].replace(".model", "");
 
                 File evaluation = fileManager.getModelEvaluationFile(timeSeries, modelName);
                 if (evaluation.exists())

@@ -11,14 +11,11 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="Maven: org.openjfx:javafx-graphics:11" level="project" />
-    <orderEntry type="library" name="Maven: org.openjfx:javafx-graphics:win:11" level="project" />
-    <orderEntry type="library" name="Maven: org.openjfx:javafx-base:11" level="project" />
-    <orderEntry type="library" name="Maven: org.openjfx:javafx-base:win:11" level="project" />
-    <orderEntry type="library" name="Maven: org.nd4j:nd4j-native:windows-x86_64:1.0.0-beta4" level="project" />
-    <orderEntry type="library" name="Maven: org.bytedeco:openblas:windows-x86_64:0.3.5-1.5" level="project" />
-    <orderEntry type="library" name="Maven: org.bytedeco:mkl:windows-x86_64:2019.3-1.5" level="project" />
-    <orderEntry type="library" name="Maven: org.bytedeco:mkl-dnn:windows-x86_64:0.18.1-1.5" level="project" />
+    <orderEntry type="library" name="Maven: org.nd4j:nd4j-native:macosx-x86_64:1.0.0-beta4" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco:openblas:macosx-x86_64:0.3.5-1.5" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco:mkl:macosx-x86_64:2019.3-1.5" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco:mkl-dnn:macosx-x86_64:0.18.1-1.5" level="project" />
+    <orderEntry type="library" name="Maven: com.jfoenix:jfoenix:8.0.8" level="project" />
     <orderEntry type="module" module-name="Framework" />
     <orderEntry type="library" name="Maven: com.google.code.gson:gson:2.8.5" level="project" />
     <orderEntry type="library" name="Maven: edu.stanford.nlp:stanford-corenlp:3.9.2" level="project" />
@@ -101,6 +98,10 @@
     <orderEntry type="library" name="Maven: org.bytedeco:flandmark:1.07-1.5" level="project" />
     <orderEntry type="library" name="Maven: org.bytedeco:leptonica:1.78.0-1.5" level="project" />
     <orderEntry type="library" name="Maven: org.bytedeco:tesseract:4.0.0-1.5" level="project" />
+    <orderEntry type="library" name="Maven: org.openjfx:javafx-graphics:11" level="project" />
+    <orderEntry type="library" name="Maven: org.openjfx:javafx-graphics:win:11" level="project" />
+    <orderEntry type="library" name="Maven: org.openjfx:javafx-base:11" level="project" />
+    <orderEntry type="library" name="Maven: org.openjfx:javafx-base:win:11" level="project" />
     <orderEntry type="library" name="Maven: org.bytedeco:opencv-platform:4.0.1-1.5" level="project" />
     <orderEntry type="library" name="Maven: org.bytedeco:opencv:android-arm:4.0.1-1.5" level="project" />
     <orderEntry type="library" name="Maven: org.bytedeco:opencv:android-arm64:4.0.1-1.5" level="project" />
@@ -149,14 +150,14 @@
     <orderEntry type="library" name="Maven: org.nd4j:nd4j-context:1.0.0-beta4" level="project" />
     <orderEntry type="library" name="Maven: net.ericaro:neoitertools:1.0.0" level="project" />
     <orderEntry type="library" name="Maven: org.nd4j:nd4j-native:1.0.0-beta4" level="project" />
-    <orderEntry type="library" name="Maven: org.nd4j:nd4j-native:macosx-x86_64:1.0.0-beta4" level="project" />
+    <orderEntry type="library" name="Maven: org.nd4j:nd4j-native:windows-x86_64:1.0.0-beta4" level="project" />
     <orderEntry type="library" name="Maven: org.bytedeco:javacpp:1.5" level="project" />
     <orderEntry type="library" name="Maven: org.bytedeco:openblas:0.3.5-1.5" level="project" />
-    <orderEntry type="library" name="Maven: org.bytedeco:openblas:macosx-x86_64:0.3.5-1.5" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco:openblas:windows-x86_64:0.3.5-1.5" level="project" />
     <orderEntry type="library" name="Maven: org.bytedeco:mkl:2019.3-1.5" level="project" />
-    <orderEntry type="library" name="Maven: org.bytedeco:mkl:macosx-x86_64:2019.3-1.5" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco:mkl:windows-x86_64:2019.3-1.5" level="project" />
     <orderEntry type="library" name="Maven: org.bytedeco:mkl-dnn:0.18.1-1.5" level="project" />
-    <orderEntry type="library" name="Maven: org.bytedeco:mkl-dnn:macosx-x86_64:0.18.1-1.5" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco:mkl-dnn:windows-x86_64:0.18.1-1.5" level="project" />
     <orderEntry type="library" name="Maven: org.nd4j:nd4j-native-api:1.0.0-beta4" level="project" />
     <orderEntry type="library" name="Maven: com.jfoenix:jfoenix:8.0.8" level="project" />
     <orderEntry type="library" name="Maven: de.jensd:fontawesomefx:8.1" level="project" />

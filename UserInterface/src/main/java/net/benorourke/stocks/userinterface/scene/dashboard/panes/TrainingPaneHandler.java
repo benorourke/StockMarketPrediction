@@ -7,14 +7,11 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
-import net.benorourke.stocks.framework.Framework;
 import net.benorourke.stocks.framework.model.ModelHandlerManager;
 import net.benorourke.stocks.framework.model.param.HyperParameter;
 import net.benorourke.stocks.framework.series.TimeSeries;
 import net.benorourke.stocks.framework.util.Nullable;
-import net.benorourke.stocks.framework.util.Tuple;
 import net.benorourke.stocks.userinterface.StockApplication;
-import net.benorourke.stocks.userinterface.exception.InflationException;
 import net.benorourke.stocks.userinterface.scene.Controller;
 import net.benorourke.stocks.userinterface.scene.SceneHelper;
 import net.benorourke.stocks.userinterface.scene.dashboard.DashboardController;
@@ -24,16 +21,14 @@ import java.util.stream.Collectors;
 
 public class TrainingPaneHandler extends PaneHandler
 {
-    private static final String TRAINING_FIELD_FXML = "/dashboard-training-field.fxml";
-
     private final Label modelHandlers;
     private final JFXComboBox<String> selectHandler;
     private final VBox trainingFieldBox;
     private final JFXButton trainButton;
 
-    /**
-     * Index 0 is always for the name of the model
-     */
+    @Nullable
+    private Parent[] inputParents;
+    /** Index 0 is always for the name of the model */
     @Nullable
     private JFXTextField[] inputFields;
 
@@ -66,7 +61,7 @@ public class TrainingPaneHandler extends PaneHandler
             selectHandler.getSelectionModel().select(0);
 
             int selection = selectHandler.getSelectionModel().getSelectedIndex();
-            setTrainBox(model.getModelHandlerCreators().get(selection));
+            generateTrainBox(model.getModelHandlerCreators().get(selection));
         });
 
         trainButton.setOnMouseClicked(event -> onTrainClicked());
@@ -79,57 +74,79 @@ public class TrainingPaneHandler extends PaneHandler
         StockApplication.debug("Verändert zum " + series.getName());
     }
 
-    public void setTrainBox(ModelHandlerManager.RuntimeCreator creator)
+    /**
+     * {@link #parents} along with {@link #inputFields} will be set to null, followed by each parent being
+     * asynchronously inflated (on differing threads).
+     *
+     * Each element in {@link #inputFields} will be NOT NULL when the box has been fully generated.
+     *
+     * @param creator
+     */
+    public void generateTrainBox(ModelHandlerManager.RuntimeCreator creator)
     {
-        trainingFieldBox.getChildren().clear();
-        // + 1 for the name
-        inputFields = new JFXTextField[1 + creator.getRequiredParameters().size()];
+        // + 1 for the name input field
+        int length = 1 + creator.getRequiredParameters().size();
+        inputParents = new Parent[length];
+        inputFields = new JFXTextField[length];
 
-        inputFields[0] = generateInputField("Model Name", "Enter Name");
+        inflateInputFieldAsync(0, "Model Name", "Enter Name", null, false);
         for (int i = 0; i < creator.getRequiredParameters().size(); i ++)
         {
             HyperParameter param = (HyperParameter) creator.getRequiredParameters().get(i);
-            inputFields[i + 1] = generateInputField(param.getName(), "");
-
-            if (!param.isSelfGenerated())
-                inputFields[i + 1].setDisable(true);
-
-            inputFields[i + 1].setText(String.valueOf(param.getDefaultValue()));
+            inflateInputFieldAsync(i + 1, param.getName(),
+                         null, String.valueOf(param.getDefaultValue()),
+                                   !param.isSelfGenerated());
         }
     }
 
-    private JFXTextField generateInputField(String fieldName, String promptText)
+    private void inflateInputFieldAsync(int index, String fieldName,
+                                        @Nullable String promptText, @Nullable String text,
+                                        boolean disableInput)
     {
-        try
-        {
-            Tuple<FXMLLoader, Parent> tuple = SceneHelper.inflate(TRAINING_FIELD_FXML);
-            FXMLLoader loader = tuple.getA();
-            Parent parent = tuple.getB();
+        SceneHelper.inflateAsync(DashboardController.INPUT_FIELD_FXML, result -> {
+            FXMLLoader loader = result.getLoader();
+            Parent parent = result.getLoaded();
 
             Label label = (Label) loader.getNamespace().get("valueLabel");
             label.setText(fieldName);
 
             JFXTextField field = (JFXTextField) loader.getNamespace().get("textField");
-            field.setPromptText(promptText);
+            if (promptText != null)
+                field.setPromptText(promptText);
+            if (text != null)
+                field.setText(text);
+            field.setDisable(disableInput);
 
-            trainingFieldBox.getChildren().add(parent);
-            return field;
-        }
-        catch (InflationException e)
-        {
-            Framework.error("Unable to inflate " + TRAINING_FIELD_FXML, e);
-            return null;
-        }
+            inputParents[index] = parent;
+            inputFields[index] = field;
+
+            // Async threads can return the results in differing order, so instead of directly adding the parent
+            // to the trainingFieldBox we'll wait until they've all been returned so that the order remains consistent
+            if (allInputFieldsLoaded())
+            {
+                trainingFieldBox.getChildren().clear();
+                for (Parent elem : inputParents)
+                    trainingFieldBox.getChildren().add(elem);
+            }
+        });
     }
 
     public void onTrainClicked()
     {
-        if (inputFields == null)
-            return;
+        // Check to ensure all the text fields have been asynchronously inflate before we even consider
+        if(!allInputFieldsLoaded()) return;
 
         controller.snackbar(Controller.SnackbarType.ERROR, "Test");
 
         // TODO - Once trained update the EvaluationPaneHandler
+    }
+
+    public boolean allInputFieldsLoaded()
+    {
+        for (JFXTextField input : inputFields)
+            if (input == null) return false;
+
+        return true;
     }
 
 }
