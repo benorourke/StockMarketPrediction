@@ -5,6 +5,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import net.benorourke.stocks.framework.Framework;
+import net.benorourke.stocks.framework.collection.datasource.variable.CollectionVariable;
 import net.benorourke.stocks.framework.collection.datasource.DataSource;
 import net.benorourke.stocks.framework.collection.constraint.Constraint;
 import net.benorourke.stocks.framework.collection.constraint.MaximumAgeConstraint;
@@ -28,12 +29,24 @@ import java.util.*;
 public class NewsAPI extends DataSource<Document>
 {
     private static final String BASE_URL = "https://newsapi.org/";
-    private static final int MAX_PAGE_SIZE = 100;
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
 
-    public NewsAPI(String apiKey)
+    @CollectionVariable(name = "Search Term",
+                        type = CollectionVariable.Type.STRING,
+                        prompt = "Headlines Containing",
+                        validators = {})
+    private String searchTerm;
+    @CollectionVariable(name = "Headlines per Day",
+                        type = CollectionVariable.Type.INTEGER,
+                        prompt = "Number of Headlines per Day",
+                        validators = {})
+    private int elementsPerDay;
+
+    public NewsAPI(String name)
     {
-        super(apiKey);
+        super(name);
+
+        this.elementsPerDay = 100;
     }
 
     @Override
@@ -68,7 +81,8 @@ public class NewsAPI extends DataSource<Document>
     public ConnectionResponse<Document> retrieve(Query query, String apiKey)
             throws ConstraintException, FailedCollectionException
     {
-        checkConstraints(query);
+        validateVariablesOrThrow();
+        checkConstraintsOrThrow(query);
 
         // TODO CREATE AN OBJECT WITH A DIRECT JSON MAPPING - GSON CAN FREEZE IF THE RESPONSE
         // DOESN'T MATCH WHAT WE NEED (I.E. AN ERROR)
@@ -153,14 +167,13 @@ public class NewsAPI extends DataSource<Document>
                                 + "-" + calendar.get(Calendar.DAY_OF_MONTH);
 
         return "v2/everything"
-                    .concat("?q=" + query.getStock().getCompanyName().replace(" ", "%20"))
+                    .concat("?q=" + searchTerm)
                     .concat("&from=".concat(strFrom))
                     .concat("&to=".concat(strTo))
                     .concat("&sortBy=popularity")
                     .concat("&apiKey=" + apiKey)
-                    .concat("&pageSize=" + MAX_PAGE_SIZE);
+                    .concat("&pageSize=" + elementsPerDay);
 //        return "v2/top-headlines?country=gb&apiKey=" + apiKey;
     }
-
 
 }

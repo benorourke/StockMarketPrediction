@@ -37,7 +37,7 @@ public interface FeatureRepresenter<T extends Data>
     String getName();
 
     /**
-     * The policy to handle combining features for documents / quotes on the same day.
+     * The policy to handleUserInterfaceInputs combining features for documents / quotes on the same day.
      * @return
      */
     CombinationPolicy getCombinationPolicy();

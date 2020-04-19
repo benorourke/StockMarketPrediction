@@ -7,6 +7,7 @@ import net.benorourke.stocks.framework.thread.Task;
 import net.benorourke.stocks.framework.thread.TaskDescription;
 import net.benorourke.stocks.framework.thread.TaskType;
 import net.benorourke.stocks.framework.util.Nullable;
+import net.benorourke.stocks.userinterface.StockApplication;
 import net.benorourke.stocks.userinterface.util.ResourceUtil;
 
 import java.io.IOException;
@@ -59,6 +60,7 @@ public class InflationTask implements Task<TaskDescription, InflationResult>
     @Override
     public void run()
     {
+        StockApplication.info("Inflating FXML at " + fxmlPath);
         loader = new FXMLLoader(ResourceUtil.getResource(fxmlPath));
         try
         {

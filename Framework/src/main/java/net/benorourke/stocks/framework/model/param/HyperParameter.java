@@ -9,7 +9,7 @@ public class HyperParameter
     /**
      *
      * @param name
-     * @param selfGenerated whether the user should
+     * @param selfGenerated whether the user should have to define this
      * @param defaultValue
      */
     public HyperParameter(String name, boolean selfGenerated, int defaultValue)

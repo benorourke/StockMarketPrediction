@@ -29,7 +29,6 @@ public class SceneHelper
 	 */
 	public static void inflateAsync(final String fxmlPath, ResultCallback<InflationResult> uiCallback)
 	{
-		StockApplication.info("Inflating FXML at " + fxmlPath);
 		// CURRENTLY IN UI THREAD
 		StockApplication.runBgThread(framework ->
 		{

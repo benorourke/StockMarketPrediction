@@ -5,6 +5,7 @@ import com.google.gson.JsonObject;
 import net.benorourke.stocks.framework.Framework;
 import net.benorourke.stocks.framework.collection.ConnectionResponse;
 import net.benorourke.stocks.framework.collection.URLConnector;
+import net.benorourke.stocks.framework.collection.datasource.variable.CollectionVariable;
 import net.benorourke.stocks.framework.collection.session.APICollectionSession;
 import net.benorourke.stocks.framework.collection.session.filter.CollectionFilter;
 import net.benorourke.stocks.framework.collection.constraint.Constraint;
@@ -29,9 +30,17 @@ public class AlphaVantage extends DataSource<StockQuote>
     private static final String BASE_URL = "https://www.alphavantage.co/";
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
 
-    public AlphaVantage(String apiKey)
+    private static final String UI_INPUT_SYMBOL = "Symbol";
+
+    @CollectionVariable(name = "Stock Symbol",
+                        type = CollectionVariable.Type.STRING,
+                        prompt = "Alpha Vantage Symbol (e.g. LON:VOD)",
+                        validators = {})
+    private String symbol;
+
+    public AlphaVantage(String name)
     {
-        super(apiKey);
+        super(name);
     }
 
     @Override
@@ -65,7 +74,8 @@ public class AlphaVantage extends DataSource<StockQuote>
     public ConnectionResponse<StockQuote> retrieve(Query query, String apiKey)
             throws FailedCollectionException, ConstraintException
     {
-        checkConstraints(query);
+        validateVariablesOrThrow();
+        checkConstraintsOrThrow(query);
 
         try
         {
@@ -154,7 +164,7 @@ public class AlphaVantage extends DataSource<StockQuote>
         //https://www.alphavantage.co/query?function=TIME_SERIES_WEEKLY&symbol=LON:VOD&apikey=ZJULNKK5LP9TFN4P
         return "query"
                 .concat("?function=TIME_SERIES_DAILY")
-                .concat("&symbol=LON:VOD") // TODO - make symbol resolving automatic
+                .concat("&symbol=".concat(symbol))
                 .concat("&outputsize=full")
                 .concat("&apikey=".concat(apiKey));
     }

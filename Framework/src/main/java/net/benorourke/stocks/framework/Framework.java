@@ -3,6 +3,8 @@ package net.benorourke.stocks.framework;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import net.benorourke.stocks.framework.collection.datasource.DataSourceManager;
+import net.benorourke.stocks.framework.collection.datasource.variable.Validators;
+import net.benorourke.stocks.framework.collection.datasource.variable.VariableValidator;
 import net.benorourke.stocks.framework.model.ModelData;
 import net.benorourke.stocks.framework.model.ModelEvaluation;
 import net.benorourke.stocks.framework.model.ModelHandlerManager;
@@ -32,12 +34,16 @@ import net.benorourke.stocks.framework.util.Initialisable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Map;
+
 /**
  * The Framework should only be accessed via a single thread.
  */
 public class Framework implements Initialisable
 {
     private static final Logger logger;
+
+    private final Gson gson;
 
     private final FileManager fileManager;
     private final StockExchangeManager stockExchangeManager;
@@ -46,8 +52,6 @@ public class Framework implements Initialisable
     private final TaskManager taskManager;
     private final ModelHandlerManager modelHandlerManager;
 
-    private final Gson gson;
-
     static
     {
         logger = LoggerFactory.getLogger(Framework.class);
@@ -55,30 +59,33 @@ public class Framework implements Initialisable
 
     public Framework(Configuration config)
     {
+        GsonBuilder builder = new GsonBuilder()
+                //                        .setPrettyPrinting()
+                .registerTypeAdapter(Stock.class, new StockAdapter(stockExchangeManager = new StockExchangeManager()))
+                .registerTypeAdapter(TimeSeries.class, new TimeSeriesAdapter())
+                .registerTypeAdapter(StockQuote.class, new StockQuoteAdapter())
+                .registerTypeAdapter(Document.class, new DocumentAdapter())
+                .registerTypeAdapter(ModelData.class, new ModelDataAdapter())
+                .registerTypeAdapter(ProcessedDataset.class, new ProcessedDatasetAdapter())
+                .registerTypeAdapter(ModelEvaluation.class, new ModelEvaluationAdapter())
+                .registerTypeAdapter(TopTermFeatureRepresenter.class, new TopTermFeatureRepresenterAdapter())
+                .registerTypeAdapter(SentimentFeatureRepresenter.class, new SentimentFeatureRepresenterAdapter())
+                .registerTypeAdapter(StockQuoteFeatureRepresenter.class, new StockQuoteFeatureRepresenterAdapter());
+        // Register the type adapters specified in the configuration
+        config.getGsonTypeAdapters().entrySet()
+                .stream()
+                .forEach(e -> builder.registerTypeAdapter(e.getKey(), e.getValue()));
+        gson = builder.create();
+
+        // Inject any additional, custom VariableValidators for new DataSources
+        for (Map.Entry<String, VariableValidator> entry : config.getCollectionValidators().entrySet())
+            Validators.inject(entry.getKey(), entry.getValue());
+
         fileManager = new FileManager(this, config);
-        stockExchangeManager = new StockExchangeManager();
         dataSourceManager = new DataSourceManager();
         timeSeriesManager = new TimeSeriesManager(this);
         taskManager = new TaskManager(config);
         modelHandlerManager = new ModelHandlerManager();
-
-        GsonBuilder builder = new GsonBuilder()
-//                        .setPrettyPrinting()
-                        .registerTypeAdapter(Stock.class, new StockAdapter(stockExchangeManager))
-                        .registerTypeAdapter(TimeSeries.class, new TimeSeriesAdapter())
-                        .registerTypeAdapter(StockQuote.class, new StockQuoteAdapter())
-                        .registerTypeAdapter(Document.class, new DocumentAdapter())
-                        .registerTypeAdapter(ModelData.class, new ModelDataAdapter())
-                        .registerTypeAdapter(ProcessedDataset.class, new ProcessedDatasetAdapter())
-                        .registerTypeAdapter(ModelEvaluation.class, new ModelEvaluationAdapter())
-                        .registerTypeAdapter(TopTermFeatureRepresenter.class, new TopTermFeatureRepresenterAdapter())
-                        .registerTypeAdapter(SentimentFeatureRepresenter.class, new SentimentFeatureRepresenterAdapter())
-                        .registerTypeAdapter(StockQuoteFeatureRepresenter.class, new StockQuoteFeatureRepresenterAdapter());
-        // Register the type adapters specified in the configuration
-        config.getGsonTypeAdapters().entrySet()
-                        .stream()
-                        .forEach(e -> builder.registerTypeAdapter(e.getKey(), e.getValue()));
-        gson = builder.create();
     }
 
     public Framework()

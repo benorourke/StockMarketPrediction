@@ -29,6 +29,8 @@ public class CollectionPaneHandler extends PaneHandler
     // Overview
     private final VBox collectionDataPresentBox;
 
+    // Collect Data
+
     public CollectionPaneHandler(DashboardController controller, DashboardModel model,
                                  JFXComboBox<String> collectionComboBox, TabPane collectionTabPane,
                                  VBox collectionDataPresentBox)
@@ -44,7 +46,8 @@ public class CollectionPaneHandler extends PaneHandler
     public void initialise()
     {
         collectionComboBox.getItems().addAll(COMBO_OPTIONS);
-        collectionComboBox.valueProperty().addListener((observable, oldValue, newValue) -> {
+        collectionComboBox.valueProperty().addListener((observable, oldValue, newValue) ->
+        {
             for (int i = 0; i < COMBO_OPTIONS.length; i ++)
             {
                 if (COMBO_OPTIONS[i].equals(newValue))
@@ -66,6 +69,10 @@ public class CollectionPaneHandler extends PaneHandler
     {
         updateDataPresent(series);
     }
+
+    //////////////////////////////////////////////////////////////////
+    //      OVERVIEW
+    //////////////////////////////////////////////////////////////////
 
     public void updateDataPresent(TimeSeries series)
     {
@@ -102,5 +109,9 @@ public class CollectionPaneHandler extends PaneHandler
             collectionDataPresentBox.getChildren().add(parent);
         });
     }
+
+    //////////////////////////////////////////////////////////////////
+    //      COLLECT
+    //////////////////////////////////////////////////////////////////
 
 }
