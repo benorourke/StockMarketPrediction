@@ -45,15 +45,8 @@ public abstract class DataSource<T extends Data>
 
     public abstract APICollectionSession<T> newSession(Query completeQuery, CollectionFilter<T> collectionFilter);
 
-    /**
-     * Derivatives of this class should check {@link #validateVariablesOrThrow()} before calling this.
-     *
-     * @param query
-     * @param apiKey
-     * @return
-     * @throws ConstraintException
-     * @throws FailedCollectionException
-     */
+    public abstract CollectionFilter<T> newDefaultCollectionFilter();
+
     public abstract ConnectionResponse<T> retrieve(Query query, String apiKey)
             throws ConstraintException, FailedCollectionException;
 
@@ -95,14 +88,6 @@ public abstract class DataSource<T extends Data>
         return null;
     }
 
-    public void validateVariablesOrThrow() throws FailedCollectionException
-    {
-        String result = validateCollectionVariables();
-
-        if (result != null)
-            throw new FailedCollectionException(result);
-    }
-
     private void setValidators()
     {
         variableValidators = new HashMap<>();
@@ -142,7 +127,24 @@ public abstract class DataSource<T extends Data>
 
     public Object getVariableValue(CollectionVariable variable)
     {
-        return collectionVariables.get(variable);
+        try
+        {
+            Field field = collectionVariables.get(variable);
+            field.setAccessible(true);
+            return field.get(this);
+        }
+        catch (IllegalAccessException e)
+        {
+            Framework.error("Unable to get value of Field", e);
+            return null;
+        }
+    }
+
+    public void setVariableValue(CollectionVariable variable, Object value) throws IllegalAccessException
+    {
+        Field field = collectionVariables.get(variable);
+        field.setAccessible(true);
+        field.set(this, value);
     }
 
 }

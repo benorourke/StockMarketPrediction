@@ -2,6 +2,7 @@ package net.benorourke.stocks.userinterface.scene.dashboard;
 
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXComboBox;
+import com.jfoenix.controls.JFXDatePicker;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -71,7 +72,13 @@ public class DashboardController extends Controller
     // COLLECTION:
     @FXML private JFXComboBox<String> collectionComboBox;
     @FXML private TabPane collectionTabPane;
+    //  overview
     @FXML private VBox collectionDataPresentBox;
+    //  collect
+    @FXML private JFXComboBox collectionCollectSourceComboBox;
+    @FXML private JFXDatePicker collectionCollectDataPickerFrom, collectionCollectDataPickerTo;
+    @FXML private VBox collectionCollectBox;
+    @FXML private JFXButton collectionCollectButton;
 
     // TRAINING:
     @FXML private Label trainingHandlerCount;
@@ -121,7 +128,10 @@ public class DashboardController extends Controller
         paneHandlers = new PaneHandler[DashboardPane.values().length];
         paneHandlers[DashboardPane.COLLECTION.ordinal()] =
                 new CollectionPaneHandler(this, model, collectionComboBox, collectionTabPane,
-                                          collectionDataPresentBox);
+                                          collectionDataPresentBox,
+                                          collectionCollectSourceComboBox,
+                                          collectionCollectDataPickerFrom, collectionCollectDataPickerTo,
+                                          collectionCollectBox, collectionCollectButton);
         paneHandlers[DashboardPane.PRE_PROCESSING.ordinal()] =
                 new TrainingPaneHandler(this, model,
                                         trainingHandlerCount, trainingComboBox, trainingFieldBox, trainButton);
@@ -208,7 +218,7 @@ public class DashboardController extends Controller
                 index = (index < 0) ? index * -1 : index; // Prevent negative indices
                 circle.setFill(SERIES_CIRCLE_FILLS[index]);
                 name.setText(series.getName());
-                stock.setText(series.getStock().getExchange().getShortName() + ":" + series.getStock().getTicker());
+                stock.setText(series.getStock());
 
                 parent.setOnMouseClicked(event -> changeTimeSeries(series));
                 paneVBox.getChildren().add(parent);
@@ -222,6 +232,8 @@ public class DashboardController extends Controller
 
     public void changeTimeSeries(TimeSeries series)
     {
+        model.setCurrentlySelectedTimeSeries(series);
+
         for (PaneHandler handler : paneHandlers)
         {
             if (handler == null) continue;  // TODO Remove null check; shouldn't be null when completed

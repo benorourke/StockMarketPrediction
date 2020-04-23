@@ -1,17 +1,9 @@
 package net.benorourke.stocks.userinterface;
 
-import com.google.gson.Gson;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.stage.Stage;
-import javafx.stage.StageStyle;
 import net.benorourke.stocks.framework.Configuration;
-import net.benorourke.stocks.framework.Framework;
-import net.benorourke.stocks.framework.collection.datasource.DataSourceManager;
-import net.benorourke.stocks.framework.persistence.FileManager;
-import net.benorourke.stocks.framework.series.TimeSeriesManager;
-import net.benorourke.stocks.framework.stock.StockExchangeManager;
-import net.benorourke.stocks.framework.thread.TaskManager;
 import net.benorourke.stocks.userinterface.scene.SceneHelper;
 import net.benorourke.stocks.userinterface.scene.SceneType;
 import net.benorourke.stocks.userinterface.util.Constants;
@@ -44,6 +36,7 @@ public class StockApplication extends Application
         SceneHelper.modifyStage(stage, Constants.APPLICATION_NAME,
                                 Constants.APPLICATION_WIDTH_MIN, Constants.APPLICATION_HEIGHT_MIN,
                         false, true, SceneType.DASHBOARD);
+        stage.requestFocus();
     }
 
     public static void main(String[] args)

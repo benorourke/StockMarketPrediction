@@ -4,14 +4,15 @@ import net.benorourke.stocks.framework.collection.datasource.DataSource;
 import net.benorourke.stocks.framework.model.ModelEvaluation;
 import net.benorourke.stocks.framework.model.ModelHandlerManager;
 import net.benorourke.stocks.framework.series.TimeSeries;
+import net.benorourke.stocks.framework.util.Nullable;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static net.benorourke.stocks.userinterface.StockApplication.runUIThread;
 import static net.benorourke.stocks.userinterface.StockApplication.runBgThread;
+import static net.benorourke.stocks.userinterface.StockApplication.runUIThread;
 
 public class DashboardModel
 {
@@ -19,9 +20,11 @@ public class DashboardModel
 
     // NAVBAR
     private List<TimeSeries> timeSeries;
+    @Nullable private TimeSeries currentlySelectedTimeSeries;
 
     // COLLECTION
     private List<DataSource> dataSources;
+    private DataSource currentlySelectedDataSource;
 
     // TRAINING
     private List<ModelHandlerManager.RuntimeCreator> modelHandlerCreators;
@@ -59,7 +62,7 @@ public class DashboardModel
         });
     }
 
-    public void acquireDataSources(Runnable onRetrieval)
+    public void acquireDataSources(@Nullable Runnable onRetrieval)
     {
         runBgThread(framework ->
         {
@@ -70,7 +73,7 @@ public class DashboardModel
             {
                 dataSources.clear();
                 dataSources.addAll(clone);
-                onRetrieval.run();
+                if (onRetrieval != null) onRetrieval.run();
             });
         });
     }
@@ -132,6 +135,31 @@ public class DashboardModel
         return timeSeries;
     }
 
+    public TimeSeries getCurrentlySelectedTimeSeries()
+    {
+        return currentlySelectedTimeSeries;
+    }
+
+    public void setCurrentlySelectedTimeSeries(TimeSeries currentlySelectedTimeSeries)
+    {
+        this.currentlySelectedTimeSeries = currentlySelectedTimeSeries;
+    }
+
+    public List<DataSource> getDataSources()
+    {
+        return dataSources;
+    }
+
+    public DataSource getCurrentlySelectedDataSource()
+    {
+        return currentlySelectedDataSource;
+    }
+
+    public void setCurrentlySelectedDataSource(DataSource currentlySelectedDataSource)
+    {
+        this.currentlySelectedDataSource = currentlySelectedDataSource;
+    }
+
     public List<ModelHandlerManager.RuntimeCreator> getModelHandlerCreators()
     {
         return modelHandlerCreators;
@@ -146,4 +174,5 @@ public class DashboardModel
     {
         return lastAcquiredEvaluation;
     }
+
 }

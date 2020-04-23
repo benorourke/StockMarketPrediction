@@ -2,23 +2,26 @@ package net.benorourke.stocks.framework.collection.datasource.variable;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 public class Validators
 {
     private static final Map<String, VariableValidator> VALIDATORS;
 
-    public static final VariableValidator NOT_NULL = new VariableValidator()
+    public static final VariableValidator ALPHANUMERIC = new VariableValidator()
     {
+        private final Pattern pattern = Pattern.compile("[^a-zA-Z0-9]");
+
         @Override
         public boolean isValid(CollectionVariable variable, Object value)
         {
-            return value == null;
+            return !pattern.matcher((String) value).find();
         }
 
         @Override
         public String reasonInvalid(CollectionVariable variable, Object value)
         {
-            return "Variable uninitialised";
+            return "Contains non-alphanumeric characters";
         }
     };
 
@@ -26,7 +29,7 @@ public class Validators
     {
         VALIDATORS = new HashMap<>();
 
-        inject("NOT_NULL", NOT_NULL);
+        inject("ALPHANUMERIC", ALPHANUMERIC);
     }
 
     private Validators() {}

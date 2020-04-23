@@ -61,7 +61,7 @@ public class TrainingPaneHandler extends PaneHandler
             selectHandler.getSelectionModel().select(0);
 
             int selection = selectHandler.getSelectionModel().getSelectedIndex();
-            generateTrainBox(model.getModelHandlerCreators().get(selection));
+            populateTrainBox(model.getModelHandlerCreators().get(selection));
         });
 
         trainButton.setOnMouseClicked(event -> onTrainClicked());
@@ -82,7 +82,7 @@ public class TrainingPaneHandler extends PaneHandler
      *
      * @param creator
      */
-    public void generateTrainBox(ModelHandlerManager.RuntimeCreator creator)
+    public void populateTrainBox(ModelHandlerManager.RuntimeCreator creator)
     {
         // + 1 for the name input field
         int length = 1 + creator.getRequiredParameters().size();

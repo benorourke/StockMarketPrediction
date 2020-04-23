@@ -34,7 +34,7 @@ public class NewsAPI extends DataSource<Document>
     @CollectionVariable(name = "Search Term",
                         type = CollectionVariable.Type.STRING,
                         prompt = "Headlines Containing",
-                        validators = {})
+                        validators = {"ALPHANUMERIC"})
     private String searchTerm;
     @CollectionVariable(name = "Headlines per Day",
                         type = CollectionVariable.Type.INTEGER,
@@ -42,9 +42,9 @@ public class NewsAPI extends DataSource<Document>
                         validators = {})
     private int elementsPerDay;
 
-    public NewsAPI(String name)
+    public NewsAPI()
     {
-        super(name);
+        super("NewsAPI");
 
         this.elementsPerDay = 100;
     }
@@ -65,10 +65,10 @@ public class NewsAPI extends DataSource<Document>
     public Constraint[] getConstraints()
     {
         return new Constraint[]
-                {
-                        new OrderingConstraint(),
-                        new MaximumAgeConstraint(28)
-                };
+        {
+                new OrderingConstraint(),
+                new MaximumAgeConstraint(28)
+        };
     }
 
     @Override
@@ -78,10 +78,15 @@ public class NewsAPI extends DataSource<Document>
     }
 
     @Override
+    public CollectionFilter<Document> newDefaultCollectionFilter()
+    {
+        return data -> !data.getContent().toLowerCase().contains(searchTerm.toLowerCase());
+    }
+
+    @Override
     public ConnectionResponse<Document> retrieve(Query query, String apiKey)
             throws ConstraintException, FailedCollectionException
     {
-        validateVariablesOrThrow();
         checkConstraintsOrThrow(query);
 
         // TODO CREATE AN OBJECT WITH A DIRECT JSON MAPPING - GSON CAN FREEZE IF THE RESPONSE

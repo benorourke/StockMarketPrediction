@@ -4,7 +4,6 @@ import com.google.gson.*;
 import net.benorourke.stocks.framework.Framework;
 import net.benorourke.stocks.framework.collection.datasource.DataSource;
 import net.benorourke.stocks.framework.series.TimeSeries;
-import net.benorourke.stocks.framework.stock.Stock;
 
 import java.lang.reflect.Type;
 import java.util.HashMap;
@@ -21,7 +20,7 @@ public class TimeSeriesAdapter extends JsonAdapter<TimeSeries>
         JsonObject result = new JsonObject();
         result.add("id", context.serialize(series.getId().toString()));
         result.add("name", context.serialize(series.getName()));
-        result.add("stock", context.serialize(series.getStock()));
+        result.add("stock", new JsonPrimitive(series.getStock()));
 
         // Serialize the feedforward count map
         JsonObject rawDataCounts = new JsonObject();
@@ -41,7 +40,7 @@ public class TimeSeriesAdapter extends JsonAdapter<TimeSeries>
         JsonObject object = json.getAsJsonObject();
         UUID id = UUID.fromString(object.getAsJsonPrimitive("id").getAsString());
         String name = object.getAsJsonPrimitive("name").getAsString();
-        Stock stock = context.deserialize(object.getAsJsonObject("stock"), Stock.class);
+        String stock = object.getAsJsonPrimitive("stock").getAsString();
 
         // Deserialize the feedforward count map
         Map<Class<? extends DataSource>, Integer> typedMap = new HashMap<>();

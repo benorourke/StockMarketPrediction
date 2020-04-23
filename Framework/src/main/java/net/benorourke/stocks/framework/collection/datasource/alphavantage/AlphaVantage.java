@@ -38,9 +38,9 @@ public class AlphaVantage extends DataSource<StockQuote>
                         validators = {})
     private String symbol;
 
-    public AlphaVantage(String name)
+    public AlphaVantage()
     {
-        super(name);
+        super("AlphaVantage");
     }
 
     @Override
@@ -59,9 +59,9 @@ public class AlphaVantage extends DataSource<StockQuote>
     public Constraint[] getConstraints()
     {
         return new Constraint[]
-                {
-                        new OrderingConstraint()
-                };
+        {
+                new OrderingConstraint()
+        };
     }
 
     @Override
@@ -71,10 +71,15 @@ public class AlphaVantage extends DataSource<StockQuote>
     }
 
     @Override
+    public CollectionFilter<StockQuote> newDefaultCollectionFilter()
+    {
+        return data -> false;
+    }
+
+    @Override
     public ConnectionResponse<StockQuote> retrieve(Query query, String apiKey)
             throws FailedCollectionException, ConstraintException
     {
-        validateVariablesOrThrow();
         checkConstraintsOrThrow(query);
 
         try

@@ -2,6 +2,7 @@
 
 <?import com.jfoenix.controls.JFXButton?>
 <?import com.jfoenix.controls.JFXComboBox?>
+<?import com.jfoenix.controls.JFXDatePicker?>
 <?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.chart.CategoryAxis?>
@@ -219,12 +220,102 @@
                                              <content>
                                                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                                                    <children>
-                                                      <Label text="2" />
+                                                      <HBox alignment="CENTER" prefHeight="638.0" prefWidth="1059.0" spacing="130.0">
+                                                         <children>
+                                                            <VBox alignment="CENTER_LEFT" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="638.0" prefWidth="300.0" spacing="50.0">
+                                                               <children>
+                                                                  <VBox alignment="CENTER_LEFT" layoutX="10.0" layoutY="153.0" prefHeight="180.0" prefWidth="100.0" styleClass="content-box">
+                                                                     <children>
+                                                                        <Label text="SELECT SOURCE">
+                                                                           <padding>
+                                                                              <Insets bottom="15.0" left="20.0" top="15.0" />
+                                                                           </padding>
+                                                                           <font>
+                                                                              <Font size="20.0" />
+                                                                           </font>
+                                                                        </Label>
+                                                                        <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0">
+                                                                           <children>
+                                                                              <JFXComboBox fx:id="collectionCollectSourceComboBox" />
+                                                                           </children>
+                                                                        </VBox>
+                                                                     </children>
+                                                                  </VBox>
+                                                                  <VBox alignment="CENTER_LEFT" prefHeight="180.0" prefWidth="100.0" styleClass="content-box">
+                                                                     <children>
+                                                                        <Label text="TIMEFRAME">
+                                                                           <padding>
+                                                                              <Insets bottom="15.0" left="20.0" top="15.0" />
+                                                                           </padding>
+                                                                           <font>
+                                                                              <Font size="20.0" />
+                                                                           </font>
+                                                                        </Label>
+                                                                        <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="30.0">
+                                                                           <children>
+                                                                              <VBox alignment="CENTER" prefHeight="100.0" prefWidth="48.0" spacing="16.0">
+                                                                                 <children>
+                                                                                    <Label text="From">
+                                                                                       <font>
+                                                                                          <Font size="14.0" />
+                                                                                       </font>
+                                                                                    </Label>
+                                                                                    <Label layoutX="10.0" layoutY="10.0" text="To">
+                                                                                       <font>
+                                                                                          <Font size="14.0" />
+                                                                                       </font>
+                                                                                    </Label>
+                                                                                 </children>
+                                                                              </VBox>
+                                                                              <VBox alignment="CENTER" prefHeight="100.0" prefWidth="182.0" spacing="10.0">
+                                                                                 <children>
+                                                                                    <JFXDatePicker fx:id="collectionCollectDataPickerFrom" />
+                                                                                    <JFXDatePicker fx:id="collectionCollectDataPickerTo" layoutX="10.0" layoutY="10.0" />
+                                                                                 </children>
+                                                                              </VBox>
+                                                                           </children>
+                                                                        </HBox>
+                                                                     </children>
+                                                                  </VBox>
+                                                               </children>
+                                                            </VBox>
+                                                            <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="300.0" styleClass="content-box">
+                                                               <children>
+                                                                  <Label text="COLLECT">
+                                                                     <padding>
+                                                                        <Insets bottom="15.0" left="20.0" top="15.0" />
+                                                                     </padding>
+                                                                     <font>
+                                                                        <Font size="20.0" />
+                                                                     </font>
+                                                                  </Label>
+                                                                  <ScrollPane hbarPolicy="NEVER" prefHeight="322.0" prefWidth="298.0" styleClass="training-scrollpane">
+                                                                     <content>
+                                                                        <AnchorPane prefHeight="270.0" prefWidth="294.0">
+                                                                           <children>
+                                                                              <VBox fx:id="collectionCollectBox" alignment="TOP_CENTER" prefHeight="269.0" prefWidth="291.0" spacing="15.0" />
+                                                                           </children>
+                                                                        </AnchorPane>
+                                                                     </content>
+                                                                  </ScrollPane>
+                                                                  <VBox alignment="CENTER" prefHeight="108.0" prefWidth="298.0">
+                                                                     <children>
+                                                                        <JFXButton fx:id="collectionCollectButton" buttonType="RAISED" prefHeight="15.0" prefWidth="150.0" styleClass="button-primary" text="Collect">
+                                                                           <font>
+                                                                              <Font size="17.0" />
+                                                                           </font>
+                                                                        </JFXButton>
+                                                                     </children>
+                                                                  </VBox>
+                                                               </children>
+                                                            </VBox>
+                                                         </children>
+                                                      </HBox>
                                                    </children>
                                                 </AnchorPane>
                                              </content>
                                           </Tab>
-                                          <Tab text="Missing Data">
+                                          <Tab text="Missing / Duplicate Data">
                                              <content>
                                                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                                                    <children>
@@ -308,7 +399,7 @@
                                             <content>
                                               <AnchorPane prefHeight="264.0" prefWidth="294.0">
                                                    <children>
-                                                      <VBox fx:id="trainingFieldBox" alignment="CENTER" prefHeight="272.0" prefWidth="291.0" spacing="15.0" />
+                                                      <VBox fx:id="trainingFieldBox" alignment="TOP_CENTER" prefHeight="272.0" prefWidth="291.0" spacing="15.0" />
                                                    </children></AnchorPane>
                                             </content>
                                           </ScrollPane>

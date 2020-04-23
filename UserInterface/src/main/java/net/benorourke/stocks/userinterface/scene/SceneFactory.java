@@ -19,8 +19,7 @@ public class SceneFactory
 	
 	private SceneFactory() {}
 	
-	public Scene create(SceneType type, Object... initParams)
-					throws SceneCreationDataException
+	public Scene create(SceneType type, Object... initParams) throws SceneCreationDataException
 	{
 		
 		Constructor<?> constructor;

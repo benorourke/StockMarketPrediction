@@ -19,8 +19,8 @@ public class DataSourceManager
     {
         dataSources = new ArrayList<DataSource>()
         {{
-            add(new NewsAPI("NewsAPI"));
-            add(new AlphaVantage("AlphaVantage"));
+            add(new NewsAPI());
+            add(new AlphaVantage());
         }};
     }
 

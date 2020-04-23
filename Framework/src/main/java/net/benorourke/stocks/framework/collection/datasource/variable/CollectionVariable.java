@@ -1,7 +1,5 @@
 package net.benorourke.stocks.framework.collection.datasource.variable;
 
-import net.benorourke.stocks.framework.util.Nullable;
-
 import java.lang.annotation.*;
 
 /**
@@ -23,7 +21,7 @@ public @interface CollectionVariable
 
     enum Type
     {
-        INTEGER, STRING, LIST_STRING;
+        INTEGER, STRING
     }
 
 }

@@ -10,8 +10,16 @@
    <children>
       <VBox prefHeight="48.0" prefWidth="297.0">
          <children>
-            <Label fx:id="dataType" />
-            <Pane fx:id="contentPane" prefHeight="200.0" prefWidth="200.0" />
+            <Label fx:id="header" text="Header" />
+            <HBox>
+               <children>
+                  <Pane fx:id="contentPane" prefHeight="31.0" prefWidth="268.0">
+                     <HBox.margin>
+                        <Insets left="10.0" />
+                     </HBox.margin>
+                  </Pane>
+               </children>
+            </HBox>
          </children>
          <padding>
             <Insets left="10.0" />

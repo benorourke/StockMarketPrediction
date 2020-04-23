@@ -10,7 +10,6 @@ import net.benorourke.stocks.framework.model.ModelEvaluation;
 import net.benorourke.stocks.framework.model.ModelHandlerManager;
 import net.benorourke.stocks.framework.model.ProcessedDataset;
 import net.benorourke.stocks.framework.persistence.FileManager;
-import net.benorourke.stocks.framework.persistence.gson.StockAdapter;
 import net.benorourke.stocks.framework.persistence.gson.TimeSeriesAdapter;
 import net.benorourke.stocks.framework.persistence.gson.data.DocumentAdapter;
 import net.benorourke.stocks.framework.persistence.gson.data.StockQuoteAdapter;
@@ -27,8 +26,6 @@ import net.benorourke.stocks.framework.series.TimeSeries;
 import net.benorourke.stocks.framework.series.TimeSeriesManager;
 import net.benorourke.stocks.framework.series.data.impl.Document;
 import net.benorourke.stocks.framework.series.data.impl.StockQuote;
-import net.benorourke.stocks.framework.stock.Stock;
-import net.benorourke.stocks.framework.stock.StockExchangeManager;
 import net.benorourke.stocks.framework.thread.TaskManager;
 import net.benorourke.stocks.framework.util.Initialisable;
 import org.slf4j.Logger;
@@ -46,7 +43,6 @@ public class Framework implements Initialisable
     private final Gson gson;
 
     private final FileManager fileManager;
-    private final StockExchangeManager stockExchangeManager;
     private final DataSourceManager dataSourceManager;
     private final TimeSeriesManager timeSeriesManager;
     private final TaskManager taskManager;
@@ -61,7 +57,6 @@ public class Framework implements Initialisable
     {
         GsonBuilder builder = new GsonBuilder()
                 //                        .setPrettyPrinting()
-                .registerTypeAdapter(Stock.class, new StockAdapter(stockExchangeManager = new StockExchangeManager()))
                 .registerTypeAdapter(TimeSeries.class, new TimeSeriesAdapter())
                 .registerTypeAdapter(StockQuote.class, new StockQuoteAdapter())
                 .registerTypeAdapter(Document.class, new DocumentAdapter())
@@ -96,7 +91,6 @@ public class Framework implements Initialisable
     @Override
     public void initialise()
     {
-        stockExchangeManager.initialise();
         timeSeriesManager.initialise();
         modelHandlerManager.initialise();
     }
@@ -124,11 +118,6 @@ public class Framework implements Initialisable
     public FileManager getFileManager()
     {
         return fileManager;
-    }
-
-    public StockExchangeManager getStockExchangeManager()
-    {
-        return stockExchangeManager;
     }
 
     public DataSourceManager getDataSourceManager()
