@@ -6,6 +6,9 @@ import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
 
+import java.io.File;
+import java.io.IOException;
+
 public class FeedForwardModel extends PredictionModel
 {
     private final MultiLayerNetwork network;
@@ -17,14 +20,21 @@ public class FeedForwardModel extends PredictionModel
 
     public void fit(DataSet set)
     {
-        Framework.debug("DataSet null: " + (set == null));
-        Framework.debug("Network null: " + (network == null));
         network.fit(set);
     }
 
     public INDArray predict(INDArray input)
     {
         return network.output(input);
+    }
+
+    public void save(File file) throws IOException
+    {
+        if (file.exists())
+            file.delete();
+        file.getParentFile().mkdirs();
+
+        network.save(file);
     }
 
 }

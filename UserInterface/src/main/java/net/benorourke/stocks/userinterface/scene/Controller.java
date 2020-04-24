@@ -1,5 +1,7 @@
 package net.benorourke.stocks.userinterface.scene;
 
+import com.jfoenix.controls.JFXSnackbar;
+import com.jfoenix.controls.JFXSnackbarLayout;
 import javafx.fxml.FXML;
 import javafx.scene.layout.Pane;
 
@@ -14,6 +16,26 @@ public class Controller
     public Pane getRoot()
     {
         return root;
+    }
+
+    public void snackbar(SnackbarType type, String message)
+    {
+        JFXSnackbar snackbar = new JFXSnackbar(root);
+        JFXSnackbarLayout content = new JFXSnackbarLayout(type.message, message, null);
+        snackbar.enqueue(new JFXSnackbar.SnackbarEvent(content));
+    }
+
+    public enum SnackbarType
+    {
+        INFO("Info"),
+        ERROR("Error");
+
+        private String message;
+
+        SnackbarType(String message)
+        {
+            this.message = message;
+        }
     }
 
 }

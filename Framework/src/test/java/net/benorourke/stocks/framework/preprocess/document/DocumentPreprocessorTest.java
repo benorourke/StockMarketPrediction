@@ -16,7 +16,7 @@ public class DocumentPreprocessorTest
     @Test
     public void rename()
     {
-        DimensionalityReducer preprocessor = new DimensionalityReducer();
+        DimensionalityReduction preprocessor = new DimensionalityReduction();
         preprocessor.initialise();
 
         List<Document> corpus = new ArrayList<Document>();

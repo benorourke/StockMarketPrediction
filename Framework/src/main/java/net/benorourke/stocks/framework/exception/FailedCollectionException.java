@@ -4,7 +4,7 @@ import java.io.IOException;
 
 public class FailedCollectionException extends Exception
 {
-    public enum Type {HTTP_ERROR, RESPONSE_CODE};
+    public enum Type {HTTP_ERROR, RESPONSE_CODE, COLLECTION_VARIABLE_INVALID};
 
     private final Type type;
     private final int responseCode;
@@ -23,6 +23,14 @@ public class FailedCollectionException extends Exception
 
         type = Type.RESPONSE_CODE;
         this.responseCode = responseCode;
+    }
+
+    public FailedCollectionException(String invalidityReason)
+    {
+        super("Invalid CollectionVariable: " + invalidityReason);
+
+        type = Type.COLLECTION_VARIABLE_INVALID;
+        this.responseCode = -1;
     }
 
     public Type getType()

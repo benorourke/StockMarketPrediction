@@ -28,7 +28,7 @@ public class MaximumAgeConstraint implements Constraint
     public void checkValid(Query query) throws ConstraintException
     {
         if(query.getFrom().before(getMaximumDate()))
-            throw new ConstraintException("Date-range exceeds minimum date allowed.");
+            throw new ConstraintException("Date-range exceeds oldest date(s) allowed.");
     }
 
     /**

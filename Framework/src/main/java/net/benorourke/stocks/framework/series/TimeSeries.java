@@ -1,30 +1,32 @@
 package net.benorourke.stocks.framework.series;
 
 import net.benorourke.stocks.framework.collection.datasource.DataSource;
-import net.benorourke.stocks.framework.stock.Stock;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 public class TimeSeries
 {
+    private final UUID id;
     private String name;
-    private Stock stock;
+    private String stock;
     /**
      * Stores the number of raw feedforward for DataSources that have been collected.
      */
     private Map<Class<? extends DataSource>, Integer> rawDataCounts;
 
-    public TimeSeries(String name, Stock stock, Map<Class<? extends DataSource>, Integer> rawDataCounts)
+    public TimeSeries(UUID id, String name, String stock, Map<Class<? extends DataSource>, Integer> rawDataCounts)
     {
+        this.id = id;
         this.name = name;
         this.stock = stock;
         this.rawDataCounts = rawDataCounts;
     }
 
-    public TimeSeries(String name, Stock stock)
+    public TimeSeries(String name, String stock)
     {
-        this(name, stock, new HashMap<>());
+        this(UUID.randomUUID(), name, stock, new HashMap<>());
     }
 
     @Override
@@ -33,12 +35,17 @@ public class TimeSeries
         return '[' + name + ", " + stock.toString() + ']';
     }
 
+    public UUID getId()
+    {
+        return id;
+    }
+
     public String getName()
     {
         return name;
     }
 
-    public Stock getStock()
+    public String getStock()
     {
         return stock;
     }
@@ -47,5 +54,4 @@ public class TimeSeries
     {
         return rawDataCounts;
     }
-
 }

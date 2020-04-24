@@ -4,21 +4,9 @@ import java.util.Date;
 
 public class ModelData
 {
-    public static int N_FEATURES = 5, N_LABELS = 5;
-
-    /**
-     * As of now:
-     * [0] = open
-     * [1] = close
-     * [2] = low
-     * [3] = high
-     * [4] = volume
-     *
-     * TODO
-     */
     private final Date date;
-    private final double[] features;   // normalised feedforward
-    private final double[] labels; // unnormalised feedforward
+    private final double[] features;
+    private final double[] labels;
 
     public ModelData(Date date, double[] features, double[] labels)
     {

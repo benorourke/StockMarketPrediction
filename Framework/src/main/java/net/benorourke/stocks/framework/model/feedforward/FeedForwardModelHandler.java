@@ -1,8 +1,12 @@
 package net.benorourke.stocks.framework.model.feedforward;
 
 import net.benorourke.stocks.framework.Framework;
+import net.benorourke.stocks.framework.model.ModelData;
+import net.benorourke.stocks.framework.model.ModelEvaluation;
+import net.benorourke.stocks.framework.model.ProcessedDataset;
+import net.benorourke.stocks.framework.model.param.HyperParameter;
+import net.benorourke.stocks.framework.model.param.ModelParameters;
 import net.benorourke.stocks.framework.model.ModelHandler;
-import net.benorourke.stocks.framework.model.ProcessedCorpus;
 import org.deeplearning4j.datasets.iterator.ExistingDataSetIterator;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
@@ -11,7 +15,7 @@ import org.deeplearning4j.nn.conf.layers.DenseLayer;
 import org.deeplearning4j.nn.conf.layers.OutputLayer;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
-import org.nd4j.evaluation.classification.Evaluation;
+import org.nd4j.evaluation.regression.RegressionEvaluation;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
@@ -20,39 +24,73 @@ import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.learning.config.Adam;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 
-import static net.benorourke.stocks.framework.model.ModelData.*;
-
-import java.util.Arrays;
+import java.io.File;
+import java.io.IOException;
+import java.util.*;
 
 public class FeedForwardModelHandler extends ModelHandler<FeedForwardModel>
 {
-    private static final int N_HIDDEN = 30;
+    private static final long SEED = 0;
 
-    public FeedForwardModelHandler(long seed)
+    public static final List<HyperParameter> REQUIRED_HYPERPARAMETERS;
+    public static final String HYPERPARAMETER_INPUT_NODES = "Input Nodes";
+    public static final String HYPERPARAMETER_HIDDEN_NODES = "Hidden Nodes";
+    public static final String HYPERPARAMETER_OUTPUT_NODES = "Output Nodes";
+    public static final int    HYPERPARAMETER_HIDDEN_NODES_DEFAULT = 30;
+
+    static
     {
-        super(seed);
+        List<HyperParameter> list = new ArrayList<>();
+        list.add(new HyperParameter(HYPERPARAMETER_INPUT_NODES, false,0)); // Must be specified
+        list.add(new HyperParameter(HYPERPARAMETER_HIDDEN_NODES, true, HYPERPARAMETER_HIDDEN_NODES_DEFAULT));
+        list.add(new HyperParameter(HYPERPARAMETER_OUTPUT_NODES, false, 0)); // Must be specified
+
+        REQUIRED_HYPERPARAMETERS = Collections.unmodifiableList(list);
     }
 
-    public FeedForwardModelHandler()
+    private final ModelParameters configuration;
+
+    protected FeedForwardModelHandler(ModelParameters configuration)
     {
-        this(0);
+        this.configuration = configuration;
+        configuration.setMissingDefaults(getRequiredHyperParameters());
+    }
+
+    public FeedForwardModelHandler(int numInputs, int numHidden, int numOutputs)
+    {
+        configuration = new ModelParameters();
+        configuration.set(HYPERPARAMETER_INPUT_NODES, numInputs);
+        configuration.set(HYPERPARAMETER_OUTPUT_NODES, numHidden);
+        configuration.set(HYPERPARAMETER_HIDDEN_NODES, numOutputs);
+        configuration.setMissingDefaults(getRequiredHyperParameters());
+    }
+
+    @Override
+    public List<HyperParameter> getRequiredHyperParameters()
+    {
+        return REQUIRED_HYPERPARAMETERS;
     }
 
     @Override
     public FeedForwardModel create()
     {
+        int paramFeatures = configuration.get(HYPERPARAMETER_INPUT_NODES);
+        int paramHidden = configuration.get(HYPERPARAMETER_HIDDEN_NODES);
+        int paramLabels = configuration.get(HYPERPARAMETER_OUTPUT_NODES);
+
+        Framework.debug("Creating Feed Forward Model with features " + paramFeatures + ", labels " + paramLabels);
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
-                .seed(getSeed())
+                .seed(SEED)
                 .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
                 .updater(new Adam())
                 .l2(1e-4)
                 .list()
-                .layer(0, new DenseLayer.Builder().nIn(N_FEATURES).nOut(N_HIDDEN)
+                .layer(0, new DenseLayer.Builder().nIn(paramFeatures).nOut(paramHidden)
                         .activation(Activation.TANH)
                         .build())
                 .layer(1, new OutputLayer.Builder(LossFunctions.LossFunction.MSE)
                         .activation(Activation.IDENTITY)
-                        .nIn(N_HIDDEN).nOut(N_LABELS).build())
+                        .nIn(paramHidden).nOut(paramLabels).build())
                 .build();
 
         MultiLayerNetwork net = new MultiLayerNetwork(conf);
@@ -63,10 +101,9 @@ public class FeedForwardModelHandler extends ModelHandler<FeedForwardModel>
     }
 
     @Override
-    public void train(FeedForwardModel model, ProcessedCorpus corpus)
+    public void train(FeedForwardModel model, ProcessedDataset corpus)
     {
-        DataSetIterator iterator = new ExistingDataSetIterator(
-                Arrays.asList(corpus.toDataSet(getSeed())));
+        DataSetIterator iterator = new ExistingDataSetIterator(Arrays.asList(corpus.toDataSet(SEED)));
 
         //Number of epochs (full passes of the feedforward)
         final int nEpochs = 200;
@@ -81,16 +118,35 @@ public class FeedForwardModelHandler extends ModelHandler<FeedForwardModel>
     }
 
     @Override
-    public void evaluate(FeedForwardModel trainedModel, DataSet dataSet)
+    public ModelEvaluation evaluate(FeedForwardModel trainedModel,
+                                    ProcessedDataset trainingData, ProcessedDataset testingData)
     {
-        // TODO
-        Evaluation evaluation = new Evaluation(N_LABELS);
+        List<ModelEvaluation.Prediction> trainingPredictions = getPredictions(trainedModel, trainingData);
+        List<ModelEvaluation.Prediction> testingPredictions = getPredictions(trainedModel, testingData);
+        return new ModelEvaluation(getScore(trainedModel, testingData), trainingPredictions, testingPredictions);
+    }
 
-        INDArray labels = dataSet.getLabels();
-        INDArray features = dataSet.getFeatures();
+    private double getScore(FeedForwardModel trainedModel, ProcessedDataset testingData)
+    {
+        RegressionEvaluation regressionEvaluation =  new RegressionEvaluation(configuration.get(HYPERPARAMETER_OUTPUT_NODES));
+        DataSet dataset = testingData.toDataSet(SEED);
+        INDArray labels = dataset.getLabels();
+        INDArray features = dataset.getFeatures();
         INDArray predicted = predict(trainedModel, features);
-        evaluation.eval(labels, predicted);
-        Framework.debug(evaluation.stats());
+        regressionEvaluation.eval(labels, predicted);
+        Framework.debug(regressionEvaluation.stats());
+        return regressionEvaluation.rootMeanSquaredError(0); // TODO - Should we take an average of all the cols, in case there is?
+    }
+
+    private List<ModelEvaluation.Prediction> getPredictions(FeedForwardModel model, ProcessedDataset data)
+    {
+        List<ModelEvaluation.Prediction> days = new ArrayList<>();
+        for (ModelData elem : data.getData())
+        {
+            double[] predicted = predictOne(model, elem.getFeatures());
+            days.add(new ModelEvaluation.Prediction(elem.getDate(), elem.getLabels(), predicted));
+        }
+        return days;
     }
 
     @Override
@@ -105,6 +161,35 @@ public class FeedForwardModelHandler extends ModelHandler<FeedForwardModel>
     public INDArray predict(FeedForwardModel trainedModel, INDArray features)
     {
         return trainedModel.predict(features);
+    }
+
+    @Override
+    public boolean writeModel(File file, FeedForwardModel trainedModel)
+    {
+        try
+        {
+            trainedModel.save(file);
+            return true;
+        }
+        catch (IOException e)
+        {
+            Framework.error("Unable to write model to " + file.getPath(), e);
+            return false;
+        }
+    }
+
+    @Override
+    public FeedForwardModel loadModel(File file)
+    {
+        try
+        {
+            return new FeedForwardModel(MultiLayerNetwork.load(file, true));
+        }
+        catch (IOException e)
+        {
+            Framework.error("Unable to load model from " + file.getPath(), e);
+            return null;
+        }
     }
 
 }

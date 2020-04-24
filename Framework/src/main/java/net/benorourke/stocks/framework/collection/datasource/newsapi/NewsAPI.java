@@ -5,6 +5,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import net.benorourke.stocks.framework.Framework;
+import net.benorourke.stocks.framework.collection.datasource.variable.CollectionVariable;
 import net.benorourke.stocks.framework.collection.datasource.DataSource;
 import net.benorourke.stocks.framework.collection.constraint.Constraint;
 import net.benorourke.stocks.framework.collection.constraint.MaximumAgeConstraint;
@@ -28,14 +29,24 @@ import java.util.*;
 public class NewsAPI extends DataSource<Document>
 {
     private static final String BASE_URL = "https://newsapi.org/";
-    private static final int MAX_PAGE_SIZE = 20; // TODO - Make this larger when the document raw feedforward dumps are split
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
 
-    private final String apiKey;
+    @CollectionVariable(name = "Search Term",
+                        type = CollectionVariable.Type.STRING,
+                        prompt = "Headlines Containing",
+                        validators = {"ALPHANUMERIC"})
+    private String searchTerm;
+    @CollectionVariable(name = "Headlines per Day",
+                        type = CollectionVariable.Type.INTEGER,
+                        prompt = "Number of Headlines per Day",
+                        validators = {})
+    private int elementsPerDay;
 
-    public NewsAPI(String apiKey)
+    public NewsAPI()
     {
-        this.apiKey = apiKey;
+        super("NewsAPI");
+
+        this.elementsPerDay = 100;
     }
 
     @Override
@@ -54,10 +65,10 @@ public class NewsAPI extends DataSource<Document>
     public Constraint[] getConstraints()
     {
         return new Constraint[]
-                {
-                        new OrderingConstraint(),
-                        new MaximumAgeConstraint(28)
-                };
+        {
+                new OrderingConstraint(),
+                new MaximumAgeConstraint(28)
+        };
     }
 
     @Override
@@ -67,17 +78,23 @@ public class NewsAPI extends DataSource<Document>
     }
 
     @Override
-    public ConnectionResponse<Document> retrieve(Query query)
+    public CollectionFilter<Document> newDefaultCollectionFilter()
+    {
+        return data -> !data.getContent().toLowerCase().contains(searchTerm.toLowerCase());
+    }
+
+    @Override
+    public ConnectionResponse<Document> retrieve(Query query, String apiKey)
             throws ConstraintException, FailedCollectionException
     {
-        checkConstraints(query);
+        checkConstraintsOrThrow(query);
 
         // TODO CREATE AN OBJECT WITH A DIRECT JSON MAPPING - GSON CAN FREEZE IF THE RESPONSE
         // DOESN'T MATCH WHAT WE NEED (I.E. AN ERROR)
 
         try
         {
-            String url = BASE_URL.concat(buildUrlExtension(query));
+            String url = BASE_URL.concat(buildUrlExtension(query, apiKey));
             Framework.info("Connecting to " + url);
 
             URLConnector connector = URLConnector.connect(url);
@@ -140,7 +157,7 @@ public class NewsAPI extends DataSource<Document>
     }
 
     ///v2/everything?q=apple&from=2019-12-20&to=2019-12-20&sortBy=popularity&apiKey=78d93a9d68584e61be38b1d90217d1e7
-    private String buildUrlExtension(Query query)
+    private String buildUrlExtension(Query query, String apiKey)
     {
         Calendar calendar = Calendar.getInstance();
 
@@ -155,14 +172,13 @@ public class NewsAPI extends DataSource<Document>
                                 + "-" + calendar.get(Calendar.DAY_OF_MONTH);
 
         return "v2/everything"
-                    .concat("?q=" + query.getStock().getCompanyName().replace(" ", "%20"))
+                    .concat("?q=" + searchTerm)
                     .concat("&from=".concat(strFrom))
                     .concat("&to=".concat(strTo))
                     .concat("&sortBy=popularity")
                     .concat("&apiKey=" + apiKey)
-                    .concat("&pageSize=" + MAX_PAGE_SIZE);
+                    .concat("&pageSize=" + elementsPerDay);
 //        return "v2/top-headlines?country=gb&apiKey=" + apiKey;
     }
-
 
 }

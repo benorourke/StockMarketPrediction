@@ -5,11 +5,12 @@ import net.benorourke.stocks.framework.collection.datasource.DataSource;
 import net.benorourke.stocks.framework.persistence.FileManager;
 import net.benorourke.stocks.framework.persistence.store.DataStore;
 import net.benorourke.stocks.framework.series.data.Data;
-import net.benorourke.stocks.framework.stock.Stock;
 import net.benorourke.stocks.framework.util.Initialisable;
+import net.benorourke.stocks.framework.util.Tuple;
 
 import java.io.File;
 import java.util.*;
+import java.util.regex.Pattern;
 
 public class TimeSeriesManager implements Initialisable
 {
@@ -38,10 +39,11 @@ public class TimeSeriesManager implements Initialisable
     //      TIMESERIES MANAGEMENT
     //////////////////////////////////////////////////////////////////
 
-    public boolean create(String name, Stock stock)
+    public boolean create(String name, String stock)
     {
         TimeSeries series = new TimeSeries(name, stock);
         timeSeries.add(series);
+        sortSeries();
 
         if(save(series))
         {
@@ -104,7 +106,7 @@ public class TimeSeriesManager implements Initialisable
 
             File infoFile = fileManager.getTimeSeriesInfoFile(file);
 
-            if(!infoFile.exists()) // There's a TimeSeries directory but the info file is missing
+            if(!infoFile.exists()) // There's a TimeSeries splash but the info file is missing
             {
                 Framework.info("Timeseries info.json " + infoFile.getPath() + " is missing! Unable to load");
                 continue;
@@ -112,15 +114,18 @@ public class TimeSeriesManager implements Initialisable
 
             Optional<TimeSeries> timeSeries = fileManager.loadJson(infoFile, TimeSeries.class);
             if(timeSeries != null)
-            {
                 result.add(timeSeries.get());
-            }
             else
-            {
                 Framework.error("Unable to load time series meta at " + infoFile.getPath());
-            }
         }
+
+        sortSeries();
         return result;
+    }
+
+    public void sortSeries()
+    {
+        Collections.sort(timeSeries, Comparator.comparing(series -> series.getName().toLowerCase()));
     }
 
     //////////////////////////////////////////////////////////////////
@@ -132,26 +137,40 @@ public class TimeSeriesManager implements Initialisable
         return new DataStore(framework, timeSeries);
     }
 
-    public void onDataCollected(TimeSeries series, Class<? extends DataSource> dataSourceClass,
-                                Collection<Data> data)
+    /**
+     *
+     * @param series
+     * @param dataSourceClass
+     * @param data
+     * @param overwrite whether to overwrite any existing data
+     * @param <T>
+     */
+    public <T extends Data> void onDataCollected(TimeSeries series, Class<? extends DataSource<T>> dataSourceClass,
+                                                 Collection<T> data, boolean overwrite)
     {
-        if (getDataStore(series).writeRawData(dataSourceClass, data))
-        {
-            // Save the TimeSeries with the updated feedforward counts
-            series.getRawDataCounts().put(dataSourceClass, data.size());
-            save(series);
+        int newCount = 0;
 
-            Framework.info("Wrote raw feedforward to TimeSeries " + series.toString());
-            Framework.debug("Raw feedforward counts:");
-            for (Map.Entry<Class<? extends DataSource>, Integer> rawDataCount : series.getRawDataCounts().entrySet())
-            {
-                Framework.debug(rawDataCount.getKey().getName() + ": " + rawDataCount.getValue());
-            }
+        if (overwrite)
+        {
+            int count = getDataStore(series).writeRawData(dataSourceClass, data);
+            Framework.info("Wrote (overwrite=true) " + count + " Data into TimeSeries " + series.toString());
         }
         else
         {
-            Framework.error("Unable to write raw feedforward to TimeSeries " + series.toString());
+            Tuple<Integer, Integer> res = getDataStore(series).injectRawData(dataSourceClass, data);
+            newCount = res.getA();
+            Framework.info("Injected (overwrite=false) " + res.getB() + " Data into TimeSeries " + series.toString());
         }
+
+        if (newCount != 0)
+        {
+            // Save the TimeSeries with the updated feedforward counts
+            series.getRawDataCounts().put(dataSourceClass, newCount);
+            save(series);
+        }
+        else
+            Framework.error("Error in writing any Data into TimeSeries " + series.toString()
+                                + "(overwrite=" + overwrite + "). Collected Data Counts may be wrong.");
     }
 
     public Map<DataSource, Integer> getCollectedDataCounts(TimeSeries series)
@@ -163,6 +182,49 @@ public class TimeSeriesManager implements Initialisable
             counts.put(src, entry.getValue());
         }
         return counts;
+    }
+
+    //////////////////////////////////////////////////////////////////
+    //      TRAINED MODELS
+    //////////////////////////////////////////////////////////////////
+
+    /**
+     * To retrieve a model the model file and it's corresponding evaluation file must exist
+     * @param timeSeries
+     * @return
+     */
+    public List<String> getTrainedModels(TimeSeries timeSeries)
+    {
+        List<String> models = new ArrayList<>();
+
+        File directory = fileManager.getTrainedDirectory(timeSeries);
+        if (directory.exists())
+        {
+            for (File file : directory.listFiles())
+            {
+                String path = file.getPath();
+
+                if (!path.endsWith(".model")) continue;
+
+                String[] split = path.split(Pattern.quote(System.getProperty("file.separator")));
+                String modelName = split[split.length - 1].replace(".model", "");
+
+                File evaluation = fileManager.getModelEvaluationFile(timeSeries, modelName);
+                if (evaluation.exists())
+                    models.add(modelName);
+            }
+        }
+
+        return models;
+    }
+
+    //////////////////////////////////////////////////////////////////
+    //      MISC
+    //////////////////////////////////////////////////////////////////
+
+    public List<TimeSeries> getTimeSeries()
+    {
+        return timeSeries;
     }
 
 }

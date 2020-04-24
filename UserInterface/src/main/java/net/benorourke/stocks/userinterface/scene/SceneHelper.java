@@ -2,43 +2,72 @@ package net.benorourke.stocks.userinterface.scene;
 
 import javafx.application.Platform;
 import javafx.stage.Stage;
+import net.benorourke.stocks.framework.exception.TaskAlreadyPresentException;
+import net.benorourke.stocks.framework.thread.ResultCallback;
+import net.benorourke.stocks.userinterface.StockApplication;
 import net.benorourke.stocks.userinterface.exception.SceneCreationDataException;
+import net.benorourke.stocks.userinterface.scene.asyncinflater.InflationResult;
+import net.benorourke.stocks.userinterface.scene.asyncinflater.InflationTask;
+
+import java.util.concurrent.TimeUnit;
+
+import static net.benorourke.stocks.userinterface.StockApplication.runUIThread;
 
 public class SceneHelper
 {
-	
 	private SceneHelper() {}
 
+	/**
+	 * FXML inflation takes a while since a file must be read, this will inflate the FXML file.
+	 *
+	 * Call function from the UI Thread will traverse the threads as follows:
+	 *
+	 * UI THREAD -> FRAMEWORK THREAD -> THREAD POOLS -> FRAMEWORK THREAD -> UI THREAD
+	 *
+	 * @param fxmlPath
+	 * @param uiCallback runs on the UI thread
+	 */
+	public static void inflateAsync(final String fxmlPath, ResultCallback<InflationResult> uiCallback)
+	{
+		// CURRENTLY IN UI THREAD
+		StockApplication.runBgThread(framework ->
+		{
+			// CURRENTLY IN FRAMEWORK THREAD
+			try
+			{
+				// ABOUT TO RUN TASK IN POOLED THREAD
+				framework.getTaskManager().scheduleRepeating(new InflationTask(fxmlPath), result -> {
+					// CURRENTLY IN FRAMEWORK THREAD
+
+					runUIThread(() -> {
+						// CURRENTLY IN UI THREAD
+
+						if (result.isSuccess())
+							StockApplication.info("Successfully inflated FXML at " + fxmlPath);
+						else
+							StockApplication.info("Unable to inflate FXML at " + fxmlPath);
+						uiCallback.onCallback(result);
+
+					});
+
+				}, 20, 20, TimeUnit.MILLISECONDS);
+			}
+			catch (TaskAlreadyPresentException e)
+			{
+				StockApplication.error("Unable to begin InflationTask for " + fxmlPath, e);
+			}
+			// TODO: Throw inflation exception on some thread if unsuccessful
+		});
+	}
+
 	public static void modifyStage(Stage stage, String windowTitle,
-								   int width, int height,
 								   int minWidth, int minHeight,
 								   boolean resizable, boolean exitOnClose,
 								   SceneType type, Object... params) throws SceneCreationDataException
 	{
 		stage.setTitle(windowTitle);
-		stage.setWidth(width);
-		stage.setHeight(height);
 		stage.setMinWidth(minWidth);
-		stage.setMinHeight(minWidth);
-		stage.setResizable(resizable);
-		if (exitOnClose)
-			stage.setOnCloseRequest(e ->
-			{
-				Platform.exit();
-				System.exit(0);
-			});
-		stage.setScene(SceneFactory.getInstance().create(type, params));
-		stage.show();
-	}
-
-	public static void modifyStage(Stage stage, String windowTitle,
-								   int width, int height,
-								   boolean resizable, boolean exitOnClose,
-								   SceneType type, Object... params) throws SceneCreationDataException
-	{
-		stage.setTitle(windowTitle);
-		stage.setWidth(width);
-		stage.setHeight(height);
+		stage.setMinHeight(minHeight);
 		stage.setResizable(resizable);
 		if (exitOnClose)
 			stage.setOnCloseRequest(e ->
@@ -66,54 +95,6 @@ public class SceneHelper
 		stage.show();
 	}
 
-	/**
-	 * Open & show a new stage/window.
-	 *
-	 * @param windowTitle title of window
-	 * @param width 	  width of window
-	 * @param height	  height of window
-	 * @param minWidth 	  minimum width of window
-	 * @param minHeight	  minimum height of window
-	 * @param resizable	  whether or not to make the window resizable
-	 * @param type	 	  the type of window to show
-	 * @param params	  the parameters to pass to the constructor of the controller for this SceneType
-	 * @return			  the stage object
-	 *
-	 * @throws SceneCreationDataException
-	 */
-	public static Stage openStage(String windowTitle,
-								  int width, int height,
-								  int minWidth, int minHeight,
-								  boolean resizable, boolean exitOnClose,
-								  SceneType type, Object... params) throws SceneCreationDataException
-	{
-		Stage stage = new Stage();
-		modifyStage(stage, windowTitle, width, height, minWidth, minHeight, resizable, exitOnClose, type, params);
-		return stage;
-	}
-	
-	/**
-	 * Open & show a new stage/window.
-	 * 
-	 * @param windowTitle title of window
-	 * @param width 	  width of window
-	 * @param height	  height of window
-	 * @param resizable	  whether or not to make the window resizable
-	 * @param type	 	  the type of window to show
-	 * @param params	  the parameters to pass to the constructor of the controller for this SceneType
-	 * @return			  the stage object
-	 * 
-	 * @throws SceneCreationDataException 
-	 */
-	public static Stage openStage(String windowTitle, 
-								  int width, int height,
-								  boolean resizable, boolean exitOnClose,
-								  SceneType type, Object... params) throws SceneCreationDataException
-	{
-		Stage stage = new Stage();
-		modifyStage(stage, windowTitle, width, height, resizable, exitOnClose, type, params);
-        return stage;
-	}
 	public static Stage openStage(String windowTitle,
 								  boolean resizable, boolean exitOnClose,
 								  SceneType type, Object... params) throws SceneCreationDataException

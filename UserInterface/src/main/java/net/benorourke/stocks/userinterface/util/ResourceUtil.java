@@ -1,5 +1,6 @@
 package net.benorourke.stocks.userinterface.util;
 
+import javafx.scene.text.Font;
 import net.benorourke.stocks.userinterface.StockApplication;
 
 import java.net.URL;

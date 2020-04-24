@@ -11,6 +11,18 @@ public class Tuple<K, V>
         this.b = b;
     }
 
+    @Override
+    public int hashCode()
+    {
+        return a.hashCode() * 31 + b.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj)
+    {
+        return (obj instanceof Tuple) ? obj.hashCode() == hashCode() : false;
+    }
+
     public K getA()
     {
         return a;

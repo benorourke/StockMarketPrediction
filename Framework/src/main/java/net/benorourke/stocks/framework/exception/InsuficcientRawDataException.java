@@ -10,7 +10,7 @@ public class InsuficcientRawDataException extends Exception
 
     public InsuficcientRawDataException(List<DataType> missingTypes)
     {
-        super("ModelData cannot be pre-processed with missing feedforward");
+        super("Data cannot be pre-processed with missing data");
 
         this.missingTypes = missingTypes;
     }

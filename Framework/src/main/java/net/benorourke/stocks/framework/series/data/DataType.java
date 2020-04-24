@@ -13,65 +13,11 @@ import net.benorourke.stocks.framework.series.data.impl.StockQuote;
  */
 public interface DataType<T extends Data>
 {
-    DataType<StockQuote> STOCK_QUOTE = new DataType<StockQuote>()
-    {
-        @Override
-        public String getName()
-        {
-            return "Stock Quote";
-        }
-
-        @Override
-        public JsonAdapter<StockQuote> getAdapter()
-        {
-            return new StockQuoteAdapter();
-        }
-    };
-    DataType<Document> DOCUMENT = new DataType<Document>()
-    {
-        @Override
-        public String getName()
-        {
-            return "Document";
-        }
-
-        @Override
-        public JsonAdapter<Document> getAdapter()
-        {
-            return new DocumentAdapter();
-        }
-    };
-    DataType<CleanedDocument> CLEANED_DOCUMENT = new DataType<CleanedDocument>()
-    {
-        @Override
-        public String getName()
-        {
-            return "Cleaned Document";
-        }
-
-        @Override
-        public JsonAdapter<CleanedDocument> getAdapter()
-        {
-            return null;
-        }
-    };
-    DataType<CleanedDocument> PROCESSED_DOCUMENT = new DataType<CleanedDocument>()
-    {
-        @Override
-        public String getName()
-        {
-            return "Processed Document";
-        }
-
-        @Override
-        public JsonAdapter<CleanedDocument> getAdapter()
-        {
-            return null;
-        }
-    };
+    DataType<StockQuote> STOCK_QUOTE = () -> "Stock Quote";
+    DataType<Document> DOCUMENT = () -> "Document";
+    DataType<CleanedDocument> CLEANED_DOCUMENT = () -> "Cleaned Document";
+    DataType<CleanedDocument> PROCESSED_DOCUMENT = () -> "Processed Document";
 
     String getName();
-
-    JsonAdapter<T> getAdapter();
 
 }

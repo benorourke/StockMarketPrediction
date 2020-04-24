@@ -16,7 +16,7 @@ import java.util.concurrent.*;
  */
 public class TaskManager
 {
-    // TODO - Synchronise the methods that remove/add to queues using a single lock
+    // TODO - Synchronise the methods that remove/set to queues using a single lock
 
     @ThreadSynchronised
     private final ScheduledExecutorService executor;

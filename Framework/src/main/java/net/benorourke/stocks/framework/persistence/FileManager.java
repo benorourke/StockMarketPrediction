@@ -116,7 +116,7 @@ public class FileManager
     //////////////////////////////////////////////////////////////////
 
     /**
-     * Get the parent directory that contains all TimeSeries sub-directories.
+     * Get the parent splash that contains all TimeSeries sub-directories.
      * @return
      */
     public File getTimeSeriesParentDirectory()
@@ -125,7 +125,7 @@ public class FileManager
     }
 
     /**
-     * Get the directory for a given TimeSeries' name.
+     * Get the splash for a given TimeSeries' name.
      * @return
      */
     public File getTimeSeriesDirectory(String name)
@@ -179,6 +179,21 @@ public class FileManager
     public File getProcessedCorpusFile(TimeSeries timeSeries)
     {
         return new File(getProcessedDataStoreDirectory(timeSeries) + File.separator + "processed.json");
+    }
+
+    public File getTrainedDirectory(TimeSeries timeSeries)
+    {
+        return new File(getTimeSeriesDirectory(timeSeries), "models");
+    }
+
+    public File getModelFile(TimeSeries timeSeries, String modelName)
+    {
+        return new File(getTrainedDirectory(timeSeries) + File.separator + modelName.toLowerCase() + ".model");
+    }
+
+    public File getModelEvaluationFile(TimeSeries timeSeries, String modelName)
+    {
+        return new File(getTrainedDirectory(timeSeries) + File.separator + modelName.toLowerCase() + "-evaluation.json");
     }
 
 }

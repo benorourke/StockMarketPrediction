@@ -41,7 +41,7 @@ public class DailyCollectionSession<T extends Data> extends CollectionSession<T>
         cal.add(Calendar.DAY_OF_MONTH, 1);
         currentDate = cal.getTime();
 
-        return new Query(prev, prev, completeQuery.getStock());
+        return new Query(prev, prev);
     }
 
     @Override
