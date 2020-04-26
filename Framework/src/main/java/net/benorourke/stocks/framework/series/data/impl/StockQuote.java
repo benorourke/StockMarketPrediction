@@ -22,6 +22,21 @@ public class StockQuote extends Data
         data[StockQuoteDataType.VOLUME.index()] = (double) volume;
     }
 
+    @Override
+    public boolean isDuplicate(Data other)
+    {
+        if (!(other instanceof StockQuote))
+            return false;
+
+        StockQuote qOther = (StockQuote) other;
+
+        for (int i = 0; i < data.length; i ++)
+            if (data[i] != qOther.data[i])
+                return false;
+
+        return true;
+    }
+
     public double getOpen()
     {
         return data[StockQuoteDataType.OPEN.index()];

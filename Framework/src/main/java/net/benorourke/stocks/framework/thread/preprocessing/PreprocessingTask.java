@@ -213,10 +213,7 @@ public class PreprocessingTask implements Task<TaskDescription, PreprocessingRes
 
     private void executeLoadQuotes()
     {
-        Class<? extends DataSource<StockQuote>> stockQuoteSourceClazz
-                = (Class<? extends DataSource<StockQuote>>) stockQuoteSource.getClass();
-
-        loadedQuotes.addAll(store.loadRawStockQuotes(stockQuoteSourceClazz));
+        loadedQuotes.addAll(store.loadRawStockQuotes(stockQuoteSource));
         Framework.info("Loaded " + loadedQuotes.size() + " quotes to pre-process");
     }
 
@@ -237,9 +234,7 @@ public class PreprocessingTask implements Task<TaskDescription, PreprocessingRes
             Framework.info("Loading from DocumentSource " + source.getClass().getSimpleName()
                                 + " (" + currentSource + '/' + totalSources + ")");
 
-            Class<? extends DataSource<Document>> documentSourceClazz
-                    = (Class<? extends DataSource<Document>>) source.getClass();
-            loadedCorpus.addAll(store.loadRawDocuments(documentSourceClazz));
+            loadedCorpus.addAll(store.loadRawDocuments(source));
             int loaded = loadedCorpus.size() - documentsLoaded;
 
             currentSource ++;

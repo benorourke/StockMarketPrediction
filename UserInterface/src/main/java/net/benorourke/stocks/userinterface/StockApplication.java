@@ -3,6 +3,7 @@ package net.benorourke.stocks.userinterface;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import net.benorourke.stocks.framework.Configuration;
 import net.benorourke.stocks.userinterface.scene.SceneHelper;
 import net.benorourke.stocks.userinterface.scene.SceneType;
@@ -13,18 +14,16 @@ import org.slf4j.LoggerFactory;
 public class StockApplication extends Application
 {
     private static final long BACKGROUND_SLEEP_DELAY = 100;
-    private static final Logger LOGGER;
-
-    static
-    {
-        LOGGER = LoggerFactory.getLogger(StockApplication.class);
-    }
+    private static final Logger LOGGER  = LoggerFactory.getLogger(StockApplication.class);
 
     private static BackgroundThread backgroundThread;
 
     public StockApplication()
     {
-        backgroundThread = new BackgroundThread(new Configuration(), BACKGROUND_SLEEP_DELAY);
+        Configuration config = new Configuration();
+        config.setTaskPoolSize(Constants.TASK_POOL_SIZE);
+
+        backgroundThread = new BackgroundThread(config, BACKGROUND_SLEEP_DELAY);
         backgroundThread.setName("Background Thread");
         backgroundThread.start();
     }
@@ -32,10 +31,10 @@ public class StockApplication extends Application
     @Override
     public void start(Stage stage) throws Exception
     {
-//        stage.initStyle(StageStyle.UNDECORATED);
+        stage.initStyle(StageStyle.UNDECORATED);
         SceneHelper.modifyStage(stage, Constants.APPLICATION_NAME,
                                 Constants.APPLICATION_WIDTH_MIN, Constants.APPLICATION_HEIGHT_MIN,
-                        false, true, SceneType.DASHBOARD);
+                        false, false, true, SceneType.DASHBOARD);
         stage.requestFocus();
     }
 
@@ -51,7 +50,6 @@ public class StockApplication extends Application
 
     public static void runBgThread(BackgroundRunnable runnable)
     {
-        // TODO - set as Daemon Thread (low prior, background thread)?
         new Thread(() -> backgroundThread.queueRunnable(runnable)).start();
     }
 

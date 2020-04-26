@@ -3,6 +3,8 @@ package net.benorourke.stocks.userinterface.scene.dashboard;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXDatePicker;
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -12,6 +14,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.SingleSelectionModel;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -79,6 +82,8 @@ public class DashboardController extends Controller
     @FXML private JFXDatePicker collectionCollectDataPickerFrom, collectionCollectDataPickerTo;
     @FXML private VBox collectionCollectBox;
     @FXML private JFXButton collectionCollectButton;
+    // missing data & duplicates
+    @FXML private JFXButton collectionDuplicatesRemove;
 
     // TRAINING:
     @FXML private Label trainingHandlerCount;
@@ -96,6 +101,7 @@ public class DashboardController extends Controller
     //      MISC
     //////////////////////////////////////////////////////////////////
     @FXML private Label tasksRunningLabel;
+    @FXML private FontAwesomeIcon shutdownIcon;
 
     public DashboardController()
     {
@@ -131,8 +137,11 @@ public class DashboardController extends Controller
                                           collectionDataPresentBox,
                                           collectionCollectSourceComboBox,
                                           collectionCollectDataPickerFrom, collectionCollectDataPickerTo,
-                                          collectionCollectBox, collectionCollectButton);
+                                          collectionCollectBox, collectionCollectButton,
+                                         collectionDuplicatesRemove);
         paneHandlers[DashboardPane.PRE_PROCESSING.ordinal()] =
+                new PreprocessingHandler(this, model);
+        paneHandlers[DashboardPane.TRAINING.ordinal()] =
                 new TrainingPaneHandler(this, model,
                                         trainingHandlerCount, trainingComboBox, trainingFieldBox, trainButton);
         paneHandlers[DashboardPane.EVALUATION.ordinal()] =
@@ -144,6 +153,8 @@ public class DashboardController extends Controller
 
             handler.initialise();
         }
+
+        shutdownIcon.addEventFilter(MouseEvent.MOUSE_PRESSED, mouseEvent -> System.exit(0));
     }
 
     private List<HBox> getNavBarBoxes(Parent parent)

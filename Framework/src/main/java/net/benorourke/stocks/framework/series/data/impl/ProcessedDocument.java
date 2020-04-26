@@ -19,6 +19,19 @@ public class ProcessedDocument extends Data
         this.featureVectors = featureVectors;
     }
 
+    /**
+     * Duplicate data is a problem at the cleaning level, once here (during later pre-processing stages),
+     * this becomes less relevant.
+     *
+     * @param other
+     * @return
+     */
+    @Override
+    public boolean isDuplicate(Data other)
+    {
+        return false;
+    }
+
     public Map<FeatureRepresenter<CleanedDocument>, double[]> getFeatureVectors()
     {
         return featureVectors;

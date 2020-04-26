@@ -15,6 +15,12 @@ import java.util.Map;
  */
 public class StockQuoteFeatureRepresenter implements FeatureRepresenter<StockQuote>
 {
+    private StockQuoteDataType[] dataTypes;
+
+    public StockQuoteFeatureRepresenter(StockQuoteDataType[] dataTypes)
+    {
+        this.dataTypes = dataTypes;
+    }
 
     @Override
     public DataType<StockQuote> getTypeFor()
@@ -28,13 +34,21 @@ public class StockQuoteFeatureRepresenter implements FeatureRepresenter<StockQuo
     @Override
     public int getVectorSize()
     {
-        return StockQuoteDataType.values().length;
+        return dataTypes.length;
     }
 
     @Override
     public double[] getVectorRepresentation(StockQuote datapoint)
     {
-        return Arrays.copyOf(datapoint.getData(), getVectorSize());
+        double[] vector = new double[dataTypes.length];
+
+        for (int i = 0; i < dataTypes.length; i ++)
+        {
+            StockQuoteDataType type = dataTypes[i];
+            vector[i] = datapoint.getData()[type.ordinal()];
+        }
+
+        return vector;
     }
 
     @Override
@@ -47,6 +61,11 @@ public class StockQuoteFeatureRepresenter implements FeatureRepresenter<StockQuo
     public CombinationPolicy getCombinationPolicy()
     {
         return CombinationPolicy.TAKE_MEAN_AVERAGE;
+    }
+
+    public StockQuoteDataType[] getDataTypes()
+    {
+        return dataTypes;
     }
 
 }

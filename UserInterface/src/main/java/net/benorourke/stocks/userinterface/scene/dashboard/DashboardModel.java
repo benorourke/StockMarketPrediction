@@ -135,6 +135,7 @@ public class DashboardModel
         return timeSeries;
     }
 
+    @Nullable
     public TimeSeries getCurrentlySelectedTimeSeries()
     {
         return currentlySelectedTimeSeries;

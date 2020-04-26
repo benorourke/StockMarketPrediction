@@ -62,4 +62,13 @@
 .button-primary {
     -fx-background-color: #3792ed;
     -fx-text-fill: #ffffff;
+    -fx-pref-width: 150px;
+    -fx-pref-height: 15px;
+}
+
+.button-negative {
+    -fx-background-color: #FF0000;
+    -fx-text-fill: #ffffff;
+    -fx-pref-width: 150px;
+    -fx-pref-height: 15px;
 }

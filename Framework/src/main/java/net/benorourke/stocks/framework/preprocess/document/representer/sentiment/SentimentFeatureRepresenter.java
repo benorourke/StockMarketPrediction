@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-public class SentimentFeatureRepresenter implements FeatureRepresenter<CleanedDocument>
+public abstract class SentimentFeatureRepresenter implements FeatureRepresenter<CleanedDocument>
 {
     @Nullable
     private StanfordCoreNLP pipeline;
@@ -30,24 +30,29 @@ public class SentimentFeatureRepresenter implements FeatureRepresenter<CleanedDo
     @Override
     public void initialise(List<CleanedDocument> corpus)
     {
-        Framework.info("[SentimentFeatureRepresenter] Creating Pipeline [Processing]");
+        Framework.info("[" + getClass().getSimpleName() + "] Creating Pipeline [Processing]");
 
         Properties props = new Properties();
         String annotators = "tokenize, ssplit, pos, lemma, parse, sentiment";
         props.put("annotators", annotators);
         pipeline = new StanfordCoreNLP(props);
 
-        Framework.info("[SentimentFeatureRepresenter] Created Pipeline [Processing]");
+        Framework.info("[" + getClass().getSimpleName() + "] Created Pipeline [Processing]");
     }
 
     @Override
-    public int getVectorSize()
+    public String getName()
     {
-        return Sentiment.values().length;
+        return "Sentiment";
     }
 
     @Override
-    public double[] getVectorRepresentation(CleanedDocument document)
+    public CombinationPolicy getCombinationPolicy()
+    {
+        return CombinationPolicy.TAKE_MODE_AVERAGE; // TODO - check whether we should use mode?
+    }
+
+    public Sentiment determineSentiment(CleanedDocument document)
     {
         final Annotation doc = new Annotation(document.getOriginalContent());
         pipeline.annotate(doc);
@@ -77,19 +82,7 @@ public class SentimentFeatureRepresenter implements FeatureRepresenter<CleanedDo
             }
         }
 
-        return mode.toInputVector();
-    }
-
-    @Override
-    public String getName()
-    {
-        return "Sentiment";
-    }
-
-    @Override
-    public CombinationPolicy getCombinationPolicy()
-    {
-        return CombinationPolicy.TAKE_MODE_AVERAGE; // TODO - check whether we should use mode?
+        return mode;
     }
 
 }

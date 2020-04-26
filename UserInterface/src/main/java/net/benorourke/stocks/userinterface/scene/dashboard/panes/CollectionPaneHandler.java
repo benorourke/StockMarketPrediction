@@ -14,6 +14,7 @@ import javafx.scene.layout.VBox;
 import net.benorourke.stocks.framework.Framework;
 import net.benorourke.stocks.framework.collection.Query;
 import net.benorourke.stocks.framework.collection.datasource.DataSource;
+import net.benorourke.stocks.framework.collection.datasource.DataSourceManager;
 import net.benorourke.stocks.framework.collection.datasource.variable.CollectionVariable;
 import net.benorourke.stocks.framework.collection.session.filter.CollectionFilter;
 import net.benorourke.stocks.framework.exception.TaskAlreadyPresentException;
@@ -34,10 +35,7 @@ import net.benorourke.stocks.userinterface.util.Constants;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -63,12 +61,16 @@ public class CollectionPaneHandler extends PaneHandler
     /** First is always the API Key */
     @Nullable private Parent[] collectionCollectionBoxVariables;
 
+    // Missing / Duplicate Data
+    private JFXButton collectionDuplicatesRemove;
+
     public CollectionPaneHandler(DashboardController controller, DashboardModel model,
                                  JFXComboBox<String> collectionComboBox, TabPane collectionTabPane,
                                  VBox collectionDataPresentBox,
                                  JFXComboBox collectionCollectSourceComboBox,
                                  JFXDatePicker collectionCollectDataPickerFrom, JFXDatePicker collectionCollectDataPickerTo,
-                                 VBox collectionCollectBox, JFXButton collectionCollectButton)
+                                 VBox collectionCollectBox, JFXButton collectionCollectButton,
+                                 JFXButton collectionDuplicatesRemove)
     {
         super(controller, model);
 
@@ -80,11 +82,13 @@ public class CollectionPaneHandler extends PaneHandler
         this.collectionCollectDataPickerTo = collectionCollectDataPickerTo;
         this.collectionCollectBox = collectionCollectBox;
         this.collectionCollectButton = collectionCollectButton;
+        this.collectionDuplicatesRemove = collectionDuplicatesRemove;
     }
 
     @Override
     public void initialise()
     {
+        // POPULATE TAB PANE
         collectionComboBox.getItems().addAll(COMBO_OPTIONS);
         collectionComboBox.valueProperty().addListener((observable, oldValue, newValue) ->
         {
@@ -100,6 +104,7 @@ public class CollectionPaneHandler extends PaneHandler
         // Show Overview to begin with
         collectionComboBox.getSelectionModel().select(0);
 
+        // COLLECTION
         collectionCollectDataPickerTo.setValue(LocalDate.now());
 
         collectionCollectButton.setOnMouseClicked(event -> onCollectClicked(model.getCurrentlySelectedTimeSeries(),
@@ -120,6 +125,9 @@ public class CollectionPaneHandler extends PaneHandler
             // Select the first source - there's several inbuilt ones so this is safe
            collectionCollectSourceComboBox.getSelectionModel().select(0);
         });
+
+        // DUPLICATES / MISSING DATA
+        collectionDuplicatesRemove.setOnMouseClicked(event -> onDuplicatesRemoveClicked());
     }
 
     @Override
@@ -280,7 +288,7 @@ public class CollectionPaneHandler extends PaneHandler
     {
         if(series == null)
         {
-            controller.snackbar(Controller.SnackbarType.ERROR, "Select a Time Series to begin collecting!");
+            controller.snackbarNullTimeSeries();
             return;
         }
         if (!checkCollectVariableFieldsLoaded(true)) return;
@@ -326,9 +334,8 @@ public class CollectionPaneHandler extends PaneHandler
                     final List<T> data = result.getData();
 
                     TimeSeriesManager manager = framework.getTimeSeriesManager();
-                    Class<? extends DataSource<T>> sourceClazz = (Class<? extends DataSource<T>>) source.getClass();
                     // Write the data to the file
-                    manager.onDataCollected(series, sourceClazz, data, false);
+                    manager.onDataCollected(series, source, data, false);
 
                     runUIThread(() ->
                     {
@@ -448,5 +455,41 @@ public class CollectionPaneHandler extends PaneHandler
     //////////////////////////////////////////////////////////////////
     //      MISSING / DUPLICATE
     //////////////////////////////////////////////////////////////////
+
+    private void onDuplicatesRemoveClicked()
+    {
+        final TimeSeries series = model.getCurrentlySelectedTimeSeries();
+        if(series == null)
+        {
+            controller.snackbarNullTimeSeries();
+            return;
+        }
+
+        runBgThread(framework ->
+        {
+            DataSourceManager sourceManager = framework.getDataSourceManager();
+            TimeSeriesManager seriesManager = framework.getTimeSeriesManager();
+
+            Map<DataSource, Integer> cleanResults = new HashMap<>();
+            for (DataSource source : sourceManager.getDataSources())
+            {
+                int cleaned = seriesManager.cleanDuplicateData(series, source);
+
+                if (cleaned != 0)
+                    cleanResults.put(source, cleaned);
+            }
+
+            runUIThread(() ->
+            {
+                int total = cleanResults.values().stream().mapToInt(i -> i).sum();
+                controller.snackbar(Controller.SnackbarType.INFO, "Removed " + total + " duplicate data");
+
+                // Ensure they're still viewing the same series before we update
+                if (model.getCurrentlySelectedTimeSeries() != null
+                        && model.getCurrentlySelectedTimeSeries().equals(series))
+                    updateDataPresent(series);
+            });
+        });
+    }
 
 }

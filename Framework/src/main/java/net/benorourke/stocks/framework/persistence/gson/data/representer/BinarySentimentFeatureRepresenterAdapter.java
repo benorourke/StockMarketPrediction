@@ -7,20 +7,20 @@ import net.benorourke.stocks.framework.preprocess.quote.StockQuoteFeatureReprese
 
 import java.lang.reflect.Type;
 
-public class SentimentFeatureRepresenterAdapter extends JsonAdapter<SentimentFeatureRepresenter>
+public class BinarySentimentFeatureRepresenterAdapter extends JsonAdapter<BinarySentimentFeatureRepresenterAdapter>
 {
 
     @Override
-    public JsonElement serialize(SentimentFeatureRepresenter representer, Type typeOfSrc, JsonSerializationContext context)
+    public JsonElement serialize(BinarySentimentFeatureRepresenterAdapter representer, Type typeOfSrc, JsonSerializationContext context)
     {
         return new JsonObject();
     }
 
     @Override
-    public SentimentFeatureRepresenter deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
+    public BinarySentimentFeatureRepresenterAdapter deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
             throws JsonParseException
     {
-        return new SentimentFeatureRepresenter();
+        return new BinarySentimentFeatureRepresenterAdapter();
     }
 
 }

@@ -19,6 +19,16 @@ public class Document extends Data
         this.documentType = documentType;
     }
 
+    @Override
+    public boolean isDuplicate(Data other)
+    {
+        if (!(other instanceof Document))
+            return false;
+
+        Document dOther = (Document) other;
+        return content.toLowerCase().equalsIgnoreCase(dOther.content.toLowerCase());
+    }
+
     public String getContent()
     {
         return content;

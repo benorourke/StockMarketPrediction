@@ -5,6 +5,9 @@ import net.benorourke.stocks.framework.collection.datasource.DataSource;
 import net.benorourke.stocks.framework.persistence.FileManager;
 import net.benorourke.stocks.framework.persistence.store.DataStore;
 import net.benorourke.stocks.framework.series.data.Data;
+import net.benorourke.stocks.framework.series.data.DataType;
+import net.benorourke.stocks.framework.series.data.impl.Document;
+import net.benorourke.stocks.framework.series.data.impl.StockQuote;
 import net.benorourke.stocks.framework.util.Initialisable;
 import net.benorourke.stocks.framework.util.Tuple;
 
@@ -140,24 +143,30 @@ public class TimeSeriesManager implements Initialisable
     /**
      *
      * @param series
-     * @param dataSourceClass
+     * @param dataSource
      * @param data
      * @param overwrite whether to overwrite any existing data
      * @param <T>
      */
-    public <T extends Data> void onDataCollected(TimeSeries series, Class<? extends DataSource<T>> dataSourceClass,
-                                                 Collection<T> data, boolean overwrite)
+    public <T extends Data> void onDataCollected(TimeSeries series, DataSource<T> source, List<T> data,
+                                                 boolean overwrite)
     {
         int newCount = 0;
 
         if (overwrite)
         {
-            int count = getDataStore(series).writeRawData(dataSourceClass, data);
+            int count = getDataStore(series).writeRawData(source, data);
             Framework.info("Wrote (overwrite=true) " + count + " Data into TimeSeries " + series.toString());
         }
         else
         {
-            Tuple<Integer, Integer> res = getDataStore(series).injectRawData(dataSourceClass, data);
+            Tuple<Integer, Integer> res = null;
+            if (source.getDataType().equals(DataType.STOCK_QUOTE))
+                res = getDataStore(series).injectRawQuotes((DataSource<StockQuote>) source,
+                                                           (List<StockQuote>) data);
+            else if (source.getDataType().equals(DataType.DOCUMENT))
+                res = getDataStore(series).injectRawDocuments((DataSource<Document>) source,
+                                                              (List<Document>) data);
             newCount = res.getA();
             Framework.info("Injected (overwrite=false) " + res.getB() + " Data into TimeSeries " + series.toString());
         }
@@ -165,12 +174,34 @@ public class TimeSeriesManager implements Initialisable
         if (newCount != 0)
         {
             // Save the TimeSeries with the updated feedforward counts
-            series.getRawDataCounts().put(dataSourceClass, newCount);
+            series.getRawDataCounts().put(source.getClass(), newCount);
             save(series);
         }
         else
             Framework.error("Error in writing any Data into TimeSeries " + series.toString()
                                 + "(overwrite=" + overwrite + "). Collected Data Counts may be wrong.");
+    }
+
+    public <T extends Data> int cleanDuplicateData(TimeSeries series, DataSource<T> source)
+    {
+        DataStore store = getDataStore(series);
+
+        int amountCleaned = 0;
+        // Need to manually specify the types of data here, since we need to be careful of GSON type erasure:
+        if (source.getDataType().equals(DataType.STOCK_QUOTE))
+            amountCleaned = store.cleanDuplicateRawQuotes((DataSource<StockQuote>) source);
+        else if (source.getDataType().equals(DataType.DOCUMENT))
+            amountCleaned = store.cleanDuplicateRawDocuments((DataSource<Document>) source);
+
+        if (amountCleaned != 0)
+        {
+            // Update the amounts if they've been cleaned
+            Map<Class<? extends DataSource>, Integer> map = series.getRawDataCounts();
+            Class<? extends DataSource> key = source.getClass();
+            map.put(key, map.get(key) - amountCleaned);
+            save(series);
+        }
+        return amountCleaned;
     }
 
     public Map<DataSource, Integer> getCollectedDataCounts(TimeSeries series)
