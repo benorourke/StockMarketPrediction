@@ -143,18 +143,18 @@ public class Framework implements Initialisable
         return taskManager;
     }
 
+    public FeatureRepresenterManager getFeatureRepresenterManager()
+    {
+        return featureRepresenterManager;
+    }
+
     public ModelHandlerManager getModelHandlerManager()
     {
         return modelHandlerManager;
     }
 
-    /**
-     * This should only be accessed through the FileManager
-     * @return
-     */
     public Gson getGson()
     {
-        // TODO - Ensure this is thread-safe, it may be used concurrently
         return gson;
     }
 

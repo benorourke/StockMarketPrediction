@@ -17,7 +17,7 @@ import net.benorourke.stocks.framework.collection.datasource.DataSource;
 import net.benorourke.stocks.framework.collection.datasource.DataSourceManager;
 import net.benorourke.stocks.framework.collection.datasource.variable.CollectionVariable;
 import net.benorourke.stocks.framework.collection.session.filter.CollectionFilter;
-import net.benorourke.stocks.framework.exception.TaskAlreadyPresentException;
+import net.benorourke.stocks.framework.exception.TaskStartException;
 import net.benorourke.stocks.framework.series.TimeSeries;
 import net.benorourke.stocks.framework.series.TimeSeriesManager;
 import net.benorourke.stocks.framework.series.data.Data;
@@ -345,7 +345,7 @@ public class CollectionPaneHandler extends PaneHandler
                     });
                 }, Constants.COLLECTION_DELAY, Constants.COLLECTION_INTERVAL, TimeUnit.MILLISECONDS);
             }
-            catch (TaskAlreadyPresentException e)
+            catch (TaskStartException e)
             {
                 runUIThread(() ->
                 {

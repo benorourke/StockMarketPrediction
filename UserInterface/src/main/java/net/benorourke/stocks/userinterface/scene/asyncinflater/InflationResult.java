@@ -1,4 +1,4 @@
-package net.benorourke.stocks.userinterface.scene.task.asyncinflater;
+package net.benorourke.stocks.userinterface.scene.asyncinflater;
 
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;

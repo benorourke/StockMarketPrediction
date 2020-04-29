@@ -19,4 +19,9 @@ public class StringUtil
                   .concat("]");
     }
 
+    public static String formatDouble(double value)
+    {
+        return FORMAT.format(value);
+    }
+
 }

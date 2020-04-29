@@ -378,7 +378,76 @@
                   </Tab>
                   <Tab fx:id="preprocessingTab" text="Pre-processing">
                     <content>
-                      <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+                      <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                           <children>
+                              <HBox alignment="CENTER" minHeight="0.0" minWidth="0.0" prefHeight="695.0" prefWidth="1059.0" spacing="130.0">
+                                 <children>
+                                    <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="300.0" styleClass="content-box">
+                                       <children>
+                                          <Label text="FEATURES">
+                                             <padding>
+                                                <Insets bottom="15.0" left="20.0" top="15.0" />
+                                             </padding>
+                                             <font>
+                                                <Font size="20.0" />
+                                             </font>
+                                          </Label>
+                                          <ScrollPane hbarPolicy="NEVER" prefHeight="333.0" prefWidth="298.0" styleClass="training-scrollpane">
+                                             <content>
+                                                <AnchorPane prefHeight="264.0" prefWidth="294.0">
+                                                   <children>
+                                                      <VBox fx:id="preprocessingTogglesBox" prefHeight="328.0" prefWidth="291.0" />
+                                                   </children>
+                                                </AnchorPane>
+                                             </content>
+                                          </ScrollPane>
+                                       </children>
+                                    </VBox>
+                                    <VBox alignment="CENTER_LEFT" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="695.0" prefWidth="300.0" spacing="50.0">
+                                       <children>
+                                          <VBox alignment="CENTER_LEFT" prefHeight="180.0" prefWidth="100.0" styleClass="content-box">
+                                             <children>
+                                                <Label text="MISSING DATA POLICY">
+                                                   <padding>
+                                                      <Insets bottom="15.0" left="20.0" top="15.0" />
+                                                   </padding>
+                                                   <font>
+                                                      <Font size="20.0" />
+                                                   </font>
+                                                </Label>
+                                                <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0">
+                                                   <children>
+                                                      <JFXComboBox fx:id="preprocessingPolicyBox" />
+                                                   </children>
+                                                </VBox>
+                                             </children>
+                                          </VBox>
+                                          <VBox alignment="CENTER_LEFT" layoutX="10.0" layoutY="153.0" prefHeight="180.0" prefWidth="100.0" styleClass="content-box">
+                                             <children>
+                                                <Label text="PROCESS">
+                                                   <padding>
+                                                      <Insets bottom="15.0" left="20.0" top="15.0" />
+                                                   </padding>
+                                                   <font>
+                                                      <Font size="20.0" />
+                                                   </font>
+                                                </Label>
+                                                <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0">
+                                                   <children>
+                                                      <JFXButton fx:id="preprocessingBegin" buttonType="RAISED" prefHeight="15.0" prefWidth="150.0" styleClass="button-primary" text="Begin">
+                                                         <font>
+                                                            <Font size="17.0" />
+                                                         </font>
+                                                      </JFXButton>
+                                                   </children>
+                                                </VBox>
+                                             </children>
+                                          </VBox>
+                                       </children>
+                                    </VBox>
+                                 </children>
+                              </HBox>
+                           </children></AnchorPane>
                     </content>
                   </Tab>
                   <Tab fx:id="trainingTab" text="Training">
@@ -512,10 +581,19 @@
             </TabPane>
             <HBox alignment="CENTER_RIGHT" minHeight="-Infinity" minWidth="-Infinity" prefHeight="25.0" prefWidth="200.0" spacing="10.0">
                <children>
-                  <Label fx:id="tasksRunningLabel" text="0 Tasks Running">
+                  <HBox fx:id="tasksRunningBox" alignment="CENTER" spacing="5.0">
+                     <children>
+                        <FontAwesomeIcon fx:id="tasksRunningSpinner" iconName="SPINNER" />
+                        <Label fx:id="tasksRunningLabel" text="0 Tasks Running">
+                           <HBox.margin>
+                              <Insets />
+                           </HBox.margin>
+                        </Label>
+                     </children>
                      <HBox.margin>
-                        <Insets />
-                     </HBox.margin></Label>
+                        <Insets right="10.0" />
+                     </HBox.margin>
+                  </HBox>
                   <FontAwesomeIcon iconName="COG" />
                   <FontAwesomeIcon fx:id="shutdownIcon" iconName="POWER_OFF" layoutX="1051.0" layoutY="27.0" />
                </children>

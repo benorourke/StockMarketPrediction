@@ -31,10 +31,9 @@ public class StockApplication extends Application
     @Override
     public void start(Stage stage) throws Exception
     {
-        stage.initStyle(StageStyle.UNDECORATED);
         SceneHelper.modifyStage(stage, Constants.APPLICATION_NAME,
                                 Constants.APPLICATION_WIDTH_MIN, Constants.APPLICATION_HEIGHT_MIN,
-                        false, false, true, SceneType.DASHBOARD);
+                        false, true, SceneType.DASHBOARD);
         stage.requestFocus();
     }
 
@@ -51,6 +50,16 @@ public class StockApplication extends Application
     public static void runBgThread(BackgroundRunnable runnable)
     {
         new Thread(() -> backgroundThread.queueRunnable(runnable)).start();
+    }
+
+    public static void registerTaskAdapter(TaskUpdateAdapter adapter)
+    {
+        new Thread(() -> backgroundThread.queueAdapterChange(adapter, true)).start();
+    }
+
+    public static void unregisterTaskAdapter(TaskUpdateAdapter adapter)
+    {
+        new Thread(() -> backgroundThread.queueAdapterChange(adapter, false)).start();
     }
 
     public static void info(String message)

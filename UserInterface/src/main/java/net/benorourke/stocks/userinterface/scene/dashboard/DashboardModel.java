@@ -3,13 +3,16 @@ package net.benorourke.stocks.userinterface.scene.dashboard;
 import net.benorourke.stocks.framework.collection.datasource.DataSource;
 import net.benorourke.stocks.framework.model.ModelEvaluation;
 import net.benorourke.stocks.framework.model.ModelHandlerManager;
+import net.benorourke.stocks.framework.preprocess.FeatureRepresenter;
+import net.benorourke.stocks.framework.preprocess.FeatureRepresenterManager;
+import net.benorourke.stocks.framework.preprocess.assignment.MissingDataPolicy;
 import net.benorourke.stocks.framework.series.TimeSeries;
+import net.benorourke.stocks.framework.series.data.impl.CleanedDocument;
+import net.benorourke.stocks.framework.series.data.impl.StockQuote;
 import net.benorourke.stocks.framework.util.Nullable;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import static net.benorourke.stocks.userinterface.StockApplication.runBgThread;
 import static net.benorourke.stocks.userinterface.StockApplication.runUIThread;
@@ -26,6 +29,13 @@ public class DashboardModel
     private List<DataSource> dataSources;
     private DataSource currentlySelectedDataSource;
 
+    // PRE-PROCESSING
+    private Map<FeatureRepresenterManager.Metadata, FeatureRepresenter<StockQuote>> quoteFeatureRepresenters;
+    private Map<FeatureRepresenterManager.Metadata, FeatureRepresenter<CleanedDocument>> documentFeatureRepresenters;
+    private List<MissingDataPolicy> missingDataPolicies;
+
+    @Nullable private MissingDataPolicy currentlySelectedMissingDataPolicy;
+
     // TRAINING
     private List<ModelHandlerManager.RuntimeCreator> modelHandlerCreators;
 
@@ -36,9 +46,22 @@ public class DashboardModel
     protected DashboardModel(DashboardController controller)
     {
         this.controller = controller;
+
+        // Navbar
         timeSeries = new ArrayList<>();
+
+        // Collection
         dataSources = new ArrayList<>();
+
+        // Pre-processing
+        quoteFeatureRepresenters = new HashMap<>();
+        documentFeatureRepresenters = new HashMap<>();
+        missingDataPolicies = new ArrayList<>();
+
+        // Training
         modelHandlerCreators = new ArrayList<>();
+
+        // Evaluation
         trainedModels = new ArrayList<>();
     }
 
@@ -55,8 +78,7 @@ public class DashboardModel
 
             runUIThread(() ->
             {
-                timeSeries.clear();
-                timeSeries.addAll(clone);
+                timeSeries = clone;
                 onRetrieval.run();
             });
         });
@@ -71,8 +93,7 @@ public class DashboardModel
 
             runUIThread(() ->
             {
-                dataSources.clear();
-                dataSources.addAll(clone);
+                dataSources = clone;
                 if (onRetrieval != null) onRetrieval.run();
             });
         });
@@ -87,8 +108,28 @@ public class DashboardModel
 
             runUIThread(() ->
             {
-                modelHandlerCreators.clear();
-                modelHandlerCreators.addAll(creators);
+                modelHandlerCreators = creators;
+                onRetrieval.run();
+            });
+        });
+    }
+
+    public void acquireFeatureRepresentionData(Runnable onRetrieval)
+    {
+        runBgThread(framework ->
+        {
+            final Map<FeatureRepresenterManager.Metadata, FeatureRepresenter<StockQuote>> features =
+                    Collections.unmodifiableMap(framework.getFeatureRepresenterManager().getQuoteRepresenters());
+            final Map<FeatureRepresenterManager.Metadata, FeatureRepresenter<CleanedDocument>> documents =
+                    Collections.unmodifiableMap(framework.getFeatureRepresenterManager().getDocumentRepresenters());
+            final List<MissingDataPolicy> missingDataPolicies =
+                    Collections.unmodifiableList(framework.getFeatureRepresenterManager().getMissingDataPolicies());
+
+            runUIThread(() ->
+            {
+                this.quoteFeatureRepresenters = features;
+                this.documentFeatureRepresenters = documents;
+                this.missingDataPolicies = missingDataPolicies;
                 onRetrieval.run();
             });
         });
@@ -106,8 +147,7 @@ public class DashboardModel
 
             runUIThread(() ->
             {
-                trainedModels.clear();
-                trainedModels.addAll(trained);
+                trainedModels = trained;
                 onRetrieval.run();
             });
         });
@@ -174,6 +214,31 @@ public class DashboardModel
     public ModelEvaluation getLastAcquiredEvaluation()
     {
         return lastAcquiredEvaluation;
+    }
+
+    public Map<FeatureRepresenterManager.Metadata, FeatureRepresenter<StockQuote>> getQuoteFeatureRepresenters()
+    {
+        return quoteFeatureRepresenters;
+    }
+
+    public Map<FeatureRepresenterManager.Metadata, FeatureRepresenter<CleanedDocument>> getDocumentFeatureRepresenters()
+    {
+        return documentFeatureRepresenters;
+    }
+
+    public List<MissingDataPolicy> getMissingDataPolicies()
+    {
+        return missingDataPolicies;
+    }
+
+    public MissingDataPolicy getCurrentlySelectedMissingDataPolicy()
+    {
+        return currentlySelectedMissingDataPolicy;
+    }
+
+    public void setCurrentlySelectedMissingDataPolicy(MissingDataPolicy currentlySelectedMissingDataPolicy)
+    {
+        this.currentlySelectedMissingDataPolicy = currentlySelectedMissingDataPolicy;
     }
 
 }

@@ -4,6 +4,9 @@ import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXDatePicker;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
+import javafx.animation.Animation;
+import javafx.animation.Interpolator;
+import javafx.animation.RotateTransition;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -20,15 +23,25 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
+import javafx.util.Duration;
 import net.benorourke.stocks.framework.series.TimeSeries;
+import net.benorourke.stocks.framework.thread.Progress;
+import net.benorourke.stocks.framework.thread.TaskDescription;
 import net.benorourke.stocks.userinterface.StockApplication;
+import net.benorourke.stocks.userinterface.TaskUpdateAdapter;
+import net.benorourke.stocks.userinterface.exception.SceneCreationDataException;
 import net.benorourke.stocks.userinterface.scene.Controller;
 import net.benorourke.stocks.userinterface.scene.SceneHelper;
+import net.benorourke.stocks.userinterface.scene.SceneType;
 import net.benorourke.stocks.userinterface.scene.dashboard.panes.*;
+import net.benorourke.stocks.userinterface.util.Constants;
 import net.benorourke.stocks.userinterface.util.FontFamily;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.function.Predicate;
 
 public class DashboardController extends Controller
 {
@@ -85,6 +98,11 @@ public class DashboardController extends Controller
     // missing data & duplicates
     @FXML private JFXButton collectionDuplicatesRemove;
 
+    // PRE-PROCESSING:
+    @FXML private VBox preprocessingTogglesBox;
+    @FXML private JFXComboBox preprocessingPolicyBox;
+    @FXML private JFXButton preprocessingBegin;
+
     // TRAINING:
     @FXML private Label trainingHandlerCount;
     @FXML private JFXComboBox<String> trainingComboBox;
@@ -100,6 +118,8 @@ public class DashboardController extends Controller
     //////////////////////////////////////////////////////////////////
     //      MISC
     //////////////////////////////////////////////////////////////////
+    @FXML HBox tasksRunningBox;
+    @FXML FontAwesomeIcon tasksRunningSpinner;
     @FXML private Label tasksRunningLabel;
     @FXML private FontAwesomeIcon shutdownIcon;
 
@@ -140,7 +160,8 @@ public class DashboardController extends Controller
                                           collectionCollectBox, collectionCollectButton,
                                          collectionDuplicatesRemove);
         paneHandlers[DashboardPane.PRE_PROCESSING.ordinal()] =
-                new PreprocessingHandler(this, model);
+                new PreprocessingHandler(this, model, preprocessingTogglesBox, preprocessingPolicyBox,
+                                         preprocessingBegin);
         paneHandlers[DashboardPane.TRAINING.ordinal()] =
                 new TrainingPaneHandler(this, model,
                                         trainingHandlerCount, trainingComboBox, trainingFieldBox, trainButton);
@@ -154,7 +175,58 @@ public class DashboardController extends Controller
             handler.initialise();
         }
 
+        tasksRunningBox.setOnMouseClicked(event ->
+        {
+            try
+            {
+                SceneHelper.openStage(Constants.TASKS_NAME, Constants.TASKS_WIDTH_MIN, Constants.TASKS_HEIGHT_MIN,
+                                      false, false, SceneType.TASKS);
+            }
+            catch (SceneCreationDataException e)
+            {
+                e.printStackTrace();
+            }
+        });
+
+        tasksRunningSpinner.setVisible(false);
+        // Create a rotation to constantly rotate the spinner
+        RotateTransition spinnerTransition = new RotateTransition(Duration.seconds(2), tasksRunningSpinner);
+        spinnerTransition.setFromAngle(0);
+        spinnerTransition.setToAngle(360);
+        spinnerTransition.setInterpolator(Interpolator.LINEAR);
+        spinnerTransition.setCycleCount(Animation.INDEFINITE);
+        spinnerTransition.play();
         shutdownIcon.addEventFilter(MouseEvent.MOUSE_PRESSED, mouseEvent -> System.exit(0));
+
+        /**
+         * [0] - how many ticks elapsed, use this to prevent setting visible / invisible too often
+         */
+        final int[] ticksElapsed = new int[] { 0 };
+        StockApplication.registerTaskAdapter((descriptions, progresses) ->
+        {
+            final int finalTicksElapsed = ticksElapsed[0] ++;
+
+            // Only update the text every 20 cycles
+            if (finalTicksElapsed % 20 == 0)
+            {
+                // Filter out any task types that we chose to ignore (i.e. inflation)
+                Predicate<Map.Entry<UUID, TaskDescription>> filter =
+                        e -> !(Constants.TASKS_TO_IGNORE.contains(e.getValue().getType()));
+                final int count = (int) descriptions.entrySet().stream()
+                                                               .filter(filter)
+                                                               .count();
+                final String text = count + (count == 1 ? " Task" : " Tasks").concat(" Running");
+                StockApplication.runUIThread(() ->
+                {
+                    tasksRunningLabel.setText(text);
+
+                        if (count > 0)
+                            tasksRunningSpinner.setVisible(true);
+                        else
+                            tasksRunningSpinner.setVisible(false);
+                });
+            }
+        });
     }
 
     private List<HBox> getNavBarBoxes(Parent parent)

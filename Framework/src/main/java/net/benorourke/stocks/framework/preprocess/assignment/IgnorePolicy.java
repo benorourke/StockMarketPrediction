@@ -11,6 +11,12 @@ public class IgnorePolicy implements MissingDataPolicy
 {
 
     @Override
+    public String getName()
+    {
+        return "Ignore";
+    }
+
+    @Override
     public void handle(Map<Date, List<Data>> data, Map<Date, List<DataType>> missingTypes)
     {
         for (Date key : missingTypes.keySet())

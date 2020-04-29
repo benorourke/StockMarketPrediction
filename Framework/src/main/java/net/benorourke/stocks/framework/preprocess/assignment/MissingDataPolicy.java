@@ -10,6 +10,8 @@ import java.util.Map;
 public interface MissingDataPolicy
 {
 
+    String getName();
+
     /**
      *
      * @param data (contains a key for every date within missingTypes)

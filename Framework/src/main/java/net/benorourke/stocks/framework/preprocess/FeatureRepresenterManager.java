@@ -20,15 +20,15 @@ public class FeatureRepresenterManager implements Initialisable
 {
     private static final int[] MAX_TOP_TERMS = {2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192};
 
-    private final Map<FeatureRepresenterInfo, FeatureRepresenter<StockQuote>> quoteRepresenters;
-    private final Map<FeatureRepresenterInfo, FeatureRepresenter<CleanedDocument>> documentRepresenters;
+    private final Map<Metadata, FeatureRepresenter<StockQuote>> quoteRepresenters;
+    private final Map<Metadata, FeatureRepresenter<CleanedDocument>> documentRepresenters;
 
     private final List<MissingDataPolicy> missingDataPolicies;
 
     public FeatureRepresenterManager()
     {
-        quoteRepresenters = new HashMap<>();
-        documentRepresenters = new HashMap<>();
+        quoteRepresenters = new LinkedHashMap<>();
+        documentRepresenters = new LinkedHashMap<>();
         missingDataPolicies = new ArrayList<>();
     }
 
@@ -36,32 +36,29 @@ public class FeatureRepresenterManager implements Initialisable
     public void initialise()
     {
         // Stock Quotes
-        quoteRepresenters.put(new FeatureRepresenterInfo("Quote (With Volume)",
-                                              "Stock Quote Data with Volume Traded Present",
-                                                         StockQuoteDataType.values().length),
+        quoteRepresenters.put(new Metadata("Quote (With Volume)","Stock Quote Data with Volume Traded Present",
+                                           StockQuoteDataType.values().length),
                               new StockQuoteFeatureRepresenter(StockQuoteDataType.values()));
-        quoteRepresenters.put(new FeatureRepresenterInfo("Quote (With Volume)",
-                                              "Stock Quote Data with Volume Traded Excluded",
-                                      StockQuoteDataType.values().length - 1),
+        quoteRepresenters.put(new Metadata("Quote (No Volume)", "Stock Quote Data with Volume Traded Excluded",
+                        StockQuoteDataType.values().length - 1),
                               new StockQuoteFeatureRepresenter(quoteTypesWithoutVolume()));
 
         // Document: Sentiment
-        documentRepresenters.put(new FeatureRepresenterInfo("Binary Sentiment",
-                                                 "1 for mode Sentiment, 0 for all others",
-                                                            Sentiment.values().length),
+        documentRepresenters.put(new Metadata("Binary Sentiment", "1 for mode Sentiment, 0 for all others",
+                                              Sentiment.values().length),
                                  new BinarySentimentFeatureRepresenter());
-        documentRepresenters.put(new FeatureRepresenterInfo("Normalised Sentiment",
-                                                 "In the range of [0,1] depending how positive (most = 1, "
-                                                                    + "least = 0)", 1),
+        documentRepresenters.put(new Metadata("Normalised Sentiment",
+                                   "In the range of [0,1] depending how positive (most = 1, "
+                                                    + "least = 0)", 1),
                                  new NormalisedSentimentFeatureRepresenter());
 
         // Document: Top Term (TF_IDF)
         for (int maxTopTerms : MAX_TOP_TERMS)
         {
-            documentRepresenters.put(new FeatureRepresenterInfo("Top Term (TFIDF, " + maxTopTerms + ")",
-                                                     "Relevancy Metric: Term Frequency Inverse "
-                                                                    + "Document Frequency, Max Top Terms: " + maxTopTerms,
-                                                                maxTopTerms),
+            documentRepresenters.put(new Metadata("Top Term (TFIDF, " + maxTopTerms + ")",
+                                       "Relevancy Metric: Term Frequency Inverse Document Frequency, "
+                                                        + "Max Top Terms: " + maxTopTerms,
+                                                  maxTopTerms),
                                      new TopTermFeatureRepresenter(new TF_IDF(), maxTopTerms));
         }
 
@@ -77,12 +74,22 @@ public class FeatureRepresenterManager implements Initialisable
         return types.toArray(new StockQuoteDataType[StockQuoteDataType.values().length - 1]);
     }
 
+    public Map<Metadata, FeatureRepresenter<StockQuote>> getQuoteRepresenters()
+    {
+        return quoteRepresenters;
+    }
+
+    public Map<Metadata, FeatureRepresenter<CleanedDocument>> getDocumentRepresenters()
+    {
+        return documentRepresenters;
+    }
+
     public List<MissingDataPolicy> getMissingDataPolicies()
     {
         return missingDataPolicies;
     }
 
-    public class FeatureRepresenterInfo
+    public class Metadata
     {
         private String name, description;
         /**
@@ -90,7 +97,7 @@ public class FeatureRepresenterManager implements Initialisable
          */
         private int estimatedVectorWidth;
 
-        public FeatureRepresenterInfo(String name, String description, int estimatedVectorWidth)
+        public Metadata(String name, String description, int estimatedVectorWidth)
         {
             this.name = name;
             this.description = description;
@@ -106,8 +113,8 @@ public class FeatureRepresenterManager implements Initialisable
         @Override
         public boolean equals(Object obj)
         {
-            return obj instanceof FeatureRepresenterInfo
-                    && ((FeatureRepresenterInfo) obj).name.equalsIgnoreCase(name);
+            return obj instanceof Metadata
+                    && ((Metadata) obj).name.equalsIgnoreCase(name);
         }
 
         public String getName()
