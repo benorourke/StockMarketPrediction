@@ -121,8 +121,14 @@ public class TaskManager
     @ThreadSynchronised
     public void cancel(UUID taskId)
     {
+        if (!taskMap.containsKey(taskId)) return;
+
         TaskWrapper wrapper = taskMap.get(taskId);
         if(wrapper.hasHandle()) wrapper.getHandle().cancel(true);
+
+        taskMap.remove(taskId);
+        descriptionMap.remove(taskId);
+        progressMap.remove(taskId);
     }
 
     @ThreadSynchronised

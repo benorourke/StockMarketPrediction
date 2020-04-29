@@ -181,7 +181,7 @@ public class DashboardModel
         return currentlySelectedTimeSeries;
     }
 
-    public void setCurrentlySelectedTimeSeries(TimeSeries currentlySelectedTimeSeries)
+    public void setCurrentlySelectedTimeSeries(@Nullable TimeSeries currentlySelectedTimeSeries)
     {
         this.currentlySelectedTimeSeries = currentlySelectedTimeSeries;
     }

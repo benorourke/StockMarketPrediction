@@ -7,18 +7,18 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
-import net.benorourke.stocks.framework.Framework;
 import net.benorourke.stocks.framework.thread.Progress;
-import net.benorourke.stocks.framework.thread.ResultCallback;
 import net.benorourke.stocks.framework.thread.TaskDescription;
 import net.benorourke.stocks.framework.util.Nullable;
 import net.benorourke.stocks.framework.util.StringUtil;
 import net.benorourke.stocks.userinterface.StockApplication;
 import net.benorourke.stocks.userinterface.TaskUpdateAdapter;
+import net.benorourke.stocks.userinterface.exception.SceneCreationDataException;
 import net.benorourke.stocks.userinterface.scene.Controller;
 import net.benorourke.stocks.userinterface.scene.SceneHelper;
-import net.benorourke.stocks.userinterface.scene.asyncinflater.InflationResult;
+import net.benorourke.stocks.userinterface.scene.SceneType;
 import net.benorourke.stocks.userinterface.util.Constants;
 
 import java.util.*;
@@ -29,7 +29,14 @@ public class TasksController extends Controller implements TaskUpdateAdapter
 {
     private static final String TASKS_ROW_FXML = "/tasks-row.fxml";
 
-    @FXML private VBox parentBox;
+    /**
+     * Only one TasksController instance can be open at a time
+     */
+    @Nullable
+    private static Stage singletonInstance;
+
+    @FXML
+    private VBox parentBox;
 
     private final Map<UUID, TaskRow> rows;
 
@@ -38,14 +45,34 @@ public class TasksController extends Controller implements TaskUpdateAdapter
         this.rows = new LinkedHashMap<>();
     }
 
+    public static void show()
+    {
+        if (singletonInstance == null)
+        {
+            try
+            {
+                singletonInstance = SceneHelper.openStage(Constants.TASKS_NAME,
+                                                          Constants.TASKS_WIDTH_MIN, Constants.TASKS_HEIGHT_MIN,
+                                                 false, false, SceneType.TASKS);
+                singletonInstance.requestFocus();
+            }
+            catch (SceneCreationDataException e) { return; }
+        }
+
+        singletonInstance.requestFocus();
+    }
+
     @FXML
     public void initialize()
     {
         StockApplication.registerTaskAdapter(this);
         Platform.runLater(() ->
         {
-            parentBox.getScene().addEventFilter(WindowEvent.WINDOW_CLOSE_REQUEST,
-                                                e -> StockApplication.unregisterTaskAdapter(this));
+            parentBox.getScene().addEventFilter(WindowEvent.WINDOW_CLOSE_REQUEST, e ->
+            {
+                StockApplication.unregisterTaskAdapter(this);
+                singletonInstance = null;
+            });
         });
     }
 
@@ -54,7 +81,7 @@ public class TasksController extends Controller implements TaskUpdateAdapter
     {
         // Removed ignored types (i.e. Inflation)
         Predicate<Map.Entry<UUID, TaskDescription>> filter =
-                e -> !(Constants.TASKS_TO_IGNORE.contains(e.getValue().getType()));
+                e -> Constants.TASKS_TO_IGNORE.contains(e.getValue().getType());
         Set<UUID> toRemove = new HashSet<>(descriptions.entrySet().stream()
                                                                   .filter(filter).map(e -> e.getKey())
                                                                   .collect(Collectors.toList()));
@@ -94,7 +121,7 @@ public class TasksController extends Controller implements TaskUpdateAdapter
         if (progress == 0.0)
             row.getProgressBar().setProgress(JFXProgressBar.INDETERMINATE_PROGRESS);
         else
-            row.getProgressBar().setProgress(progress);
+            row.getProgressBar().setProgress(progress / 100D);
 
         String formattedProgress = StringUtil.formatDouble(progress);
         row.getProgressLabel().setText(formattedProgress);
@@ -114,7 +141,7 @@ public class TasksController extends Controller implements TaskUpdateAdapter
 
     public void addStarted(Set<UUID> ids, Map<UUID, TaskDescription> descriptions, Map<UUID, Progress> progresses)
     {
-        for (UUID id : ids)
+        for (final UUID id : ids)
         {
             final TaskRow row = new TaskRow(id);
             rows.put(id, row);
@@ -130,14 +157,19 @@ public class TasksController extends Controller implements TaskUpdateAdapter
                 Label text = (Label) loader.getNamespace().get("text");
                 Label progressLabel = (Label) loader.getNamespace().get("progressLabel");
                 JFXProgressBar progressBar = (JFXProgressBar) loader.getNamespace().get("progressBar");
+                VBox cancelParent = (VBox) loader.getNamespace().get("cancelParent");
 
                 row.setParent(parent);
                 row.setText(text);
                 row.setProgressLabel(progressLabel);
                 row.setProgressBar(progressBar);
+                row.setCancelParent(cancelParent);
 
                 text.setText(taskName);
                 setProgress(row, progress);
+                cancelParent.setOnMouseClicked(e -> StockApplication.runBgThread(
+                                                            framework -> framework.getTaskManager().cancel(id)));
+
                 parentBox.getChildren().add(parent);
             });
         }
@@ -152,5 +184,7 @@ public class TasksController extends Controller implements TaskUpdateAdapter
             rows.remove(id);
         }
     }
+
+
 
 }

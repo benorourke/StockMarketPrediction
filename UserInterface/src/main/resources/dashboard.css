@@ -25,9 +25,10 @@
     -fx-text-fill: #ffffff;
 }
 .scroll-pane {
-   -fx-background: #414b56;
-   -fx-border-color: #414b56;
-   -fx-focus-color: transparent;
+    -fx-background: #414b56;
+    -fx-border-color: #414b56;
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
 }
 .navbar .seriesheader {
     -fx-text-fill: #fff;

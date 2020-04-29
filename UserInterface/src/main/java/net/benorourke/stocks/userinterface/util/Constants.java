@@ -1,11 +1,12 @@
 package net.benorourke.stocks.userinterface.util;
 
+import net.benorourke.stocks.framework.thread.TaskDescription;
 import net.benorourke.stocks.framework.thread.TaskType;
 import net.benorourke.stocks.userinterface.scene.asyncinflater.InflationTask;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Predicate;
 
 public class Constants
 {
@@ -16,6 +17,10 @@ public class Constants
     public static final String TASKS_NAME = "Running Tasks";
     public static final int TASKS_WIDTH_MIN = 512;
     public static final int TASKS_HEIGHT_MIN = 288;
+    public static final long UPDATE_TASKS_EVERY = 200;
+    /**
+     * Tasks not to show in the TasksController.
+     */
     public static final List<TaskType> TASKS_TO_IGNORE = Arrays.asList(InflationTask.TYPE);
 
     public static final int TASK_POOL_SIZE = 10;

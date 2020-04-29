@@ -62,6 +62,7 @@ public class InflationTask implements Task<TaskDescription, InflationResult>
     {
         StockApplication.info("Inflating FXML at " + fxmlPath);
         loader = new FXMLLoader(ResourceUtil.getResource(fxmlPath));
+        progress.setProgress(25); // Some arbitrary progress
         try
         {
             loaded = loader.load();

@@ -160,7 +160,18 @@
               <tabs>
                   <Tab fx:id="homeTab" text="Home">
                     <content>
-                      <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+                      <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                           <children>
+                              <VBox prefHeight="695.0" prefWidth="1059.0">
+                                 <children>
+                                    <JFXButton fx:id="homeTestButton" buttonType="RAISED" prefHeight="242.0" prefWidth="359.0">
+                                       <font>
+                                          <Font size="57.0" />
+                                       </font>
+                                    </JFXButton>
+                                 </children>
+                              </VBox>
+                           </children></AnchorPane>
                     </content>
                   </Tab>
                   <Tab fx:id="collectionTab" text="Collection">

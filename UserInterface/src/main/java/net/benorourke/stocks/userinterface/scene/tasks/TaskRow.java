@@ -3,6 +3,7 @@ package net.benorourke.stocks.userinterface.scene.tasks;
 import com.jfoenix.controls.JFXProgressBar;
 import javafx.scene.Parent;
 import javafx.scene.control.Label;
+import javafx.scene.layout.VBox;
 import net.benorourke.stocks.framework.util.Nullable;
 
 import java.util.UUID;
@@ -27,6 +28,8 @@ public class TaskRow
     private Label progressLabel;
     @Nullable
     private JFXProgressBar progressBar;
+    @Nullable
+    private VBox cancelParent;
 
     public TaskRow(UUID taskId)
     {
@@ -73,4 +76,13 @@ public class TaskRow
         this.progressBar = progressBar;
     }
 
+    public VBox getCancelParent()
+    {
+        return cancelParent;
+    }
+
+    public void setCancelParent(VBox cancelParent)
+    {
+        this.cancelParent = cancelParent;
+    }
 }

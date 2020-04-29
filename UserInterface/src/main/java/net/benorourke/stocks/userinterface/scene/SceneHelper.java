@@ -55,7 +55,6 @@ public class SceneHelper
 			{
 				StockApplication.error("Unable to begin RemoveDuplicatesTask for " + fxmlPath, e);
 			}
-			// TODO: Throw inflation exception on some thread if unsuccessful
 		});
 	}
 

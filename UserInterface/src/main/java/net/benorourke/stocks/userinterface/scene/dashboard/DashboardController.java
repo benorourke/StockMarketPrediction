@@ -24,6 +24,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.util.Duration;
+import net.benorourke.stocks.framework.Framework;
 import net.benorourke.stocks.framework.series.TimeSeries;
 import net.benorourke.stocks.framework.thread.Progress;
 import net.benorourke.stocks.framework.thread.TaskDescription;
@@ -34,6 +35,7 @@ import net.benorourke.stocks.userinterface.scene.Controller;
 import net.benorourke.stocks.userinterface.scene.SceneHelper;
 import net.benorourke.stocks.userinterface.scene.SceneType;
 import net.benorourke.stocks.userinterface.scene.dashboard.panes.*;
+import net.benorourke.stocks.userinterface.scene.tasks.TasksController;
 import net.benorourke.stocks.userinterface.util.Constants;
 import net.benorourke.stocks.userinterface.util.FontFamily;
 
@@ -84,6 +86,9 @@ public class DashboardController extends Controller
     //      PANE HANDLERS
     //////////////////////////////////////////////////////////////////
     private PaneHandler[] paneHandlers;
+
+    // HOME:
+    @FXML private JFXButton homeTestButton;
 
     // COLLECTION:
     @FXML private JFXComboBox<String> collectionComboBox;
@@ -140,18 +145,15 @@ public class DashboardController extends Controller
             HBox row = navRows.get(i);
             DashboardPane paneFor = DashboardPane.values()[i];
 
-            row.setOnMouseClicked( event ->
-            {
-                String id = row.getId();
-
-                selectNavbarBox(row, paneFor);
-            });
+            row.setOnMouseClicked( event -> selectNavbarBox(row, paneFor));
         }
 
         model.acquireTimeSeries( () -> updateTimeSeries() );
 
         // Initialise pane handlers
         paneHandlers = new PaneHandler[DashboardPane.values().length];
+        paneHandlers[DashboardPane.HOME.ordinal()] =
+                new HomePaneHandler(this, model, homeTestButton);
         paneHandlers[DashboardPane.COLLECTION.ordinal()] =
                 new CollectionPaneHandler(this, model, collectionComboBox, collectionTabPane,
                                           collectionDataPresentBox,
@@ -169,23 +171,11 @@ public class DashboardController extends Controller
                 new EvaluationPaneHandler(this, model, evaluationComboBox, evaluationChart);
 
         for (PaneHandler handler : paneHandlers)
-        {
-            if (handler == null) continue;  // TODO Remove null check; shouldn't be null when completed
-
             handler.initialise();
-        }
 
         tasksRunningBox.setOnMouseClicked(event ->
         {
-            try
-            {
-                SceneHelper.openStage(Constants.TASKS_NAME, Constants.TASKS_WIDTH_MIN, Constants.TASKS_HEIGHT_MIN,
-                                      false, false, SceneType.TASKS);
-            }
-            catch (SceneCreationDataException e)
-            {
-                e.printStackTrace();
-            }
+            TasksController.show();
         });
 
         tasksRunningSpinner.setVisible(false);
@@ -198,34 +188,24 @@ public class DashboardController extends Controller
         spinnerTransition.play();
         shutdownIcon.addEventFilter(MouseEvent.MOUSE_PRESSED, mouseEvent -> System.exit(0));
 
-        /**
-         * [0] - how many ticks elapsed, use this to prevent setting visible / invisible too often
-         */
-        final int[] ticksElapsed = new int[] { 0 };
         StockApplication.registerTaskAdapter((descriptions, progresses) ->
         {
-            final int finalTicksElapsed = ticksElapsed[0] ++;
-
-            // Only update the text every 20 cycles
-            if (finalTicksElapsed % 20 == 0)
+            // Filter out any task types that we chose to ignore (i.e. inflation)
+            Predicate<Map.Entry<UUID, TaskDescription>> filter =
+                    e -> !Constants.TASKS_TO_IGNORE.contains(e.getValue().getType());
+            final int count = (int) descriptions.entrySet().stream()
+                                                           .filter(filter)
+                                                           .count();
+            final String text = count + (count == 1 ? " Task" : " Tasks").concat(" Running");
+            StockApplication.runUIThread(() ->
             {
-                // Filter out any task types that we chose to ignore (i.e. inflation)
-                Predicate<Map.Entry<UUID, TaskDescription>> filter =
-                        e -> !(Constants.TASKS_TO_IGNORE.contains(e.getValue().getType()));
-                final int count = (int) descriptions.entrySet().stream()
-                                                               .filter(filter)
-                                                               .count();
-                final String text = count + (count == 1 ? " Task" : " Tasks").concat(" Running");
-                StockApplication.runUIThread(() ->
-                {
-                    tasksRunningLabel.setText(text);
+                tasksRunningLabel.setText(text);
 
-                        if (count > 0)
-                            tasksRunningSpinner.setVisible(true);
-                        else
-                            tasksRunningSpinner.setVisible(false);
-                });
-            }
+                    if (count > 0)
+                        tasksRunningSpinner.setVisible(true);
+                    else
+                        tasksRunningSpinner.setVisible(false);
+            });
         });
     }
 
@@ -250,6 +230,11 @@ public class DashboardController extends Controller
 
         for (HBox row : navRows)
             changeNavbarClassRecursive(row, toSelect.equals(row));
+    }
+
+    private void selectNavbarBox(DashboardPane paneFor)
+    {
+        selectNavbarBox(navRows.get(paneFor.ordinal()), paneFor);
     }
 
     private void changeNavbarClassRecursive(Parent node, boolean selected)
@@ -283,7 +268,6 @@ public class DashboardController extends Controller
 
     private void updateTimeSeries()
     {
-        StockApplication.debug("Updating time series");
         paneVBox.getChildren().clear();
         for (TimeSeries series : model.getTimeSeries())
         {
@@ -315,14 +299,18 @@ public class DashboardController extends Controller
 
     public void changeTimeSeries(TimeSeries series)
     {
+        // Don't change it if they're already on it
+        if (model.getCurrentlySelectedTimeSeries() != null && model.getCurrentlySelectedTimeSeries().equals(series))
+            return;
+
         model.setCurrentlySelectedTimeSeries(series);
 
         for (PaneHandler handler : paneHandlers)
         {
-            if (handler == null) continue;  // TODO Remove null check; shouldn't be null when completed
-
             handler.onTimeSeriesChanged(series);
         }
+
+        selectNavbarBox(DashboardPane.HOME);
     }
 
 }

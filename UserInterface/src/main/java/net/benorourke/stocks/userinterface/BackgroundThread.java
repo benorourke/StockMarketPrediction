@@ -7,6 +7,7 @@ import net.benorourke.stocks.framework.thread.TaskDescription;
 import net.benorourke.stocks.framework.thread.TaskManager;
 import net.benorourke.stocks.framework.util.ThreadSynchronised;
 import net.benorourke.stocks.framework.util.Tuple;
+import net.benorourke.stocks.userinterface.util.Constants;
 
 import java.util.*;
 import java.util.concurrent.BlockingQueue;
@@ -21,6 +22,8 @@ public class BackgroundThread extends Thread
     private final BlockingQueue<Tuple<TaskUpdateAdapter, Boolean>> adapterChanges;
     private final long sleepDelay;
 
+    private long lastUpdatedTasks;
+
     public BackgroundThread(Configuration configuration, long sleepDelay)
     {
         this.framework = new Framework(configuration);
@@ -29,6 +32,8 @@ public class BackgroundThread extends Thread
         this.runnables = new LinkedBlockingQueue<>();
         this.adapterChanges = new LinkedBlockingQueue<>();
         this.sleepDelay = sleepDelay;
+
+        this.lastUpdatedTasks = System.currentTimeMillis();
     }
 
     @ThreadSynchronised
@@ -39,8 +44,11 @@ public class BackgroundThread extends Thread
 
         while (true)
         {
+            long now = System.currentTimeMillis();
+
             runBackgroundRunnables();
-            checkTaskUpdates();
+            if (now - lastUpdatedTasks >= Constants.UPDATE_TASKS_EVERY)
+                checkTaskUpdates();
             // Consume all the Task callbacks within the Framework
             framework.getTaskManager().consumeCallbacks();
 
@@ -106,7 +114,11 @@ public class BackgroundThread extends Thread
         Map<UUID, Progress> progresses = taskManager.cloneProgressMap();
         for (TaskUpdateAdapter adapter : adapters)
         {
-            adapter.update(descriptions, progresses);
+            // Clone the instances in case any of the adapters alter the values within
+            Map<UUID, TaskDescription> descClone = new HashMap<>(descriptions);
+            Map<UUID, Progress> progClone = new HashMap<>(progresses);
+
+            adapter.update(descClone, progClone);
         }
     }
 
