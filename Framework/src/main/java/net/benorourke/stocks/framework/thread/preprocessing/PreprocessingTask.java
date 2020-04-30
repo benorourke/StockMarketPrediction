@@ -4,18 +4,20 @@ import net.benorourke.stocks.framework.Framework;
 import net.benorourke.stocks.framework.collection.datasource.DataSource;
 import net.benorourke.stocks.framework.exception.InsuficcientRawDataException;
 import net.benorourke.stocks.framework.model.ModelData;
+import net.benorourke.stocks.framework.model.ProcessedDataset;
 import net.benorourke.stocks.framework.persistence.store.DataStore;
 import net.benorourke.stocks.framework.preprocess.FeatureRepresenter;
 import net.benorourke.stocks.framework.preprocess.Preprocess;
-import net.benorourke.stocks.framework.preprocess.ProgressAdapter;
 import net.benorourke.stocks.framework.preprocess.assignment.LabelAssignment;
 import net.benorourke.stocks.framework.preprocess.assignment.MissingDataPolicy;
 import net.benorourke.stocks.framework.preprocess.assignment.ModelDataMapper;
 import net.benorourke.stocks.framework.preprocess.document.DimensionalityReduction;
 import net.benorourke.stocks.framework.preprocess.document.FeatureRepresentation;
-import net.benorourke.stocks.framework.model.ProcessedDataset;
 import net.benorourke.stocks.framework.series.data.DataType;
-import net.benorourke.stocks.framework.series.data.impl.*;
+import net.benorourke.stocks.framework.series.data.impl.CleanedDocument;
+import net.benorourke.stocks.framework.series.data.impl.Document;
+import net.benorourke.stocks.framework.series.data.impl.ProcessedDocument;
+import net.benorourke.stocks.framework.series.data.impl.StockQuote;
 import net.benorourke.stocks.framework.thread.Progress;
 import net.benorourke.stocks.framework.thread.Task;
 import net.benorourke.stocks.framework.thread.TaskDescription;
@@ -47,7 +49,7 @@ public class PreprocessingTask implements Task<TaskDescription, PreprocessingRes
         PROGRESS_STEPS.put(PROGRESS_LOAD_CORPUS, 7.5D);
         PROGRESS_STEPS.put(PROGRESS_REDUCE_DIMENSIONALITY, 25.0D);
         PROGRESS_STEPS.put(PROGRESS_REPRESENT_FEATURES, 35.0D);
-        PROGRESS_STEPS.put(PROGRESS_ASSIGN_LABELS, 25.0D);
+        PROGRESS_STEPS.put(PROGRESS_ASSIGN_LABELS, 20.0D);
     }
 
     private final DataStore store;

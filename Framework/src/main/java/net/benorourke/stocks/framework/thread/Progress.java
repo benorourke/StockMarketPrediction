@@ -1,9 +1,7 @@
 package net.benorourke.stocks.framework.thread;
 
-import net.benorourke.stocks.framework.Framework;
 import net.benorourke.stocks.framework.util.Tuple;
 
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -67,7 +65,7 @@ public class Progress
             double from = bounds.getA(), to = bounds.getB();
             double delta = to - from;
 
-            double truePercentage = to + (delta * subPercentage / 100);
+            double truePercentage = from + (delta * Math.min(100, subPercentage) / 100);
             progress.progress = truePercentage;
         }
 

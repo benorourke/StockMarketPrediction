@@ -19,6 +19,8 @@ public class LabelAssignment extends Preprocess< Tuple<List<ProcessedDocument>,
                                                        List<StockQuote>>,
                                                  List<ModelData>>
 {
+    private static final int PROGRESS_ITERATIONS = 10;
+
     private final MissingDataPolicy missingDataPolicy;
     private final ModelDataMapper mapper;
 
@@ -71,13 +73,16 @@ public class LabelAssignment extends Preprocess< Tuple<List<ProcessedDocument>,
         if (!missingTypes.isEmpty())
             missingDataPolicy.handle(combined, missingTypes);
 
+        // Progress only changes here - the prior tasks are trivial
         return assignLabels(combined);
     }
 
     private List<ModelData> assignLabels(Map<Date, List<Data>> data)
     {
-        List<ModelData> assigned = new ArrayList<>();
+        int total = data.entrySet().stream().mapToInt(e -> e.getValue().size()).sum();
+        int count = 0;
 
+        List<ModelData> assigned = new ArrayList<>();
         for (Map.Entry<Date, List<Data>> entry : data.entrySet())
         {
             List<ProcessedDocument> docs = new ArrayList<>();
@@ -92,10 +97,15 @@ public class LabelAssignment extends Preprocess< Tuple<List<ProcessedDocument>,
                     quotes.add((StockQuote) elem);
                 else
                     Framework.info("Unable to cast " + elem.getClass().getSimpleName() + " while assigning labels");
+
+                count ++;
+                if(count % PROGRESS_ITERATIONS == 0)
+                    onProgressChanged(( (double) count / (double) total) * 100 );
             }
             assigned.add(mapper.toModelData(entry.getKey(), docs, quotes));
         }
 
+        onProgressChanged(100.0D);
         return assigned;
     }
 
