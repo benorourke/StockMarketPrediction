@@ -30,11 +30,10 @@ import java.util.List;
 public class DashboardController extends Controller
 {
     private static final double HEADER_SIZE = 24;
-    private static final String NAV_BUTTON_STYLE_CLASS = "nav-row";
-    private static final String NAV_BUTTON_ICON_STYLE_CLASS = "nav-icon";
-    private static final String NAV_BUTTON_TEXT_STYLE_CLASS = "nav-text";
-    private static final String NAV_BUTTON_ICON_SELECTED_STYLE_CLASS = "nav-icon-selected";
-    private static final String NAV_BUTTON_TEXT_SELECTED_STYLE_CLASS = "nav-text-selected";
+    private static final String NAV_BUTTON_STYLE_CLASS = "nav-button";
+    private static final String NAV_BUTTON_SELECTED_STYLE_CLASS = "nav-button-selected";
+    private static final String SERIES_STYLE_CLASS = "series";
+    private static final String SERIES_SELECTED_STYLE_CLASS = "series-selected";
     private static final String SERIES_ROW_FXML = "/dashboard-series.fxml";
     public static final String INPUT_FIELD_FXML = "/dashboard-input-field.fxml";
 
@@ -55,6 +54,8 @@ public class DashboardController extends Controller
     @FXML private AnchorPane root;
     @FXML private Label headerLabel; // Nav bar header
     @FXML private VBox paneVBox;
+
+    @FXML private JFXButton createSeriesButton;
 
     private List<HBox> navRows;
 
@@ -122,14 +123,15 @@ public class DashboardController extends Controller
     {
         // Initialise Navbars & nav-pane
         headerLabel.setFont(FontFamily.OPENSANS_BOLD.get(HEADER_SIZE));
-        navRows.addAll(getNavBarBoxes(root));
+        navRows.addAll(resolveNavBarButtons(root));
         for (int i = 0; i < navRows.size(); i ++)
         {
             HBox row = navRows.get(i);
             DashboardPane paneFor = DashboardPane.values()[i];
 
-            row.setOnMouseClicked( event -> selectNavbarBox(row, paneFor));
+            row.setOnMouseClicked( event -> selectNavbarButton(row, paneFor));
         }
+        createSeriesButton.setOnMouseClicked(e -> onCreateSeriesClicked());
 
         // Acquire all of the present timeserise
         model.acquireTimeSeries( () -> updateTimeSeries() );
@@ -162,61 +164,37 @@ public class DashboardController extends Controller
         bottomBarHelper.initialise();
     }
 
-    private List<HBox> getNavBarBoxes(Parent parent)
+    private List<HBox> resolveNavBarButtons(Parent parent)
     {
         List<HBox> boxes = new ArrayList<>();
         for (Node child : parent.getChildrenUnmodifiable())
         {
             // Recurse the function to get all nav bar boxes contained within this child
-            if (child instanceof Parent) boxes.addAll(getNavBarBoxes((Parent) child));
+            if (child instanceof Parent) boxes.addAll(resolveNavBarButtons((Parent) child));
 
-            if (child instanceof HBox && child.getStyleClass().contains(NAV_BUTTON_STYLE_CLASS))
+            boolean isNavButton = child.getStyleClass().contains(NAV_BUTTON_STYLE_CLASS)
+                                        || child.getStyleClass().contains(NAV_BUTTON_SELECTED_STYLE_CLASS);
+            if (child instanceof HBox && isNavButton)
                 boxes.add((HBox) child);
         }
         return boxes;
     }
 
-    private void selectNavbarBox(HBox toSelect, DashboardPane paneFor)
+    private void selectNavbarButton(HBox toSelect, DashboardPane paneFor)
     {
         SingleSelectionModel<Tab> model = tabPane.getSelectionModel();
         model.select(paneFor.ordinal());
 
         for (HBox row : navRows)
-            changeNavbarClassRecursive(row, toSelect.equals(row));
+        {
+            row.getStyleClass().clear();
+            row.getStyleClass().add(toSelect.equals(row) ? NAV_BUTTON_SELECTED_STYLE_CLASS : NAV_BUTTON_STYLE_CLASS);
+        }
     }
 
-    private void selectNavbarBox(DashboardPane paneFor)
+    private void selectNavbarButton(DashboardPane paneFor)
     {
-        selectNavbarBox(navRows.get(paneFor.ordinal()), paneFor);
-    }
-
-    private void changeNavbarClassRecursive(Parent node, boolean selected)
-    {
-        for (Node child : node.getChildrenUnmodifiable())
-        {
-            if (child instanceof Parent)
-                changeNavbarClassRecursive((Parent) child, selected);
-            else
-                changeNavbarClass(child, selected);
-        }
-
-        changeNavbarClass(node, selected);
-    }
-
-    private void changeNavbarClass(Node node, boolean selected)
-    {
-        if (node.getStyleClass().contains(NAV_BUTTON_ICON_STYLE_CLASS)
-                || node.getStyleClass().contains(NAV_BUTTON_ICON_SELECTED_STYLE_CLASS))
-        {
-            node.getStyleClass().clear();
-            node.getStyleClass().add(selected ? NAV_BUTTON_ICON_SELECTED_STYLE_CLASS : NAV_BUTTON_ICON_STYLE_CLASS);
-        }
-        else if (node.getStyleClass().contains(NAV_BUTTON_TEXT_STYLE_CLASS)
-                || node.getStyleClass().contains(NAV_BUTTON_TEXT_SELECTED_STYLE_CLASS))
-        {
-            node.getStyleClass().clear();
-            node.getStyleClass().add(selected ? NAV_BUTTON_TEXT_SELECTED_STYLE_CLASS : NAV_BUTTON_TEXT_STYLE_CLASS);
-        }
+        selectNavbarButton(navRows.get(paneFor.ordinal()), paneFor);
     }
 
     private void updateTimeSeries()
@@ -224,7 +202,8 @@ public class DashboardController extends Controller
         paneVBox.getChildren().clear();
         for (TimeSeries series : model.getTimeSeries())
         {
-            SceneHelper.inflateAsync(SERIES_ROW_FXML, result -> {
+            SceneHelper.inflateAsync(SERIES_ROW_FXML, result ->
+            {
                 if (!result.isSuccess()) return;
 
                 FXMLLoader loader = result.getLoader();
@@ -240,17 +219,16 @@ public class DashboardController extends Controller
                 name.setText(series.getName());
                 stock.setText(series.getStock());
 
-                parent.setOnMouseClicked(event -> changeTimeSeries(series));
+                parent.setOnMouseClicked(event -> changeTimeSeries(series, parent));
                 paneVBox.getChildren().add(parent);
+
+                if (model.getCurrentlySelectedTimeSeries() == null)
+                    changeTimeSeries(series, parent);
             });
         }
-
-        if (model.getTimeSeries().size() > 0)
-            changeTimeSeries(model.getTimeSeries().get(0));
-
     }
 
-    public void changeTimeSeries(TimeSeries series)
+    public void changeTimeSeries(TimeSeries series, Node parent)
     {
         // Don't change it if they're already on it
         if (model.getCurrentlySelectedTimeSeries() != null && model.getCurrentlySelectedTimeSeries().equals(series))
@@ -263,7 +241,22 @@ public class DashboardController extends Controller
             handler.onTimeSeriesChanged(series);
         }
 
-        selectNavbarBox(DashboardPane.HOME);
+        selectTimeSeries(parent);
+        selectNavbarButton(DashboardPane.HOME);
+    }
+
+    private void selectTimeSeries(Node parent)
+    {
+        for (Node node : paneVBox.getChildren())
+        {
+            node.getStyleClass().clear();
+            node.getStyleClass().add(parent.equals(node) ? SERIES_SELECTED_STYLE_CLASS : SERIES_STYLE_CLASS);
+        }
+    }
+
+    private void onCreateSeriesClicked()
+    {
+
     }
 
 }

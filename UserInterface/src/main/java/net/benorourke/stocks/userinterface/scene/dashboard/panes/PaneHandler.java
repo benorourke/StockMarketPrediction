@@ -25,7 +25,7 @@ public abstract class PaneHandler implements Initialisable
      *
      * @return
      */
-    public abstract boolean canSwitch();
+//    public abstract boolean canSwitch();
 
     public DashboardController getController()
     {

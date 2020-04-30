@@ -9,21 +9,23 @@
     -fx-background-color: #3792ed;
     -fx-text-fill: #fff;
 }
-.navbar .nav-row:hover {
+
+.navbar .nav-button:hover {
     -fx-background-color: #3a424d;
 }
-.navbar .nav-row .nav-icon {
+.navbar .nav-button .nav-icon {
     -fx-fill: #7f8287;
 }
-.navbar .nav-row .nav-text {
+.navbar .nav-button .nav-text {
     -fx-text-fill: #9198a3;
 }
-.navbar .nav-row .nav-icon-selected {
+.navbar .nav-button-selected .nav-icon {
     -fx-fill: #ffffff;
 }
-.navbar .nav-row .nav-text-selected {
+.navbar .nav-button-selected .nav-text {
     -fx-text-fill: #ffffff;
 }
+
 .scroll-pane {
     -fx-background: #414b56;
     -fx-border-color: #414b56;
@@ -32,6 +34,13 @@
 }
 .navbar .seriesheader {
     -fx-text-fill: #fff;
+}
+
+.series .series-content-container .series-content {
+    -fx-text-fill: #9198a3;
+}
+.series-selected .series-content-container .series-content {
+    -fx-text-fill: #ffffff;
 }
 
 .tab-pane {
