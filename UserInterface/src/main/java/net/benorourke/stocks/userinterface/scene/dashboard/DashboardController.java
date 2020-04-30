@@ -4,10 +4,6 @@ import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXDatePicker;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
-import javafx.animation.Animation;
-import javafx.animation.Interpolator;
-import javafx.animation.RotateTransition;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -17,33 +13,19 @@ import javafx.scene.control.Label;
 import javafx.scene.control.SingleSelectionModel;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
-import javafx.util.Duration;
-import net.benorourke.stocks.framework.Framework;
 import net.benorourke.stocks.framework.series.TimeSeries;
-import net.benorourke.stocks.framework.thread.Progress;
-import net.benorourke.stocks.framework.thread.TaskDescription;
-import net.benorourke.stocks.userinterface.StockApplication;
-import net.benorourke.stocks.userinterface.TaskUpdateAdapter;
-import net.benorourke.stocks.userinterface.exception.SceneCreationDataException;
 import net.benorourke.stocks.userinterface.scene.Controller;
 import net.benorourke.stocks.userinterface.scene.SceneHelper;
-import net.benorourke.stocks.userinterface.scene.SceneType;
 import net.benorourke.stocks.userinterface.scene.dashboard.panes.*;
-import net.benorourke.stocks.userinterface.scene.tasks.TasksController;
-import net.benorourke.stocks.userinterface.util.Constants;
 import net.benorourke.stocks.userinterface.util.FontFamily;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.function.Predicate;
 
 public class DashboardController extends Controller
 {
@@ -121,12 +103,13 @@ public class DashboardController extends Controller
     private EvaluationPaneHandler evaluationPaneHandler;
 
     //////////////////////////////////////////////////////////////////
-    //      MISC
+    //      BOTTOM BAR
     //////////////////////////////////////////////////////////////////
     @FXML HBox tasksRunningBox;
     @FXML FontAwesomeIcon tasksRunningSpinner;
     @FXML private Label tasksRunningLabel;
     @FXML private FontAwesomeIcon shutdownIcon;
+    private BottomBarHelper bottomBarHelper;
 
     public DashboardController()
     {
@@ -148,9 +131,10 @@ public class DashboardController extends Controller
             row.setOnMouseClicked( event -> selectNavbarBox(row, paneFor));
         }
 
+        // Acquire all of the present timeserise
         model.acquireTimeSeries( () -> updateTimeSeries() );
 
-        // Initialise pane handlers
+        // Instantiate and initialise pane handlers
         paneHandlers = new PaneHandler[DashboardPane.values().length];
         paneHandlers[DashboardPane.HOME.ordinal()] =
                 new HomePaneHandler(this, model, homeTestButton);
@@ -173,40 +157,9 @@ public class DashboardController extends Controller
         for (PaneHandler handler : paneHandlers)
             handler.initialise();
 
-        tasksRunningBox.setOnMouseClicked(event ->
-        {
-            TasksController.show();
-        });
-
-        tasksRunningSpinner.setVisible(false);
-        // Create a rotation to constantly rotate the spinner
-        RotateTransition spinnerTransition = new RotateTransition(Duration.seconds(2), tasksRunningSpinner);
-        spinnerTransition.setFromAngle(0);
-        spinnerTransition.setToAngle(360);
-        spinnerTransition.setInterpolator(Interpolator.LINEAR);
-        spinnerTransition.setCycleCount(Animation.INDEFINITE);
-        spinnerTransition.play();
-        shutdownIcon.addEventFilter(MouseEvent.MOUSE_PRESSED, mouseEvent -> System.exit(0));
-
-        StockApplication.registerTaskAdapter((descriptions, progresses) ->
-        {
-            // Filter out any task types that we chose to ignore (i.e. inflation)
-            Predicate<Map.Entry<UUID, TaskDescription>> filter =
-                    e -> !Constants.TASKS_TO_IGNORE.contains(e.getValue().getType());
-            final int count = (int) descriptions.entrySet().stream()
-                                                           .filter(filter)
-                                                           .count();
-            final String text = count + (count == 1 ? " Task" : " Tasks").concat(" Running");
-            StockApplication.runUIThread(() ->
-            {
-                tasksRunningLabel.setText(text);
-
-                    if (count > 0)
-                        tasksRunningSpinner.setVisible(true);
-                    else
-                        tasksRunningSpinner.setVisible(false);
-            });
-        });
+        // Create relevant listeners & animations for the bottom bar
+        bottomBarHelper = new BottomBarHelper(tasksRunningBox, tasksRunningSpinner, tasksRunningLabel, shutdownIcon);
+        bottomBarHelper.initialise();
     }
 
     private List<HBox> getNavBarBoxes(Parent parent)

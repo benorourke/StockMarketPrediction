@@ -12,7 +12,6 @@ import javafx.stage.WindowEvent;
 import net.benorourke.stocks.framework.thread.Progress;
 import net.benorourke.stocks.framework.thread.TaskDescription;
 import net.benorourke.stocks.framework.util.Nullable;
-import net.benorourke.stocks.framework.util.StringUtil;
 import net.benorourke.stocks.userinterface.StockApplication;
 import net.benorourke.stocks.userinterface.TaskUpdateAdapter;
 import net.benorourke.stocks.userinterface.exception.SceneCreationDataException;
@@ -21,6 +20,7 @@ import net.benorourke.stocks.userinterface.scene.SceneHelper;
 import net.benorourke.stocks.userinterface.scene.SceneType;
 import net.benorourke.stocks.userinterface.util.Constants;
 
+import java.text.DecimalFormat;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -28,6 +28,7 @@ import java.util.stream.Collectors;
 public class TasksController extends Controller implements TaskUpdateAdapter
 {
     private static final String TASKS_ROW_FXML = "/tasks-row.fxml";
+    private static final DecimalFormat PERCENTAGE_FORMAT = new DecimalFormat("##");
 
     /**
      * Only one TasksController instance can be open at a time
@@ -123,8 +124,7 @@ public class TasksController extends Controller implements TaskUpdateAdapter
         else
             row.getProgressBar().setProgress(progress / 100D);
 
-        String formattedProgress = StringUtil.formatDouble(progress);
-        row.getProgressLabel().setText(formattedProgress);
+        row.getProgressLabel().setText(PERCENTAGE_FORMAT.format(progress).concat("%"));
     }
 
     public void updateExisting(Set<UUID> ids, Map<UUID, TaskDescription> descriptions, Map<UUID, Progress> progresses)
@@ -184,7 +184,5 @@ public class TasksController extends Controller implements TaskUpdateAdapter
             rows.remove(id);
         }
     }
-
-
 
 }
