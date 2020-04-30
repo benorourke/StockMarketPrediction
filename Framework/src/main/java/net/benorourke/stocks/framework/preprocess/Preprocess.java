@@ -7,28 +7,28 @@ import java.util.Set;
 
 public abstract class Preprocess<S, U> implements Initialisable
 {
-    private final Set<ProgressCallback> progressCallbacks;
+    private final Set<ProgressAdapter> progressAdapters;
 
     public Preprocess()
     {
-        progressCallbacks = new HashSet<ProgressCallback>();
+        progressAdapters = new HashSet<ProgressAdapter>();
     }
 
     public abstract U preprocess(S data);
 
-    public void addProgressCallback(ProgressCallback callback)
+    public void addProgressAdapter(ProgressAdapter callback)
     {
-        progressCallbacks.add(callback);
+        progressAdapters.add(callback);
     }
 
     public void onProgressChanged(double progress)
     {
-        progressCallbacks.stream().forEach(c -> c.onProgressUpdate(progress));
+        progressAdapters.stream().forEach(c -> c.onProgressUpdate(progress));
     }
 
-    public void removeProgressCallback(ProgressCallback callback)
+    public void removeProgressAdapter(ProgressAdapter callback)
     {
-        progressCallbacks.remove(callback);
+        progressAdapters.remove(callback);
     }
 
 }

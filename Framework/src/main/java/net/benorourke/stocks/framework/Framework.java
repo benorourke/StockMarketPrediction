@@ -74,8 +74,8 @@ public class Framework implements Initialisable
                 .registerTypeAdapter(StockQuoteFeatureRepresenter.class, new StockQuoteFeatureRepresenterAdapter());
         // Register the type adapters specified in the configuration
         config.getGsonTypeAdapters().entrySet()
-                .stream()
-                .forEach(e -> builder.registerTypeAdapter(e.getKey(), e.getValue()));
+                                        .stream()
+                                        .forEach(e -> builder.registerTypeAdapter(e.getKey(), e.getValue()));
         gson = builder.create();
 
         // Inject any additional, custom VariableValidators for new DataSources
