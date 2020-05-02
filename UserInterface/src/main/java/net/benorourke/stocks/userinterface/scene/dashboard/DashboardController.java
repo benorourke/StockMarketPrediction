@@ -4,6 +4,8 @@ import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXDatePicker;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -21,10 +23,13 @@ import javafx.scene.shape.Circle;
 import net.benorourke.stocks.framework.series.TimeSeries;
 import net.benorourke.stocks.userinterface.scene.Controller;
 import net.benorourke.stocks.userinterface.scene.SceneHelper;
+import net.benorourke.stocks.userinterface.scene.dashboard.createseries.CreateSeriesController;
 import net.benorourke.stocks.userinterface.scene.dashboard.panes.*;
 import net.benorourke.stocks.userinterface.util.FontFamily;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class DashboardController extends Controller
@@ -131,7 +136,7 @@ public class DashboardController extends Controller
 
             row.setOnMouseClicked( event -> selectNavbarButton(row, paneFor));
         }
-        createSeriesButton.setOnMouseClicked(e -> onCreateSeriesClicked());
+        createSeriesButton.setOnMouseClicked(e -> CreateSeriesController.show(this));
 
         // Acquire all of the present timeserise
         model.acquireTimeSeries( () -> updateTimeSeries() );
@@ -201,31 +206,52 @@ public class DashboardController extends Controller
     {
         paneVBox.getChildren().clear();
         for (TimeSeries series : model.getTimeSeries())
+            inflateTimeSeries(series);
+    }
+
+    public void inflateTimeSeries(TimeSeries series)
+    {
+        SceneHelper.inflateAsync(SERIES_ROW_FXML, result ->
         {
-            SceneHelper.inflateAsync(SERIES_ROW_FXML, result ->
+            if (!result.isSuccess()) return;
+
+            FXMLLoader loader = result.getLoader();
+            Parent parent = result.getLoaded();
+
+            Circle circle = (Circle) loader.getNamespace().get("seriesCircle");
+            Label name = (Label) loader.getNamespace().get("seriesName");
+            Label stock = (Label) loader.getNamespace().get("seriesStock");
+
+            int index = series.getId().hashCode() % 10;
+            index = (index < 0) ? index * -1 : index; // Prevent negative indices
+            circle.setFill(SERIES_CIRCLE_FILLS[index]);
+            name.setText(series.getName());
+            stock.setText(series.getStock());
+
+            parent.setOnMouseClicked(event -> changeTimeSeries(series, parent));
+            paneVBox.getChildren().add(parent);
+
+            // Add the component and then sort all of the TimeSeries so they appear to be in order:
+
+            // Have to clone the collection, otherwise the regular sorting algorithms will attempt to add duplicate
+            // components; throwing an exception
+            ObservableList<Node> clonedCollection = FXCollections.observableArrayList(paneVBox.getChildren());
+            Collections.sort(clonedCollection, Comparator.comparing(child ->
             {
-                if (!result.isSuccess()) return;
+                // Structure is as follows:
+                // - HBox (child here)
+                //   - Circle
+                //   - VBox
+                //      - Label (series name - this is what we want)
+                //      - Label (stock info)
 
-                FXMLLoader loader = result.getLoader();
-                Parent parent = result.getLoaded();
-
-                Circle circle = (Circle) loader.getNamespace().get("seriesCircle");
-                Label name = (Label) loader.getNamespace().get("seriesName");
-                Label stock = (Label) loader.getNamespace().get("seriesStock");
-
-                int index = series.getId().hashCode() % 10;
-                index = (index < 0) ? index * -1 : index; // Prevent negative indices
-                circle.setFill(SERIES_CIRCLE_FILLS[index]);
-                name.setText(series.getName());
-                stock.setText(series.getStock());
-
-                parent.setOnMouseClicked(event -> changeTimeSeries(series, parent));
-                paneVBox.getChildren().add(parent);
-
-                if (model.getCurrentlySelectedTimeSeries() == null)
-                    changeTimeSeries(series, parent);
-            });
-        }
+                HBox hbox = (HBox) child;
+                VBox vbox = (VBox) hbox.getChildren().get(1);
+                Label nameLabel = (Label) vbox.getChildren().get(0);
+                return nameLabel.getText().toLowerCase();
+            }));
+            paneVBox.getChildren().setAll(clonedCollection);
+        });
     }
 
     public void changeTimeSeries(TimeSeries series, Node parent)
@@ -252,11 +278,6 @@ public class DashboardController extends Controller
             node.getStyleClass().clear();
             node.getStyleClass().add(parent.equals(node) ? SERIES_SELECTED_STYLE_CLASS : SERIES_STYLE_CLASS);
         }
-    }
-
-    private void onCreateSeriesClicked()
-    {
-
     }
 
 }

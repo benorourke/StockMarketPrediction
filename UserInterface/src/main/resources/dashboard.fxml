@@ -144,7 +144,7 @@
                         <ScrollPane hbarPolicy="NEVER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="386.0" prefWidth="217.0">
                            <content>
                               <AnchorPane prefHeight="382.0" prefWidth="213.0">
-                              <VBox fx:id="paneVBox" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="382.0" prefWidth="209.0" spacing="12.0" />
+                              <VBox fx:id="paneVBox" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="382.0" prefWidth="209.0" spacing="8.0" />
                               </AnchorPane>
                            </content>
                         </ScrollPane>
@@ -334,6 +334,11 @@
                                                    </children>
                                                 </AnchorPane>
                                              </content>
+                                          </Tab>
+                                          <Tab text="Inject Data">
+                                            <content>
+                                              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+                                            </content>
                                           </Tab>
                                           <Tab text="Missing / Duplicate Data">
                                              <content>

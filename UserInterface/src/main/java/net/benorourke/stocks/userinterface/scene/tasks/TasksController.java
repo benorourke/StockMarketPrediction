@@ -46,23 +46,6 @@ public class TasksController extends Controller implements TaskUpdateAdapter
         this.rows = new LinkedHashMap<>();
     }
 
-    public static void show()
-    {
-        if (singletonInstance == null)
-        {
-            try
-            {
-                singletonInstance = SceneHelper.openStage(Constants.TASKS_NAME,
-                                                          Constants.TASKS_WIDTH_MIN, Constants.TASKS_HEIGHT_MIN,
-                                                 false, false, SceneType.TASKS);
-                singletonInstance.requestFocus();
-            }
-            catch (SceneCreationDataException e) { return; }
-        }
-
-        singletonInstance.requestFocus();
-    }
-
     @FXML
     public void initialize()
     {
@@ -183,6 +166,22 @@ public class TasksController extends Controller implements TaskUpdateAdapter
             parentBox.getChildren().remove(row.getParent());
             rows.remove(id);
         }
+    }
+
+    public static void show()
+    {
+        if (singletonInstance == null)
+        {
+            try
+            {
+                singletonInstance = SceneHelper.openStage(Constants.TASKS_NAME,
+                        Constants.TASKS_WIDTH_MIN, Constants.TASKS_HEIGHT_MIN,
+                        false, false, SceneType.TASKS);
+            }
+            catch (SceneCreationDataException e) { return; }
+        }
+
+        singletonInstance.requestFocus();
     }
 
 }

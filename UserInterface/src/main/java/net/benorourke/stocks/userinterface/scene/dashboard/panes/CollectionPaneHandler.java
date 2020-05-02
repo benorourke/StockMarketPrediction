@@ -45,7 +45,8 @@ import static net.benorourke.stocks.userinterface.StockApplication.runUIThread;
 public class CollectionPaneHandler extends PaneHandler
 {
     private static final String COLLECTION_ROW_FXML = "/dashboard-collection-row.fxml";
-    private static final String[] COMBO_OPTIONS = new String[] {"Overview", "Collect Data", "Missing / Duplicate Data"};
+    private static final String[] COMBO_OPTIONS = new String[] {"Overview", "Collect Data", "Inject Data",
+                                                                "Missing / Duplicate Data"};
 
     private final JFXComboBox<String> collectionComboBox;
     private final TabPane collectionTabPane;

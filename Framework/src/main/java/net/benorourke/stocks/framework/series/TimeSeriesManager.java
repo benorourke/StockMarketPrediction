@@ -46,7 +46,6 @@ public class TimeSeriesManager implements Initialisable
     {
         TimeSeries series = new TimeSeries(name, stock);
         timeSeries.add(series);
-        sortSeries();
 
         if(save(series))
         {
@@ -122,15 +121,8 @@ public class TimeSeriesManager implements Initialisable
                 Framework.error("Unable to load time series meta at " + infoFile.getPath());
         }
 
-        sortSeries();
         return result;
     }
-
-    public void sortSeries()
-    {
-        Collections.sort(timeSeries, Comparator.comparing(series -> series.getName().toLowerCase()));
-    }
-
     //////////////////////////////////////////////////////////////////
     //      DATA COLLECTION / PRE-PROCESSING
     //////////////////////////////////////////////////////////////////
