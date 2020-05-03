@@ -68,7 +68,6 @@ public class DashboardController extends Controller
     //      PANE
     //////////////////////////////////////////////////////////////////
     @FXML private TabPane tabPane;
-    @FXML private Tab homeTab, collectionTab, preprocessingTab, trainingTab, evaluationTab;
 
     //////////////////////////////////////////////////////////////////
     //      PANE HANDLERS
@@ -90,6 +89,10 @@ public class DashboardController extends Controller
     @FXML private JFXButton collectionCollectButton;
     // missing data & duplicates
     @FXML private JFXButton collectionDuplicatesRemove;
+
+    // INJECTION:
+    @FXML private JFXComboBox injectionSourceComboBox;
+    @FXML private VBox injectionDataBox;
 
     // PRE-PROCESSING:
     @FXML private VBox preprocessingTogglesBox;
@@ -152,6 +155,8 @@ public class DashboardController extends Controller
                                           collectionCollectDataPickerFrom, collectionCollectDataPickerTo,
                                           collectionCollectBox, collectionCollectButton,
                                          collectionDuplicatesRemove);
+        paneHandlers[DashboardPane.INJECTION.ordinal()] =
+                new InjectionPaneHandler(this, model, injectionSourceComboBox, injectionDataBox);
         paneHandlers[DashboardPane.PRE_PROCESSING.ordinal()] =
                 new PreprocessingHandler(this, model, preprocessingTogglesBox, preprocessingPolicyBox,
                                          preprocessingBegin);

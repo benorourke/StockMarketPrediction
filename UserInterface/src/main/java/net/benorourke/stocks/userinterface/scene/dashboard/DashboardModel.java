@@ -27,7 +27,10 @@ public class DashboardModel
 
     // COLLECTION
     private List<DataSource> dataSources;
-    private DataSource currentlySelectedDataSource;
+    private DataSource currentlySelectedCollectionDataSource;
+
+    // INJECTION
+    private DataSource currentlySelectedInjectionDataSource;
 
     // PRE-PROCESSING
     private Map<FeatureRepresenterManager.Metadata, FeatureRepresenter<StockQuote>> quoteFeatureRepresenters;
@@ -191,14 +194,24 @@ public class DashboardModel
         return dataSources;
     }
 
-    public DataSource getCurrentlySelectedDataSource()
+    public DataSource getCurrentlySelectedCollectionDataSource()
     {
-        return currentlySelectedDataSource;
+        return currentlySelectedCollectionDataSource;
     }
 
-    public void setCurrentlySelectedDataSource(DataSource currentlySelectedDataSource)
+    public void setCurrentlySelectedCollectionDataSource(DataSource currentlySelectedCollectionDataSource)
     {
-        this.currentlySelectedDataSource = currentlySelectedDataSource;
+        this.currentlySelectedCollectionDataSource = currentlySelectedCollectionDataSource;
+    }
+
+    public DataSource getCurrentlySelectedInjectionDataSource()
+    {
+        return currentlySelectedInjectionDataSource;
+    }
+
+    public void setCurrentlySelectedInjectionDataSource(DataSource currentlySelectedInjectionDataSource)
+    {
+        this.currentlySelectedInjectionDataSource = currentlySelectedInjectionDataSource;
     }
 
     public List<ModelHandlerManager.RuntimeCreator> getModelHandlerCreators()
@@ -240,5 +253,4 @@ public class DashboardModel
     {
         this.currentlySelectedMissingDataPolicy = currentlySelectedMissingDataPolicy;
     }
-
 }

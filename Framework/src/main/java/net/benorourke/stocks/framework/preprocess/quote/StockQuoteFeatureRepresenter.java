@@ -5,10 +5,7 @@ import net.benorourke.stocks.framework.series.data.DataType;
 import net.benorourke.stocks.framework.series.data.impl.StockQuote;
 import net.benorourke.stocks.framework.series.data.impl.StockQuoteDataType;
 
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * A simple representer that will use every {@link#StockQuoteDataType}
@@ -45,7 +42,7 @@ public class StockQuoteFeatureRepresenter implements FeatureRepresenter<StockQuo
         for (int i = 0; i < dataTypes.length; i ++)
         {
             StockQuoteDataType type = dataTypes[i];
-            vector[i] = datapoint.getData()[type.ordinal()];
+            vector[i] = datapoint.toVector()[type.ordinal()];
         }
 
         return vector;

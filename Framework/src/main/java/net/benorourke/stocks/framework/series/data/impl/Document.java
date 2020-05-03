@@ -1,16 +1,17 @@
 package net.benorourke.stocks.framework.series.data.impl;
 
-import net.benorourke.stocks.framework.series.data.Data;
-import net.benorourke.stocks.framework.series.data.DataType;
-import net.benorourke.stocks.framework.series.data.DocumentType;
+import net.benorourke.stocks.framework.series.data.*;
 
 import java.util.Date;
 
 public class Document extends Data
 {
+    @RawDataElementAnnotation
     private final String content;
+    @RawDataElementAnnotation
     private final DocumentType documentType;
 
+    @RawDataAnnotation(indexOfDate = 0, paramOrder = {"content", "documentType"})
     public Document(Date date, String content, DocumentType documentType)
     {
         super(DataType.DOCUMENT, date);

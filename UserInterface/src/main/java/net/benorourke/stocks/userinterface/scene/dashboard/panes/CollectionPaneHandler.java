@@ -45,8 +45,7 @@ import static net.benorourke.stocks.userinterface.StockApplication.runUIThread;
 public class CollectionPaneHandler extends PaneHandler
 {
     private static final String COLLECTION_ROW_FXML = "/dashboard-collection-row.fxml";
-    private static final String[] COMBO_OPTIONS = new String[] {"Overview", "Collect Data", "Inject Data",
-                                                                "Missing / Duplicate Data"};
+    private static final String[] COMBO_OPTIONS = new String[] {"Overview", "Collect Data", "Missing / Duplicate Data"};
 
     private final JFXComboBox<String> collectionComboBox;
     private final TabPane collectionTabPane;
@@ -109,7 +108,7 @@ public class CollectionPaneHandler extends PaneHandler
         collectionCollectDataPickerTo.setValue(LocalDate.now());
 
         collectionCollectButton.setOnMouseClicked(event -> onCollectClicked(model.getCurrentlySelectedTimeSeries(),
-                                                                            model.getCurrentlySelectedDataSource()));
+                                                                            model.getCurrentlySelectedCollectionDataSource()));
         model.acquireDataSources(() ->
         {
             List<DataSource> sources = model.getDataSources();
@@ -182,9 +181,9 @@ public class CollectionPaneHandler extends PaneHandler
     //      COLLECT
     //////////////////////////////////////////////////////////////////
 
-    public void selectCollectionDataSource(DataSource source)
+    private void selectCollectionDataSource(DataSource source)
     {
-        model.setCurrentlySelectedDataSource(source);
+        model.setCurrentlySelectedCollectionDataSource(source);
         populateCollectionCollectBox(source);
     }
 
