@@ -96,10 +96,7 @@ public class CollectionPaneHandler extends PaneHandler
     }
 
     @Override
-    public void onTimeSeriesChanged(TimeSeries series)
-    {
-
-    }
+    public void onTimeSeriesChanged(TimeSeries series) { }
 
     //////////////////////////////////////////////////////////////////
     //      COLLECT
@@ -115,46 +112,12 @@ public class CollectionPaneHandler extends PaneHandler
     {
         Set<CollectionVariable> variables = source.getCollectionVariables();
 
-        // We will use the existing parent for the apiKey if it has already been inflated,
-        // as this is DataSource independent.
-        Parent apiKey = (collectionCollectionBoxVariables == null) ? null : collectionCollectionBoxVariables[0];
+        collectionCollectBox.getChildren().clear();
+        collectionCollectionBoxVariables = new Parent[variables.size()];
 
-        // Remove every child apart from the apiKey (if the children exist yet)
-        if (collectionCollectBox.getChildren().size() > 1)
-            collectionCollectBox.getChildren().remove(1, collectionCollectBox.getChildren().size());
-        // + 1 for the API key
-        collectionCollectionBoxVariables = new Parent[1 + variables.size()];
-
-        if (apiKey == null)
-            inflateCollectionCollectBoxAPIKey();
-        else
-            collectionCollectionBoxVariables[0] = apiKey;
-
-        int index = 1;
+        int index = 0;
         for (CollectionVariable variable : variables)
             inflateCollectionCollectBoxVariable(source, variable, index ++);
-    }
-
-    private void inflateCollectionCollectBoxAPIKey()
-    {
-        SceneHelper.inflateAsync(GENERIC_INPUT_FIELD_FXML, result ->
-        {
-            if (!result.isSuccess()) return;
-
-            FXMLLoader loader = result.getLoader();
-            Parent parent = result.getLoaded();
-
-            Label dataType = (Label) loader.getNamespace().get("header");
-            dataType.setText("API Key");
-
-            Pane contentPane = (Pane) loader.getNamespace().get("contentPane");
-
-            JFXTextField textField = createCollectionCollectBoxTextField(contentPane, "DataSource API Key");
-            contentPane.getChildren().add(textField);
-
-            collectionCollectionBoxVariables[0] = parent;
-            collectionCollectBox.getChildren().add(parent);
-        });
     }
 
     private void inflateCollectionCollectBoxVariable(DataSource source, CollectionVariable variable, int index)
@@ -182,8 +145,8 @@ public class CollectionPaneHandler extends PaneHandler
             collectionCollectionBoxVariables[index] = parent;
 
             // We'll only add all the fields once all of the parents have been set
-            if (checkCollectVariableFieldsLoaded(false))
-                for (int i = 1; i < collectionCollectionBoxVariables.length; i ++)
+            if (checkCollectVariableFieldsLoaded())
+                for (int i = 0; i < collectionCollectionBoxVariables.length; i ++)
                     collectionCollectBox.getChildren().add(collectionCollectionBoxVariables[i]);
         });
     }
@@ -195,8 +158,6 @@ public class CollectionPaneHandler extends PaneHandler
         textField.prefWidthProperty().bind(parent.prefWidthProperty().multiply(GENERIC_INPUT_FIELD_WIDTH_BIND_COEFF));
         return textField;
     }
-
-    // TODO - FOR DOCUMENTATION ON PARENTS SEE
 
     /**
      * Types of errors that can arise:
@@ -215,22 +176,21 @@ public class CollectionPaneHandler extends PaneHandler
             controller.snackbarNullTimeSeries();
             return;
         }
-        if (!checkCollectVariableFieldsLoaded(true)) return;
+        if (!checkCollectVariableFieldsLoaded()) return;
         if (!checkCollectSetVariables(source)) return;
         if (!checkCollectVariablesValid(source)) return;
         if (!checkCollectQuerySpecified()) return;
 
-        String apiKey = getCollectAPIKey();
         Tuple<Date, Date> queryDates = getCollectQuerySpecified();
         Query query = new Query(queryDates.getB(), queryDates.getA());
 
         DataType type = source.getDataType();
         CollectionTask task;
         if (type.equals(DataType.DOCUMENT))
-            task = createCollectionTask((DataSource<Document>) source, apiKey, query,
+            task = createCollectionTask((DataSource<Document>) source, query,
                     (CollectionFilter<Document>) source.newDefaultCollectionFilter());
         else if(type.equals(DataType.STOCK_QUOTE))
-            task = createCollectionTask((DataSource<StockQuote>) source, apiKey, query,
+            task = createCollectionTask((DataSource<StockQuote>) source, query,
                     (CollectionFilter<StockQuote>) source.newDefaultCollectionFilter());
         else
         {
@@ -241,10 +201,10 @@ public class CollectionPaneHandler extends PaneHandler
         beginCollectionTask(task, series, source);
     }
 
-    private <T extends Data> CollectionTask<T> createCollectionTask(DataSource<T> source, String apiKey, Query query,
+    private <T extends Data> CollectionTask<T> createCollectionTask(DataSource<T> source, Query query,
                                                                     CollectionFilter<T> collectionFilter)
     {
-        return new CollectionTask<>(source, apiKey, source.newSession(query, collectionFilter));
+        return new CollectionTask<>(source, source.newSession(query, collectionFilter));
     }
 
     private <T extends Data> void beginCollectionTask(CollectionTask<T> task, TimeSeries series, DataSource<T> source)
@@ -281,12 +241,11 @@ public class CollectionPaneHandler extends PaneHandler
         });
     }
 
-    public boolean checkCollectVariableFieldsLoaded(boolean checkApi)
+    public boolean checkCollectVariableFieldsLoaded()
     {
-        for (int i = (checkApi ? 0 : 1); i < collectionCollectionBoxVariables.length; i ++)
+        for (int i = 0 ; i < collectionCollectionBoxVariables.length; i ++)
         {
-            Parent parent = collectionCollectionBoxVariables[i];
-            if (parent == null) return false;
+            if (collectionCollectionBoxVariables[i] == null) return false;
         }
 
         return true;
@@ -303,7 +262,7 @@ public class CollectionPaneHandler extends PaneHandler
     private boolean checkCollectSetVariables(DataSource source)
     {
         Set<CollectionVariable> variables = source.getCollectionVariables();
-        int index = 1;
+        int index = 0;
         for (CollectionVariable variable : variables)
         {
             Parent parent = collectionCollectionBoxVariables[index ++];

@@ -47,8 +47,7 @@ public abstract class DataSource<T extends Data>
 
     public abstract CollectionFilter<T> newDefaultCollectionFilter();
 
-    public abstract ConnectionResponse<T> retrieve(Query query, String apiKey)
-            throws ConstraintException, FailedCollectionException;
+    public abstract ConnectionResponse<T> retrieve(Query query) throws ConstraintException, FailedCollectionException;
 
     /**
      * @return the error with the validation. If null is returned, there were no invalid variables and

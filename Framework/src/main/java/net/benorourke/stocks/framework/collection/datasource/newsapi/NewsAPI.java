@@ -31,6 +31,11 @@ public class NewsAPI extends DataSource<Document>
     private static final String BASE_URL = "https://newsapi.org/";
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
 
+    @CollectionVariable(name = "API Key",
+                        type = CollectionVariable.Type.STRING,
+                        prompt = "NewsAPI API Key",
+                        validators = {"ALPHANUMERIC"})
+    private String apiKey;
     @CollectionVariable(name = "Search Term",
                         type = CollectionVariable.Type.STRING,
                         prompt = "Headlines Containing",
@@ -84,8 +89,7 @@ public class NewsAPI extends DataSource<Document>
     }
 
     @Override
-    public ConnectionResponse<Document> retrieve(Query query, String apiKey)
-            throws ConstraintException, FailedCollectionException
+    public ConnectionResponse<Document> retrieve(Query query) throws ConstraintException, FailedCollectionException
     {
         checkConstraintsOrThrow(query);
 
