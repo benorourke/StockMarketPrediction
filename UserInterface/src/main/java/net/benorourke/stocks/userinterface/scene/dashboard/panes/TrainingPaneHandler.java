@@ -103,7 +103,7 @@ public class TrainingPaneHandler extends PaneHandler
                                         @Nullable String promptText, @Nullable String text,
                                         boolean disableInput)
     {
-        SceneHelper.inflateAsync(DashboardController.INPUT_FIELD_FXML, result -> {
+        SceneHelper.inflateAsync(DashboardController.TEXT_INPUT_FIELD_FXML, result -> {
             if (!result.isSuccess()) return;
 
             FXMLLoader loader = result.getLoader();

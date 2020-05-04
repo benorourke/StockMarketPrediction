@@ -1,10 +1,10 @@
 package net.benorourke.stocks.framework.util;
 
-import java.lang.reflect.Field;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.util.Arrays;
+import java.util.LinkedHashMap;
 
 public class ReflectionUtil
 {
@@ -28,6 +28,13 @@ public class ReflectionUtil
             current = current.getSuperclass();
         }
         return map;
+    }
+
+    public static Constructor<?> getConstructorByAnnotation(Class<?> clazz, Class<? extends Annotation> annotationClass)
+    {
+        return Arrays.stream(clazz.getConstructors())
+                     .filter(c -> c.isAnnotationPresent(annotationClass))
+                     .findFirst().get();
     }
 
 }

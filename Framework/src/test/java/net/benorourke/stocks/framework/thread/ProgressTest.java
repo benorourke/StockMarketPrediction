@@ -1,19 +1,16 @@
 package net.benorourke.stocks.framework.thread;
 
-import net.benorourke.stocks.framework.Framework;
-import net.benorourke.stocks.framework.util.Tuple;
 import org.junit.Test;
 
 import java.util.LinkedHashMap;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class ProgressTest
 {
 
     @Test
-    public void getBounds_SumEquals100_ShouldIncreasePerInputs()
+    public void getBounds_SumEquals100_ShouldIncreaseLinearly()
     {
         LinkedHashMap<Integer, Double> mappings = new LinkedHashMap<>();
         mappings.put(0, 20.0);

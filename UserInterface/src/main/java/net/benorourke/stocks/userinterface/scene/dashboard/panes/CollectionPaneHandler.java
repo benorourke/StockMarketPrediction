@@ -41,10 +41,11 @@ import java.util.stream.Collectors;
 
 import static net.benorourke.stocks.userinterface.StockApplication.runBgThread;
 import static net.benorourke.stocks.userinterface.StockApplication.runUIThread;
+import static net.benorourke.stocks.userinterface.scene.dashboard.DashboardController.GENERIC_INPUT_FIELD_FXML;
+import static net.benorourke.stocks.userinterface.scene.dashboard.DashboardController.GENERIC_INPUT_FIELD_WIDTH_BIND_COEFF;
 
 public class CollectionPaneHandler extends PaneHandler
 {
-    private static final String COLLECTION_ROW_FXML = "/dashboard-collection-row.fxml";
     private static final String[] COMBO_OPTIONS = new String[] {"Overview", "Collect Data", "Missing / Duplicate Data"};
 
     private final JFXComboBox<String> collectionComboBox;
@@ -159,7 +160,7 @@ public class CollectionPaneHandler extends PaneHandler
 
     public void inflateCollectionDataSync(DataSource src, int count)
     {
-        SceneHelper.inflateAsync(COLLECTION_ROW_FXML, result ->
+        SceneHelper.inflateAsync(GENERIC_INPUT_FIELD_FXML, result ->
         {
             if (!result.isSuccess()) return;
 
@@ -213,7 +214,7 @@ public class CollectionPaneHandler extends PaneHandler
 
     private void inflateCollectionCollectBoxAPIKey()
     {
-        SceneHelper.inflateAsync(COLLECTION_ROW_FXML, result ->
+        SceneHelper.inflateAsync(GENERIC_INPUT_FIELD_FXML, result ->
         {
             if (!result.isSuccess()) return;
 
@@ -235,15 +236,15 @@ public class CollectionPaneHandler extends PaneHandler
 
     private void inflateCollectionCollectBoxVariable(DataSource source, CollectionVariable variable, int index)
     {
-        SceneHelper.inflateAsync(COLLECTION_ROW_FXML, result ->
+        SceneHelper.inflateAsync(GENERIC_INPUT_FIELD_FXML, result ->
         {
             if (!result.isSuccess()) return;
 
             FXMLLoader loader = result.getLoader();
             Parent parent = result.getLoaded();
 
-            Label dataType = (Label) loader.getNamespace().get("header");
-            dataType.setText(variable.name());
+            Label label = (Label) loader.getNamespace().get("header");
+            label.setText(variable.name());
 
             Pane contentPane = (Pane) loader.getNamespace().get("contentPane");
 
@@ -268,7 +269,7 @@ public class CollectionPaneHandler extends PaneHandler
     {
         JFXTextField textField = new JFXTextField();
         textField.setPromptText(prompt);
-        textField.prefWidthProperty().bind(parent.prefWidthProperty().multiply(0.92));
+        textField.prefWidthProperty().bind(parent.prefWidthProperty().multiply(GENERIC_INPUT_FIELD_WIDTH_BIND_COEFF));
         return textField;
     }
 

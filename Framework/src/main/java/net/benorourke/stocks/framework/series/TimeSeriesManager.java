@@ -135,7 +135,7 @@ public class TimeSeriesManager implements Initialisable
     /**
      *
      * @param series
-     * @param dataSource
+     * @param source
      * @param data
      * @param overwrite whether to overwrite any existing data
      * @param <T>

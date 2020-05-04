@@ -40,7 +40,10 @@ public class DashboardController extends Controller
     private static final String SERIES_STYLE_CLASS = "series";
     private static final String SERIES_SELECTED_STYLE_CLASS = "series-selected";
     private static final String SERIES_ROW_FXML = "/dashboard-series.fxml";
-    public static final String INPUT_FIELD_FXML = "/dashboard-input-field.fxml";
+
+    public static final String TEXT_INPUT_FIELD_FXML = "/dashboard-text-input-field.fxml";
+    public static final String GENERIC_INPUT_FIELD_FXML = "/dashboard-generic-input-field.fxml";
+    public static final double GENERIC_INPUT_FIELD_WIDTH_BIND_COEFF = 0.92;
 
     private static final Color[] SERIES_CIRCLE_FILLS = new Color[]
     {
@@ -92,7 +95,9 @@ public class DashboardController extends Controller
 
     // INJECTION:
     @FXML private JFXComboBox injectionSourceComboBox;
+    @FXML private JFXDatePicker injectionDatePicker;
     @FXML private VBox injectionDataBox;
+    @FXML private JFXButton injectionInjectButton;
 
     // PRE-PROCESSING:
     @FXML private VBox preprocessingTogglesBox;
@@ -156,7 +161,8 @@ public class DashboardController extends Controller
                                           collectionCollectBox, collectionCollectButton,
                                          collectionDuplicatesRemove);
         paneHandlers[DashboardPane.INJECTION.ordinal()] =
-                new InjectionPaneHandler(this, model, injectionSourceComboBox, injectionDataBox);
+                new InjectionPaneHandler(this, model, injectionSourceComboBox, injectionDatePicker,
+                                         injectionDataBox, injectionInjectButton);
         paneHandlers[DashboardPane.PRE_PROCESSING.ordinal()] =
                 new PreprocessingHandler(this, model, preprocessingTogglesBox, preprocessingPolicyBox,
                                          preprocessingBegin);
@@ -273,7 +279,7 @@ public class DashboardController extends Controller
         }
 
         selectTimeSeries(parent);
-        selectNavbarButton(DashboardPane.HOME);
+//        selectNavbarButton(DashboardPane.HOME);
     }
 
     private void selectTimeSeries(Node parent)
@@ -283,6 +289,11 @@ public class DashboardController extends Controller
             node.getStyleClass().clear();
             node.getStyleClass().add(parent.equals(node) ? SERIES_SELECTED_STYLE_CLASS : SERIES_STYLE_CLASS);
         }
+    }
+
+    public PaneHandler getPaneHandler(DashboardPane pane)
+    {
+        return paneHandlers[pane.ordinal()];
     }
 
 }
