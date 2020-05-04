@@ -11,6 +11,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.chart.LineChart;
+import javafx.scene.chart.PieChart;
 import javafx.scene.control.Label;
 import javafx.scene.control.SingleSelectionModel;
 import javafx.scene.control.Tab;
@@ -82,6 +83,7 @@ public class DashboardController extends Controller
     @FXML private TabPane overviewTabPane;
     //  overview
     @FXML private VBox overviewDataPresentBox;
+    @FXML private PieChart overviewDistributionChart;
     // missing data & duplicates
     @FXML private JFXButton overviewDuplicatesRemoveButton;
 
@@ -152,7 +154,8 @@ public class DashboardController extends Controller
         paneHandlers = new PaneHandler[DashboardPane.values().length];
         paneHandlers[DashboardPane.OVERVIEW.ordinal()] =
                 new OverviewPaneHandler(this, model, overviewComboBox, overviewTabPane,
-                                        overviewDataPresentBox, overviewDuplicatesRemoveButton);
+                                        overviewDataPresentBox, overviewDistributionChart,
+                                        overviewDuplicatesRemoveButton);
         paneHandlers[DashboardPane.COLLECTION.ordinal()] =
                 new CollectionPaneHandler(this, model, collectionCollectSourceComboBox,
                                           collectionCollectDataPickerFrom, collectionCollectDataPickerTo,

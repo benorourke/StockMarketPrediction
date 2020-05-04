@@ -4,6 +4,7 @@ import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXComboBox;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
+import javafx.scene.chart.PieChart;
 import javafx.scene.control.Label;
 import javafx.scene.control.TabPane;
 import javafx.scene.layout.Pane;
@@ -33,13 +34,14 @@ public class OverviewPaneHandler extends PaneHandler
 
     // Overview
     private final VBox overviewDataPresentBox;
+    private final PieChart overviewDistributionChart;
 
     // Missing / Duplicate Data
     private JFXButton overviewDuplicatesRemoveButton;
 
     public OverviewPaneHandler(DashboardController controller, DashboardModel model,
                                JFXComboBox<String> overviewComboBox, TabPane overviewTabPane,
-                               VBox overviewDataPresentBox,
+                               VBox overviewDataPresentBox, PieChart overviewDistributionChart,
                                JFXButton overviewDuplicatesRemoveButton)
     {
         super(controller, model);
@@ -47,6 +49,7 @@ public class OverviewPaneHandler extends PaneHandler
         this.overviewComboBox = overviewComboBox;
         this.overviewTabPane = overviewTabPane;
         this.overviewDataPresentBox = overviewDataPresentBox;
+        this.overviewDistributionChart = overviewDistributionChart;
         this.overviewDuplicatesRemoveButton = overviewDuplicatesRemoveButton;
     }
 
@@ -86,6 +89,7 @@ public class OverviewPaneHandler extends PaneHandler
     public void updateDataPresent(TimeSeries series)
     {
         overviewDataPresentBox.getChildren().clear();
+        overviewDistributionChart.getData().clear();
         for (Map.Entry<Class<? extends DataSource>, Integer> entry : series.getRawDataCounts().entrySet())
         {
             final Class<? extends DataSource> clazz = entry.getKey();
@@ -118,6 +122,10 @@ public class OverviewPaneHandler extends PaneHandler
 
             overviewDataPresentBox.getChildren().add(parent);
         });
+
+        // Update the PieChart
+        PieChart.Data slice = new PieChart.Data(src.getName(), count);
+        overviewDistributionChart.getData().add(slice);
     }
 
     //////////////////////////////////////////////////////////////////
