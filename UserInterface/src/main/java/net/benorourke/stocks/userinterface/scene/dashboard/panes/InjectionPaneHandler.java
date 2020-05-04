@@ -190,8 +190,8 @@ public class InjectionPaneHandler extends PaneHandler
                     controller.snackbar(Controller.SnackbarType.INFO,
                                         "Injected 1 " + source.getDataType().getName() + " into " + source.getName());
 
-                    // Update the data count in the data present collection tab to reflect these changes
-                    ((CollectionPaneHandler) controller.getPaneHandler(DashboardPane.COLLECTION)).updateDataPresent(series);
+                    // Update the data count in the data present overview tab to reflect these changes
+                    ((OverviewPaneHandler) controller.getPaneHandler(DashboardPane.OVERVIEW)).updateDataPresent(series);
                 });
             }
             catch (Exception ignored) { }

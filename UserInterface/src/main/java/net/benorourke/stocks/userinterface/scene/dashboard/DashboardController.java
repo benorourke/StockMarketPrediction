@@ -77,21 +77,20 @@ public class DashboardController extends Controller
     //////////////////////////////////////////////////////////////////
     private PaneHandler[] paneHandlers;
 
-    // HOME:
-    @FXML private JFXButton homeTestButton;
+    // OVERVIEW:
+    @FXML private JFXComboBox<String> overviewComboBox;
+    @FXML private TabPane overviewTabPane;
+    //  overview
+    @FXML private VBox overviewDataPresentBox;
+    // missing data & duplicates
+    @FXML private JFXButton overviewDuplicatesRemoveButton;
 
     // COLLECTION:
-    @FXML private JFXComboBox<String> collectionComboBox;
-    @FXML private TabPane collectionTabPane;
-    //  overview
-    @FXML private VBox collectionDataPresentBox;
-    //  collect
     @FXML private JFXComboBox collectionCollectSourceComboBox;
     @FXML private JFXDatePicker collectionCollectDataPickerFrom, collectionCollectDataPickerTo;
     @FXML private VBox collectionCollectBox;
     @FXML private JFXButton collectionCollectButton;
-    // missing data & duplicates
-    @FXML private JFXButton collectionDuplicatesRemove;
+
 
     // INJECTION:
     @FXML private JFXComboBox injectionSourceComboBox;
@@ -151,15 +150,13 @@ public class DashboardController extends Controller
 
         // Instantiate and initialise pane handlers
         paneHandlers = new PaneHandler[DashboardPane.values().length];
-        paneHandlers[DashboardPane.HOME.ordinal()] =
-                new HomePaneHandler(this, model, homeTestButton);
+        paneHandlers[DashboardPane.OVERVIEW.ordinal()] =
+                new OverviewPaneHandler(this, model, overviewComboBox, overviewTabPane,
+                                        overviewDataPresentBox, overviewDuplicatesRemoveButton);
         paneHandlers[DashboardPane.COLLECTION.ordinal()] =
-                new CollectionPaneHandler(this, model, collectionComboBox, collectionTabPane,
-                                          collectionDataPresentBox,
-                                          collectionCollectSourceComboBox,
+                new CollectionPaneHandler(this, model, collectionCollectSourceComboBox,
                                           collectionCollectDataPickerFrom, collectionCollectDataPickerTo,
-                                          collectionCollectBox, collectionCollectButton,
-                                         collectionDuplicatesRemove);
+                                          collectionCollectBox, collectionCollectButton);
         paneHandlers[DashboardPane.INJECTION.ordinal()] =
                 new InjectionPaneHandler(this, model, injectionSourceComboBox, injectionDatePicker,
                                          injectionDataBox, injectionInjectButton);

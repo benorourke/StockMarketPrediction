@@ -7,14 +7,12 @@ import com.jfoenix.controls.JFXTextField;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.control.Label;
-import javafx.scene.control.TabPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import net.benorourke.stocks.framework.Framework;
 import net.benorourke.stocks.framework.collection.Query;
 import net.benorourke.stocks.framework.collection.datasource.DataSource;
-import net.benorourke.stocks.framework.collection.datasource.DataSourceManager;
 import net.benorourke.stocks.framework.collection.datasource.variable.CollectionVariable;
 import net.benorourke.stocks.framework.collection.session.filter.CollectionFilter;
 import net.benorourke.stocks.framework.exception.TaskStartException;
@@ -35,7 +33,9 @@ import net.benorourke.stocks.userinterface.util.Constants;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.*;
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -46,136 +46,59 @@ import static net.benorourke.stocks.userinterface.scene.dashboard.DashboardContr
 
 public class CollectionPaneHandler extends PaneHandler
 {
-    private static final String[] COMBO_OPTIONS = new String[] {"Overview", "Collect Data", "Missing / Duplicate Data"};
-
-    private final JFXComboBox<String> collectionComboBox;
-    private final TabPane collectionTabPane;
-
-    // Overview
-    private final VBox collectionDataPresentBox;
-
     // Collect Data
     private final JFXComboBox collectionCollectSourceComboBox;
     private final JFXDatePicker collectionCollectDataPickerFrom, collectionCollectDataPickerTo;
     private final VBox collectionCollectBox;
     private final JFXButton collectionCollectButton;
     /** First is always the API Key */
-    @Nullable private Parent[] collectionCollectionBoxVariables;
-
-    // Missing / Duplicate Data
-    private JFXButton collectionDuplicatesRemove;
+    @Nullable
+    private Parent[] collectionCollectionBoxVariables;
 
     public CollectionPaneHandler(DashboardController controller, DashboardModel model,
-                                 JFXComboBox<String> collectionComboBox, TabPane collectionTabPane,
-                                 VBox collectionDataPresentBox,
                                  JFXComboBox collectionCollectSourceComboBox,
                                  JFXDatePicker collectionCollectDataPickerFrom, JFXDatePicker collectionCollectDataPickerTo,
-                                 VBox collectionCollectBox, JFXButton collectionCollectButton,
-                                 JFXButton collectionDuplicatesRemove)
+                                 VBox collectionCollectBox, JFXButton collectionCollectButton)
     {
         super(controller, model);
 
-        this.collectionComboBox = collectionComboBox;
-        this.collectionTabPane = collectionTabPane;
-        this.collectionDataPresentBox = collectionDataPresentBox;
         this.collectionCollectSourceComboBox = collectionCollectSourceComboBox;
         this.collectionCollectDataPickerFrom = collectionCollectDataPickerFrom;
         this.collectionCollectDataPickerTo = collectionCollectDataPickerTo;
         this.collectionCollectBox = collectionCollectBox;
         this.collectionCollectButton = collectionCollectButton;
-        this.collectionDuplicatesRemove = collectionDuplicatesRemove;
     }
 
     @Override
     public void initialise()
     {
-        // POPULATE TAB PANE
-        collectionComboBox.getItems().addAll(COMBO_OPTIONS);
-        collectionComboBox.valueProperty().addListener((observable, oldValue, newValue) ->
-        {
-            for (int i = 0; i < COMBO_OPTIONS.length; i ++)
-            {
-                if (COMBO_OPTIONS[i].equals(newValue))
-                {
-                    collectionTabPane.getSelectionModel().select(i);
-                    break;
-                }
-            }
-        });
-        // Show Overview to begin with
-        collectionComboBox.getSelectionModel().select(0);
-
         // COLLECTION
         collectionCollectDataPickerTo.setValue(LocalDate.now());
 
         collectionCollectButton.setOnMouseClicked(event -> onCollectClicked(model.getCurrentlySelectedTimeSeries(),
-                                                                            model.getCurrentlySelectedCollectionDataSource()));
+                model.getCurrentlySelectedCollectionDataSource()));
         model.acquireDataSources(() ->
         {
             List<DataSource> sources = model.getDataSources();
 
             // Populate all of the collection sources to choose from
             List<String> strSources = sources.stream()
-                                             .map(s -> s.getName() + " (" + s.getDataType().getName() + ")")
-                                             .collect(Collectors.toList());
+                    .map(s -> s.getName() + " (" + s.getDataType().getName() + ")")
+                    .collect(Collectors.toList());
             collectionCollectSourceComboBox.getItems().addAll(strSources);
             // Change the current collection source to whatever they just selected
             collectionCollectSourceComboBox.valueProperty().addListener((observable, oldValue, newValue) ->
                     selectCollectionDataSource(sources.get(strSources.indexOf(newValue))));
 
             // Select the first source - there's several inbuilt ones so this is safe
-           collectionCollectSourceComboBox.getSelectionModel().select(0);
+            collectionCollectSourceComboBox.getSelectionModel().select(0);
         });
-
-        // DUPLICATES / MISSING DATA
-        collectionDuplicatesRemove.setOnMouseClicked(event -> onDuplicatesRemoveClicked());
     }
 
     @Override
     public void onTimeSeriesChanged(TimeSeries series)
     {
-        updateDataPresent(series);
-    }
 
-    //////////////////////////////////////////////////////////////////
-    //      OVERVIEW
-    //////////////////////////////////////////////////////////////////
-
-    public void updateDataPresent(TimeSeries series)
-    {
-        collectionDataPresentBox.getChildren().clear();
-        for (Map.Entry<Class<? extends DataSource>, Integer> entry : series.getRawDataCounts().entrySet())
-        {
-            final Class<? extends DataSource> clazz = entry.getKey();
-            final int count = entry.getValue();
-            runBgThread(framework ->
-            {
-                final DataSource src = framework.getDataSourceManager().getDataSourceByClass(clazz);
-                if (src == null) return;
-
-                runUIThread(() -> inflateCollectionDataSync(src, count));
-            });
-        }
-    }
-
-    public void inflateCollectionDataSync(DataSource src, int count)
-    {
-        SceneHelper.inflateAsync(GENERIC_INPUT_FIELD_FXML, result ->
-        {
-            if (!result.isSuccess()) return;
-
-            FXMLLoader loader = result.getLoader();
-            Parent parent = result.getLoaded();
-
-            Label dataType = (Label) loader.getNamespace().get("header");
-            dataType.setText(src.getName());
-
-            Pane contentPane = (Pane) loader.getNamespace().get("contentPane");
-            Label label = new Label(String.valueOf(count));
-            contentPane.getChildren().add(label);
-
-            collectionDataPresentBox.getChildren().add(parent);
-        });
     }
 
     //////////////////////////////////////////////////////////////////
@@ -305,10 +228,10 @@ public class CollectionPaneHandler extends PaneHandler
         CollectionTask task;
         if (type.equals(DataType.DOCUMENT))
             task = createCollectionTask((DataSource<Document>) source, apiKey, query,
-                                        (CollectionFilter<Document>) source.newDefaultCollectionFilter());
+                    (CollectionFilter<Document>) source.newDefaultCollectionFilter());
         else if(type.equals(DataType.STOCK_QUOTE))
             task = createCollectionTask((DataSource<StockQuote>) source, apiKey, query,
-                                        (CollectionFilter<StockQuote>) source.newDefaultCollectionFilter());
+                    (CollectionFilter<StockQuote>) source.newDefaultCollectionFilter());
         else
         {
             controller.snackbar(Controller.SnackbarType.ERROR, "Unknown Collection Data Type" + type.getName());
@@ -341,8 +264,9 @@ public class CollectionPaneHandler extends PaneHandler
                     runUIThread(() ->
                     {
                         Framework.info("Collected data, cardinality: " + data.size());
-                        // Update the data present tab to reflect changes
-                        updateDataPresent(series);
+
+                        // Update the data count in the data present overview tab to reflect these changes
+                        ((OverviewPaneHandler) controller.getPaneHandler(DashboardPane.OVERVIEW)).updateDataPresent(series);
                     });
                 }, Constants.COLLECTION_DELAY, Constants.COLLECTION_INTERVAL, TimeUnit.MILLISECONDS);
             }
@@ -351,7 +275,7 @@ public class CollectionPaneHandler extends PaneHandler
                 runUIThread(() ->
                 {
                     controller.snackbar(Controller.SnackbarType.ERROR,
-                                        "Unable to schedule CollectionTask " + e.getMessage());
+                            "Unable to schedule CollectionTask " + e.getMessage());
                 });
             }
         });
@@ -385,7 +309,7 @@ public class CollectionPaneHandler extends PaneHandler
             Parent parent = collectionCollectionBoxVariables[index ++];
             Parent vbox = (Parent) parent.getChildrenUnmodifiable().get(0);
             Pane contentPane = (Pane) ((HBox) vbox.getChildrenUnmodifiable().get(1))
-                                            .getChildrenUnmodifiable().get(0);
+                    .getChildrenUnmodifiable().get(0);
 
             switch (variable.type())
             {
@@ -395,7 +319,7 @@ public class CollectionPaneHandler extends PaneHandler
                     catch (Exception e)
                     {
                         controller.snackbar(Controller.SnackbarType.ERROR,
-                                    "Unable to parse " + intTextField.getText() + ", is it numeric?");
+                                "Unable to parse " + intTextField.getText() + ", is it numeric?");
                         return false;
                     }
                     break;
@@ -405,7 +329,7 @@ public class CollectionPaneHandler extends PaneHandler
                     catch (Exception e)
                     {
                         controller.snackbar(Controller.SnackbarType.ERROR,
-                                    "Unable to parse " + strTextField.getText());
+                                "Unable to parse " + strTextField.getText());
                         return false;
                     }
                     break;
@@ -450,47 +374,6 @@ public class CollectionPaneHandler extends PaneHandler
         LocalDate to = collectionCollectDataPickerTo.getValue();
 
         return new Tuple<>( (from == null) ? null : Date.from(from.atStartOfDay(ZoneId.systemDefault()).toInstant()),
-                            (to == null)   ? null : Date.from(to.atStartOfDay(ZoneId.systemDefault()).toInstant()));
+                (to == null)   ? null : Date.from(to.atStartOfDay(ZoneId.systemDefault()).toInstant()));
     }
-
-    //////////////////////////////////////////////////////////////////
-    //      MISSING / DUPLICATE
-    //////////////////////////////////////////////////////////////////
-
-    private void onDuplicatesRemoveClicked()
-    {
-        final TimeSeries series = model.getCurrentlySelectedTimeSeries();
-        if(series == null)
-        {
-            controller.snackbarNullTimeSeries();
-            return;
-        }
-
-        runBgThread(framework ->
-        {
-            DataSourceManager sourceManager = framework.getDataSourceManager();
-            TimeSeriesManager seriesManager = framework.getTimeSeriesManager();
-
-            Map<DataSource, Integer> cleanResults = new HashMap<>();
-            for (DataSource source : sourceManager.getDataSources())
-            {
-                int cleaned = seriesManager.cleanDuplicateData(series, source);
-
-                if (cleaned != 0)
-                    cleanResults.put(source, cleaned);
-            }
-
-            runUIThread(() ->
-            {
-                int total = cleanResults.values().stream().mapToInt(i -> i).sum();
-                controller.snackbar(Controller.SnackbarType.INFO, "Removed " + total + " duplicate data");
-
-                // Ensure they're still viewing the same series before we update
-                if (model.getCurrentlySelectedTimeSeries() != null
-                        && model.getCurrentlySelectedTimeSeries().equals(series))
-                    updateDataPresent(series);
-            });
-        });
-    }
-
 }
