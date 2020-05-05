@@ -1,6 +1,5 @@
 package net.benorourke.stocks.userinterface.scene.dashboard;
 
-import net.benorourke.stocks.framework.Framework;
 import net.benorourke.stocks.framework.collection.datasource.DataSource;
 import net.benorourke.stocks.framework.model.ModelEvaluation;
 import net.benorourke.stocks.framework.model.ModelHandlerManager;
@@ -207,13 +206,11 @@ public class DashboardModel
 
     public FlowStage getCurrentFlowStage()
     {
-        Framework.debug("GET STAGE " + currentFlowStage);
         return currentFlowStage;
     }
 
     public void setCurrentFlowStage(FlowStage currentFlowStage)
     {
-        Framework.debug("SET STAGE TO " + currentFlowStage);
         this.currentFlowStage = currentFlowStage;
     }
 

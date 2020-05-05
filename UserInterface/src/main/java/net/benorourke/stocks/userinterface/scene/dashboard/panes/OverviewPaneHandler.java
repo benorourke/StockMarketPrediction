@@ -9,6 +9,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TabPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import net.benorourke.stocks.framework.collection.datasource.DataSource;
 import net.benorourke.stocks.framework.collection.datasource.DataSourceManager;
 import net.benorourke.stocks.framework.series.TimeSeries;
@@ -18,6 +19,7 @@ import net.benorourke.stocks.userinterface.scene.SceneHelper;
 import net.benorourke.stocks.userinterface.scene.dashboard.DashboardController;
 import net.benorourke.stocks.userinterface.scene.dashboard.DashboardModel;
 import net.benorourke.stocks.userinterface.scene.dashboard.FlowStage;
+import net.benorourke.stocks.userinterface.util.JavaFXUtil;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -25,10 +27,11 @@ import java.util.Map;
 import static net.benorourke.stocks.userinterface.StockApplication.runBgThread;
 import static net.benorourke.stocks.userinterface.StockApplication.runUIThread;
 import static net.benorourke.stocks.userinterface.scene.dashboard.DashboardController.GENERIC_INPUT_FIELD_FXML;
+import static net.benorourke.stocks.userinterface.scene.dashboard.DashboardController.PASTEL_FILLS;
 
 public class OverviewPaneHandler extends PaneHandler
 {
-    private static final String[] COMBO_OPTIONS = new String[] {"Overview", "Missing / Duplicate Data"};
+    private static final String[] COMBO_OPTIONS = new String[] {"Overview", "Missing / Duplicate Data", "Danger Zone"};
 
     private final JFXComboBox<String> overviewComboBox;
     private final TabPane overviewTabPane;
@@ -40,10 +43,13 @@ public class OverviewPaneHandler extends PaneHandler
     // Missing / Duplicate Data
     private JFXButton overviewDuplicatesRemoveButton;
 
+    // Danger Zone
+    private JFXButton overviewDeleteButton;
+
     public OverviewPaneHandler(DashboardController controller, DashboardModel model,
                                JFXComboBox<String> overviewComboBox, TabPane overviewTabPane,
                                VBox overviewDataPresentBox, PieChart overviewDistributionChart,
-                               JFXButton overviewDuplicatesRemoveButton)
+                               JFXButton overviewDuplicatesRemoveButton, JFXButton overviewDeleteButton)
     {
         super(controller, model);
 
@@ -52,6 +58,7 @@ public class OverviewPaneHandler extends PaneHandler
         this.overviewDataPresentBox = overviewDataPresentBox;
         this.overviewDistributionChart = overviewDistributionChart;
         this.overviewDuplicatesRemoveButton = overviewDuplicatesRemoveButton;
+        this.overviewDeleteButton = overviewDeleteButton;
     }
 
     @Override
@@ -75,6 +82,8 @@ public class OverviewPaneHandler extends PaneHandler
 
         // DUPLICATES / MISSING DATA
         overviewDuplicatesRemoveButton.setOnMouseClicked(event -> onDuplicatesRemoveClicked());
+
+        overviewDeleteButton.setOnMouseClicked(event -> onDeleteButtonClicked());
     }
 
     @Override
@@ -130,9 +139,14 @@ public class OverviewPaneHandler extends PaneHandler
             overviewDataPresentBox.getChildren().add(parent);
         });
 
-        // Update the PieChart
+        // Add the slice to the chart
         PieChart.Data slice = new PieChart.Data(src.getName(), count);
         overviewDistributionChart.getData().add(slice);
+        // Set the colour of this slice so it's colour is consistent
+        int index = src.hashCode();
+        index = (index < 0) ? index * -1 : index;
+        Color color = PASTEL_FILLS[index % 10];
+        slice.getNode().setStyle("-fx-pie-color: " + JavaFXUtil.toRGB(color) + ";");
     }
 
     //////////////////////////////////////////////////////////////////
@@ -171,6 +185,34 @@ public class OverviewPaneHandler extends PaneHandler
                 if (model.getCurrentlySelectedTimeSeries() != null
                         && model.getCurrentlySelectedTimeSeries().equals(series))
                     updateDataPresent(series);
+            });
+        });
+    }
+
+    //////////////////////////////////////////////////////////////////
+    //      DANGER ZONE
+    //////////////////////////////////////////////////////////////////
+
+    private void onDeleteButtonClicked()
+    {
+        TimeSeries series = model.getCurrentlySelectedTimeSeries();
+        if(series == null)
+        {
+            controller.snackbarNullTimeSeries();
+            return;
+        }
+
+        runBgThread(framework ->
+        {
+            framework.getTimeSeriesManager().delete(series);
+
+            runUIThread(() ->
+            {
+                controller.updateTimeSeries();
+                // Take them to the first tab in the Overview navigation pane
+                overviewComboBox.getSelectionModel().select(0);
+                model.setCurrentlySelectedTimeSeries(null);
+                controller.snackbar(Controller.SnackbarType.INFO, "Successfully deleted " + series.getName());
             });
         });
     }

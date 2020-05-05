@@ -49,6 +49,18 @@ public abstract class DataSource<T extends Data>
 
     public abstract ConnectionResponse<T> retrieve(Query query) throws ConstraintException, FailedCollectionException;
 
+    @Override
+    public int hashCode()
+    {
+        return name.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj)
+    {
+        return (obj instanceof DataSource) ? obj.hashCode() == hashCode() : false;
+    }
+
     /**
      * @return the error with the validation. If null is returned, there were no invalid variables and
      */

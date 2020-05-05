@@ -46,7 +46,7 @@ public class DashboardController extends Controller
     public static final String GENERIC_INPUT_FIELD_FXML = "/dashboard-generic-input-field.fxml";
     public static final double GENERIC_INPUT_FIELD_WIDTH_BIND_COEFF = 0.92;
 
-    private static final Color[] SERIES_CIRCLE_FILLS = new Color[]
+    public static final Color[] PASTEL_FILLS = new Color[]
     {
             Color.rgb(0x1E, 0x90, 0xFF),    Color.rgb(0xFA, 0xA9, 0x16),
             Color.rgb(0x2A, 0xF5, 0xFF),    Color.rgb(0xFF, 0xEE, 0xDD),
@@ -86,13 +86,14 @@ public class DashboardController extends Controller
     @FXML private PieChart overviewDistributionChart;
     // missing data & duplicates
     @FXML private JFXButton overviewDuplicatesRemoveButton;
+    // danger zone
+    @FXML private JFXButton overviewDeleteButton;
 
     // COLLECTION:
     @FXML private JFXComboBox collectionCollectSourceComboBox;
     @FXML private JFXDatePicker collectionCollectDataPickerFrom, collectionCollectDataPickerTo;
     @FXML private VBox collectionCollectBox;
     @FXML private JFXButton collectionCollectButton;
-
 
     // INJECTION:
     @FXML private JFXComboBox injectionSourceComboBox;
@@ -123,7 +124,6 @@ public class DashboardController extends Controller
     @FXML HBox tasksRunningBox;
     @FXML FontAwesomeIcon tasksRunningSpinner;
     @FXML private Label tasksRunningLabel;
-    @FXML private FontAwesomeIcon shutdownIcon;
     private BottomBarHelper bottomBarHelper;
 
     public DashboardController()
@@ -155,7 +155,7 @@ public class DashboardController extends Controller
         paneHandlers[DashboardPane.OVERVIEW.ordinal()] =
                 new OverviewPaneHandler(this, model, overviewComboBox, overviewTabPane,
                                         overviewDataPresentBox, overviewDistributionChart,
-                                        overviewDuplicatesRemoveButton);
+                                        overviewDuplicatesRemoveButton, overviewDeleteButton);
         paneHandlers[DashboardPane.COLLECTION.ordinal()] =
                 new CollectionPaneHandler(this, model, collectionCollectSourceComboBox,
                                           collectionCollectDataPickerFrom, collectionCollectDataPickerTo,
@@ -176,7 +176,7 @@ public class DashboardController extends Controller
             handler.initialise();
 
         // Create relevant listeners & animations for the bottom bar
-        bottomBarHelper = new BottomBarHelper(tasksRunningBox, tasksRunningSpinner, tasksRunningLabel, shutdownIcon);
+        bottomBarHelper = new BottomBarHelper(tasksRunningBox, tasksRunningSpinner, tasksRunningLabel);
         bottomBarHelper.initialise();
     }
 
@@ -198,6 +198,13 @@ public class DashboardController extends Controller
 
     private void selectNavbarButton(HBox toSelect, DashboardPane paneFor)
     {
+        // Check if they've selected a TimeSeries - reject otherwise
+        if (model.getCurrentlySelectedTimeSeries() == null && !paneFor.equals(DashboardPane.OVERVIEW))
+        {
+            snackbarNullTimeSeries();
+            return;
+        }
+
         // Determine whether they can navigate to this navigation pane based on the current FlowStage of the TimeSeries
         FlowStage current = model.getCurrentFlowStage();
         PaneHandler handler = paneHandlers[paneFor.ordinal()];
@@ -217,19 +224,24 @@ public class DashboardController extends Controller
         }
     }
 
-    private void selectNavbarButton(DashboardPane paneFor)
+    public void selectNavbarButton(DashboardPane paneFor)
     {
         selectNavbarButton(navRows.get(paneFor.ordinal()), paneFor);
     }
 
-    private void updateTimeSeries()
+    public void updateTimeSeries()
     {
         paneVBox.getChildren().clear();
         for (TimeSeries series : model.getTimeSeries())
-            inflateTimeSeries(series);
+            inflateTimeSeries(series, false);
     }
 
-    public void inflateTimeSeries(TimeSeries series)
+    /**
+     *
+     * @param series
+     * @param select whether to select this series once it has been inflated
+     */
+    public void inflateTimeSeries(TimeSeries series, final boolean select)
     {
         SceneHelper.inflateAsync(SERIES_ROW_FXML, result ->
         {
@@ -244,7 +256,7 @@ public class DashboardController extends Controller
 
             int index = series.getId().hashCode() % 10;
             index = (index < 0) ? index * -1 : index; // Prevent negative indices
-            circle.setFill(SERIES_CIRCLE_FILLS[index]);
+            circle.setFill(PASTEL_FILLS[index]);
             name.setText(series.getName());
             stock.setText(series.getStock());
 
@@ -271,6 +283,9 @@ public class DashboardController extends Controller
                 return nameLabel.getText().toLowerCase();
             }));
             paneVBox.getChildren().setAll(clonedCollection);
+
+            if (select)
+                changeTimeSeries(series, parent);
         });
     }
 

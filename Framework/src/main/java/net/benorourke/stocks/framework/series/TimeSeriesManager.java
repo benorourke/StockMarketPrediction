@@ -90,6 +90,12 @@ public class TimeSeriesManager implements Initialisable
         return getByName(name) != null;
     }
 
+    public boolean delete(TimeSeries series)
+    {
+        timeSeries.remove(series);
+        return fileManager.deleteRecursively(fileManager.getTimeSeriesDirectory(series));
+    }
+
     private List<TimeSeries> loadStoredTimeSeries()
     {
         File storageDirectory = fileManager.getTimeSeriesParentDirectory();

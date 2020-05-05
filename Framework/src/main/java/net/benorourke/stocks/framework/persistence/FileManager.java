@@ -1,6 +1,5 @@
 package net.benorourke.stocks.framework.persistence;
 
-import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import net.benorourke.stocks.framework.Configuration;
 import net.benorourke.stocks.framework.Framework;
@@ -9,7 +8,6 @@ import net.benorourke.stocks.framework.series.TimeSeries;
 
 import java.io.*;
 import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.Optional;
 
@@ -42,6 +40,15 @@ public class FileManager
         {
             file.createNewFile();
         }
+    }
+
+    public boolean deleteRecursively(File file)
+    {
+        if (file.isDirectory())
+            for (File child : file.listFiles())
+                deleteRecursively(child);
+
+        return file.delete();
     }
 
     //////////////////////////////////////////////////////////////////
