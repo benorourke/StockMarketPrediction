@@ -21,6 +21,8 @@ public class DashboardModel
 {
     private final DashboardController controller;
 
+    private Stage currentStage;
+
     // NAVBAR
     private List<TimeSeries> timeSeries;
     @Nullable private TimeSeries currentlySelectedTimeSeries;
@@ -71,6 +73,33 @@ public class DashboardModel
     //////////////////////////////////////////////////////////////////
     //      TIMESERIES UNSPECIFIC (APPLIES TO ALL)
     //////////////////////////////////////////////////////////////////
+
+    public void resolveStage(final TimeSeries seriesFor, Runnable onResolved)
+    {
+        acquireTrainedModels(seriesFor, () ->
+        {
+            final List<String> trained = new ArrayList<>(trainedModels);
+
+            runBgThread(framework ->
+            {
+                File processed = framework.getFileManager().getProcessedCorpusFile(seriesFor);
+
+                Stage stage;
+                if (trained.size() > 0)
+                    stage = Stage.TRAINING_MODELS;
+                else if (processed.exists())
+                    stage = Stage.PRE_PROCESSED;
+                else
+                    stage = Stage.COLLECTING;
+
+                runUIThread(() ->
+                {
+                    setCurrentStage(stage);
+                    onResolved.run();
+                });
+            });
+        });
+    }
 
     public void acquireTimeSeries(Runnable onRetrieval)
     {
@@ -173,6 +202,16 @@ public class DashboardModel
         });
     }
 
+    public Stage getCurrentStage()
+    {
+        return currentStage;
+    }
+
+    public void setCurrentStage(Stage currentStage)
+    {
+        this.currentStage = currentStage;
+    }
+
     public List<TimeSeries> getTimeSeries()
     {
         return timeSeries;
@@ -253,4 +292,5 @@ public class DashboardModel
     {
         this.currentlySelectedMissingDataPolicy = currentlySelectedMissingDataPolicy;
     }
+
 }

@@ -2,6 +2,7 @@ package net.benorourke.stocks.framework.collection.datasource;
 
 import net.benorourke.stocks.framework.collection.datasource.alphavantage.AlphaVantage;
 import net.benorourke.stocks.framework.collection.datasource.newsapi.NewsAPI;
+import net.benorourke.stocks.framework.collection.datasource.twitter.Twitter4J;
 import net.benorourke.stocks.framework.series.data.Data;
 
 import java.util.ArrayList;
@@ -12,16 +13,12 @@ public class DataSourceManager
 {
     private final List<DataSource> dataSources;
 
-    // NewsAPI: 78d93a9d68584e61be38b1d90217d1e7
-    // AlphaVantage: ZJULNKK5LP9TFN4P
-
     public DataSourceManager()
     {
-        dataSources = new ArrayList<DataSource>()
-        {{
-            add(new NewsAPI());
-            add(new AlphaVantage());
-        }};
+        dataSources = new ArrayList<>();
+        dataSources.add(new AlphaVantage());
+        dataSources.add(new NewsAPI());
+        dataSources.add(new Twitter4J());
     }
 
     public List<DataSource> getDataSources()
@@ -32,9 +29,9 @@ public class DataSourceManager
     public <T extends DataSource> DataSource getDataSourceByClass(Class<T> clazz)
     {
         return dataSources.stream()
-                    .filter(s -> s.getClass().equals(clazz))
-                    .findFirst()
-                    .orElse(null);
+                          .filter(s -> s.getClass().equals(clazz))
+                          .findFirst()
+                          .orElse(null);
     }
 
     public <T extends DataSource> boolean dataSourceExists(Class<T> clazz)
@@ -44,11 +41,10 @@ public class DataSourceManager
 
     public <T extends Data> List<DataSource<T>> getDataSourcesByData(Class<T> clazz)
     {
-        return getDataSources()
-                    .stream()
-                    .filter(source -> clazz.isAssignableFrom(source.getDataClass()))
-                    .map(source -> (DataSource<T>) source)
-                    .collect(Collectors.toList());
+        return dataSources.stream()
+                          .filter(source -> clazz.isAssignableFrom(source.getDataClass()))
+                          .map(source -> (DataSource<T>) source)
+                          .collect(Collectors.toList());
     }
 
 }

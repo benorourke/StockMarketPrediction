@@ -4,6 +4,7 @@ import net.benorourke.stocks.framework.collection.ConnectionResponse;
 import net.benorourke.stocks.framework.collection.Query;
 import net.benorourke.stocks.framework.collection.constraint.Constraint;
 import net.benorourke.stocks.framework.collection.datasource.DataSource;
+import net.benorourke.stocks.framework.collection.datasource.variable.CollectionVariable;
 import net.benorourke.stocks.framework.collection.session.APICollectionSession;
 import net.benorourke.stocks.framework.collection.session.filter.CollectionFilter;
 import net.benorourke.stocks.framework.exception.ConstraintException;
@@ -13,6 +14,12 @@ import net.benorourke.stocks.framework.series.data.impl.Document;
 
 public class Twitter4J extends DataSource<Document>
 {
+    private String apiKey;
+    @CollectionVariable(name = "Search Term",
+                        type = CollectionVariable.Type.STRING,
+                        prompt = "Tweets Containing",
+                        validators = {"ALPHANUMERIC"})
+    private String searchTerm;
 
     public Twitter4J()
     {
@@ -46,7 +53,7 @@ public class Twitter4J extends DataSource<Document>
     @Override
     public CollectionFilter<Document> newDefaultCollectionFilter()
     {
-        return null;
+        return data -> !data.getContent().toLowerCase().contains(searchTerm.toLowerCase());
     }
 
     @Override
