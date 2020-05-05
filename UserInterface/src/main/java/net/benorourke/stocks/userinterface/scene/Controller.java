@@ -33,7 +33,8 @@ public class Controller
     public enum SnackbarType
     {
         INFO("Info"),
-        ERROR("Error");
+        ERROR("Error"),
+        NAVIGATION_RESTRICTION("Restriction");
 
         private String message;
 

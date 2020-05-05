@@ -198,6 +198,15 @@ public class DashboardController extends Controller
 
     private void selectNavbarButton(HBox toSelect, DashboardPane paneFor)
     {
+        // Determine whether they can navigate to this navigation pane based on the current FlowStage of the TimeSeries
+        FlowStage current = model.getCurrentFlowStage();
+        PaneHandler handler = paneHandlers[paneFor.ordinal()];
+        if (handler.getNavigationRequirement() != null && handler.getNavigationRequirement().isBefore(current))
+        {
+            snackbar(SnackbarType.NAVIGATION_RESTRICTION, handler.getNavigationRequirement().getErrorMessage());
+            return;
+        }
+
         SingleSelectionModel<Tab> model = tabPane.getSelectionModel();
         model.select(paneFor.ordinal());
 
@@ -273,13 +282,15 @@ public class DashboardController extends Controller
 
         model.setCurrentlySelectedTimeSeries(series);
 
-        for (PaneHandler handler : paneHandlers)
-        {
-            handler.onTimeSeriesChanged(series);
-        }
+        // Resolve the FlowStage to prevent them switching navigation tabs if they shouldn't be able to
+        model.setCurrentFlowStage(FlowStage.defaultStage());
+        model.resolveFlowStage(series, () -> {});
 
         selectTimeSeries(parent);
-//        selectNavbarButton(DashboardPane.HOME);
+        selectNavbarButton(DashboardPane.OVERVIEW);
+
+        for (PaneHandler handler : paneHandlers)
+            handler.onTimeSeriesChanged(series);
     }
 
     private void selectTimeSeries(Node parent)

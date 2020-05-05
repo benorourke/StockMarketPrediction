@@ -29,6 +29,7 @@ import net.benorourke.stocks.userinterface.scene.Controller;
 import net.benorourke.stocks.userinterface.scene.SceneHelper;
 import net.benorourke.stocks.userinterface.scene.dashboard.DashboardController;
 import net.benorourke.stocks.userinterface.scene.dashboard.DashboardModel;
+import net.benorourke.stocks.userinterface.scene.dashboard.FlowStage;
 import net.benorourke.stocks.userinterface.util.Constants;
 
 import java.time.LocalDate;
@@ -97,6 +98,12 @@ public class CollectionPaneHandler extends PaneHandler
 
     @Override
     public void onTimeSeriesChanged(TimeSeries series) { }
+
+    @Override
+    public FlowStage getNavigationRequirement()
+    {
+        return null;
+    }
 
     //////////////////////////////////////////////////////////////////
     //      COLLECT
@@ -268,7 +275,7 @@ public class CollectionPaneHandler extends PaneHandler
             Parent parent = collectionCollectionBoxVariables[index ++];
             Parent vbox = (Parent) parent.getChildrenUnmodifiable().get(0);
             Pane contentPane = (Pane) ((HBox) vbox.getChildrenUnmodifiable().get(1))
-                    .getChildrenUnmodifiable().get(0);
+                                            .getChildrenUnmodifiable().get(0);
 
             switch (variable.type())
             {

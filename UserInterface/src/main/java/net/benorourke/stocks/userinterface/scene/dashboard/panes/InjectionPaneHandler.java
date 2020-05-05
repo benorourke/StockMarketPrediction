@@ -26,6 +26,7 @@ import net.benorourke.stocks.userinterface.scene.Controller;
 import net.benorourke.stocks.userinterface.scene.SceneHelper;
 import net.benorourke.stocks.userinterface.scene.dashboard.DashboardController;
 import net.benorourke.stocks.userinterface.scene.dashboard.DashboardModel;
+import net.benorourke.stocks.userinterface.scene.dashboard.FlowStage;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -86,6 +87,12 @@ public class InjectionPaneHandler extends PaneHandler
 
     @Override
     public void onTimeSeriesChanged(TimeSeries series) { }
+
+    @Override
+    public FlowStage getNavigationRequirement()
+    {
+        return null;
+    }
 
     private void selectInjectionDataSource(DataSource source)
     {

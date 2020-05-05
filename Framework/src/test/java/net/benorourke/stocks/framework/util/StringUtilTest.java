@@ -13,7 +13,7 @@ public class StringUtilTest
 {
 
     @Test
-    public void camelCaseToWordsUnformatted_WordLengths1_ShouldBehaveProperly()
+    public void camelCaseToWordsUnformatted_WordLengths1_ShouldEqualExpected()
     {
         String value = "aBCD";
 
@@ -24,7 +24,7 @@ public class StringUtilTest
     }
 
     @Test
-    public void camelCaseToWordsFormatted_WordLengths1_ShouldBehaveProperly()
+    public void camelCaseToWordsFormatted_WordLengths1_ShouldEqualExpected()
     {
         String value = "aBCD";
 
@@ -35,7 +35,7 @@ public class StringUtilTest
     }
 
     @Test
-    public void camelCaseToWordsUnformatted_WordLengthsGreaterThan1_ShouldBehaveProperly()
+    public void camelCaseToWordsUnformatted_WordLengthsGreaterThan1_ShouldEqualExpected()
     {
         String value = "thisIsATest";
 
@@ -46,7 +46,7 @@ public class StringUtilTest
     }
 
     @Test
-    public void camelCaseToWordsFormatted_WordLengthsGreaterThan1_ShouldBehaveProperly()
+    public void camelCaseToWordsFormatted_WordLengthsGreaterThan1_ShouldEqualExpected()
     {
         String value = "thisIsATest";
 
@@ -57,7 +57,7 @@ public class StringUtilTest
     }
 
     @Test
-    public void camelCaseToWordsUnformatted_ContainsNumbers_ShouldBehaveProperly()
+    public void camelCaseToWordsUnformatted_ContainsNumbers_ShouldEqualExpected()
     {
         String value = "thisIsATest1";
 
@@ -68,7 +68,7 @@ public class StringUtilTest
     }
 
     @Test
-    public void camelCaseToWordsFormatted_ContainsNumbers_ShouldBehaveProperly()
+    public void camelCaseToWordsFormatted_ContainsNumbers_ShouldEqualExpected()
     {
         String value = "thisIsATest2";
 

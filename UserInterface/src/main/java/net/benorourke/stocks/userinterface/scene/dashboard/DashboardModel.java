@@ -1,5 +1,6 @@
 package net.benorourke.stocks.userinterface.scene.dashboard;
 
+import net.benorourke.stocks.framework.Framework;
 import net.benorourke.stocks.framework.collection.datasource.DataSource;
 import net.benorourke.stocks.framework.model.ModelEvaluation;
 import net.benorourke.stocks.framework.model.ModelHandlerManager;
@@ -21,7 +22,7 @@ public class DashboardModel
 {
     private final DashboardController controller;
 
-    private Stage currentStage;
+    private FlowStage currentFlowStage;
 
     // NAVBAR
     private List<TimeSeries> timeSeries;
@@ -68,13 +69,15 @@ public class DashboardModel
 
         // Evaluation
         trainedModels = new ArrayList<>();
+
+        setCurrentFlowStage(FlowStage.defaultStage());
     }
 
     //////////////////////////////////////////////////////////////////
     //      TIMESERIES UNSPECIFIC (APPLIES TO ALL)
     //////////////////////////////////////////////////////////////////
 
-    public void resolveStage(final TimeSeries seriesFor, Runnable onResolved)
+    public void resolveFlowStage(final TimeSeries seriesFor, Runnable onResolved)
     {
         acquireTrainedModels(seriesFor, () ->
         {
@@ -84,17 +87,17 @@ public class DashboardModel
             {
                 File processed = framework.getFileManager().getProcessedCorpusFile(seriesFor);
 
-                Stage stage;
+                FlowStage stage;
                 if (trained.size() > 0)
-                    stage = Stage.TRAINING_MODELS;
+                    stage = FlowStage.TRAINING_AND_EVALUATING_MODELS;
                 else if (processed.exists())
-                    stage = Stage.PRE_PROCESSED;
+                    stage = FlowStage.PRE_PROCESSED;
                 else
-                    stage = Stage.COLLECTING;
+                    stage = FlowStage.COLLECTING_AND_INJECTING;
 
                 runUIThread(() ->
                 {
-                    setCurrentStage(stage);
+                    setCurrentFlowStage(stage);
                     onResolved.run();
                 });
             });
@@ -202,14 +205,16 @@ public class DashboardModel
         });
     }
 
-    public Stage getCurrentStage()
+    public FlowStage getCurrentFlowStage()
     {
-        return currentStage;
+        Framework.debug("GET STAGE " + currentFlowStage);
+        return currentFlowStage;
     }
 
-    public void setCurrentStage(Stage currentStage)
+    public void setCurrentFlowStage(FlowStage currentFlowStage)
     {
-        this.currentStage = currentStage;
+        Framework.debug("SET STAGE TO " + currentFlowStage);
+        this.currentFlowStage = currentFlowStage;
     }
 
     public List<TimeSeries> getTimeSeries()

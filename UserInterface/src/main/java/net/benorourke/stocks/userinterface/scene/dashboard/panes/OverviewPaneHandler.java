@@ -17,6 +17,7 @@ import net.benorourke.stocks.userinterface.scene.Controller;
 import net.benorourke.stocks.userinterface.scene.SceneHelper;
 import net.benorourke.stocks.userinterface.scene.dashboard.DashboardController;
 import net.benorourke.stocks.userinterface.scene.dashboard.DashboardModel;
+import net.benorourke.stocks.userinterface.scene.dashboard.FlowStage;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -80,6 +81,12 @@ public class OverviewPaneHandler extends PaneHandler
     public void onTimeSeriesChanged(TimeSeries series)
     {
         updateDataPresent(series);
+    }
+
+    @Override
+    public FlowStage getNavigationRequirement()
+    {
+        return null;
     }
 
     //////////////////////////////////////////////////////////////////

@@ -29,6 +29,7 @@ import net.benorourke.stocks.userinterface.StockApplication;
 import net.benorourke.stocks.userinterface.scene.Controller;
 import net.benorourke.stocks.userinterface.scene.dashboard.DashboardController;
 import net.benorourke.stocks.userinterface.scene.dashboard.DashboardModel;
+import net.benorourke.stocks.userinterface.scene.dashboard.FlowStage;
 import net.benorourke.stocks.userinterface.util.Constants;
 
 import java.io.File;
@@ -76,6 +77,12 @@ public class PreprocessingHandler extends PaneHandler
     public void onTimeSeriesChanged(TimeSeries series)
     {
 
+    }
+
+    @Override
+    public FlowStage getNavigationRequirement()
+    {
+        return FlowStage.COLLECTING_AND_INJECTING;
     }
 
     private void populateTogglesBox()

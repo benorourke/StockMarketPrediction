@@ -16,6 +16,7 @@ import net.benorourke.stocks.userinterface.scene.Controller;
 import net.benorourke.stocks.userinterface.scene.SceneHelper;
 import net.benorourke.stocks.userinterface.scene.dashboard.DashboardController;
 import net.benorourke.stocks.userinterface.scene.dashboard.DashboardModel;
+import net.benorourke.stocks.userinterface.scene.dashboard.FlowStage;
 
 import java.util.stream.Collectors;
 
@@ -72,6 +73,12 @@ public class TrainingPaneHandler extends PaneHandler
     {
         // TODO
         StockApplication.debug("Verändert zum " + series.getName());
+    }
+
+    @Override
+    public FlowStage getNavigationRequirement()
+    {
+        return FlowStage.TRAINING_AND_EVALUATING_MODELS;
     }
 
     /**
