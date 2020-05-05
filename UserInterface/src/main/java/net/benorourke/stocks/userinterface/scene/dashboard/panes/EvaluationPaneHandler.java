@@ -8,6 +8,7 @@ import net.benorourke.stocks.framework.series.TimeSeries;
 import net.benorourke.stocks.framework.util.DateUtil;
 import net.benorourke.stocks.userinterface.scene.dashboard.DashboardController;
 import net.benorourke.stocks.userinterface.scene.dashboard.DashboardModel;
+import net.benorourke.stocks.userinterface.scene.dashboard.FlowStage;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -40,6 +41,12 @@ public class EvaluationPaneHandler extends PaneHandler
     public void onTimeSeriesChanged(TimeSeries series)
     {
         model.acquireTrainedModels(series, () -> updateOptions(series, model.getTrainedModels()));
+    }
+
+    @Override
+    public FlowStage getNavigationRequirement()
+    {
+        return FlowStage.TRAINING_AND_EVALUATING_MODELS;
     }
 
     public void updateOptions(TimeSeries series, List<String> trainedModels)

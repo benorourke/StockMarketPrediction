@@ -4,7 +4,6 @@ import net.benorourke.stocks.framework.Framework;
 import net.benorourke.stocks.framework.model.ModelData;
 import net.benorourke.stocks.framework.preprocess.FeatureRepresenter;
 import net.benorourke.stocks.framework.series.data.impl.*;
-import net.benorourke.stocks.framework.util.DateUtil;
 import net.benorourke.stocks.framework.util.StringUtil;
 import net.benorourke.stocks.framework.util.Tuple;
 
@@ -101,7 +100,7 @@ public class AverageDataMapper extends ModelDataMapper
         double[][] quoteFeatures = new double[quotes.size()][quoteCols];
         int quoteFeaturesIdx = 0;
         for (StockQuote quote : quotes)
-            quoteFeatures[quoteFeaturesIdx ++] = quote.getData();
+            quoteFeatures[quoteFeaturesIdx ++] = quote.toVector();
         double[] quoteFeaturesVector = takeMean(quoteFeatures, quoteCols);
 
         double[] labels = new double[getLabelCount()];

@@ -7,16 +7,15 @@ import edu.stanford.nlp.pipeline.StanfordCoreNLP;
 import edu.stanford.nlp.util.CoreMap;
 import net.benorourke.stocks.framework.Framework;
 import net.benorourke.stocks.framework.preprocess.Preprocess;
-import net.benorourke.stocks.framework.series.data.impl.Document;
 import net.benorourke.stocks.framework.series.data.impl.CleanedDocument;
+import net.benorourke.stocks.framework.series.data.impl.Document;
 import net.benorourke.stocks.framework.util.DateUtil;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class DimensionalityReduction extends Preprocess<List<Document>, List<CleanedDocument>>
 {
-    private static final int PROGRESS_ITERATIONS = 50;
+    private static final int PROGRESS_ITERATIONS = 10;
     private static final Set<String> STOPWORDS = new HashSet<>(Arrays.asList(new String[]
             {
                 "a", "an", "and", "are", "as", "at", "be", "but", "by",

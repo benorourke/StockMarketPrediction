@@ -13,6 +13,14 @@ public abstract class Data implements IData
         this.date = date;
     }
 
+    /**
+     * Whether this instance is a duplicate instance of another Data object.
+     *
+     * @param other
+     * @return
+     */
+    public abstract boolean isDuplicate(Data other);
+
     @Override
     public DataType getType()
     {

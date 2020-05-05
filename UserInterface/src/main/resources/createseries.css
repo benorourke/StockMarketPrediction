@@ -1,0 +1,6 @@
+.button-primary {
+    -fx-background-color: #3792ed;
+    -fx-text-fill: #ffffff;
+    -fx-pref-width: 150px;
+    -fx-pref-height: 15px;
+}

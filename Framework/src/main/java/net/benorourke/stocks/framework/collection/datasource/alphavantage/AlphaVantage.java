@@ -32,6 +32,11 @@ public class AlphaVantage extends DataSource<StockQuote>
 
     private static final String UI_INPUT_SYMBOL = "Symbol";
 
+    @CollectionVariable(name = "API Key",
+                        type = CollectionVariable.Type.STRING,
+                        prompt = "AlphaVantage API Key",
+                        validators = {"ALPHANUMERIC"})
+    private String apiKey;
     @CollectionVariable(name = "Stock Symbol",
                         type = CollectionVariable.Type.STRING,
                         prompt = "Alpha Vantage Symbol (e.g. LON:VOD)",
@@ -77,8 +82,7 @@ public class AlphaVantage extends DataSource<StockQuote>
     }
 
     @Override
-    public ConnectionResponse<StockQuote> retrieve(Query query, String apiKey)
-            throws FailedCollectionException, ConstraintException
+    public ConnectionResponse<StockQuote> retrieve(Query query) throws FailedCollectionException, ConstraintException
     {
         checkConstraintsOrThrow(query);
 

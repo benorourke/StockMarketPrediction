@@ -8,6 +8,7 @@ import net.benorourke.stocks.framework.collection.datasource.DataSource;
 import net.benorourke.stocks.framework.series.TimeSeries;
 
 import java.io.*;
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.Optional;
@@ -91,13 +92,20 @@ public class FileManager
         }
     }
 
-    public <T> Optional<Collection<T>> loadJsonList(File file, TypeToken token)
+    /**
+     * Be careful of type erasure with this function
+     * @param file
+     * @param type
+     * @param <T>
+     * @return
+     */
+    public <T> Optional<Collection<T>> loadJsonList(File file, ParameterizedType type)
     {
         if(!file.exists()) Optional.empty();
 
-        Type type = token.getType();
         try
         {
+            Framework.debug("Type: " + type.toString());
             JsonReader reader = new JsonReader(new FileReader(file));
             Collection<T> data = framework.getGson().fromJson(reader, type);
 
@@ -165,10 +173,15 @@ public class FileManager
         return new File(getTimeSeriesDirectory(timeSeries), "raw");
     }
 
-    public File getRawDataFile(TimeSeries timeSeries, Class<? extends DataSource> clazz)
+    public File getRawDataFile(TimeSeries timeSeries, Class<? extends DataSource> sourceClazz)
     {
         return new File(getRawDataStoreDirectory(timeSeries)
-                            + File.separator + clazz.getSimpleName().toLowerCase() + ".json");
+                            + File.separator + sourceClazz.getSimpleName().toLowerCase() + ".json");
+    }
+
+    public File getRawDataFile(TimeSeries timeSeries, DataSource source)
+    {
+        return getRawDataFile(timeSeries, source.getClass());
     }
 
     public File getProcessedDataStoreDirectory(TimeSeries timeSeries)

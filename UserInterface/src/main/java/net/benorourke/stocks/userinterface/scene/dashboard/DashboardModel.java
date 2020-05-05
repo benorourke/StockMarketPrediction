@@ -1,15 +1,19 @@
 package net.benorourke.stocks.userinterface.scene.dashboard;
 
+import net.benorourke.stocks.framework.Framework;
 import net.benorourke.stocks.framework.collection.datasource.DataSource;
 import net.benorourke.stocks.framework.model.ModelEvaluation;
 import net.benorourke.stocks.framework.model.ModelHandlerManager;
+import net.benorourke.stocks.framework.preprocess.FeatureRepresenter;
+import net.benorourke.stocks.framework.preprocess.FeatureRepresenterManager;
+import net.benorourke.stocks.framework.preprocess.assignment.MissingDataPolicy;
 import net.benorourke.stocks.framework.series.TimeSeries;
+import net.benorourke.stocks.framework.series.data.impl.CleanedDocument;
+import net.benorourke.stocks.framework.series.data.impl.StockQuote;
 import net.benorourke.stocks.framework.util.Nullable;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import static net.benorourke.stocks.userinterface.StockApplication.runBgThread;
 import static net.benorourke.stocks.userinterface.StockApplication.runUIThread;
@@ -18,13 +22,25 @@ public class DashboardModel
 {
     private final DashboardController controller;
 
+    private FlowStage currentFlowStage;
+
     // NAVBAR
     private List<TimeSeries> timeSeries;
     @Nullable private TimeSeries currentlySelectedTimeSeries;
 
     // COLLECTION
     private List<DataSource> dataSources;
-    private DataSource currentlySelectedDataSource;
+    private DataSource currentlySelectedCollectionDataSource;
+
+    // INJECTION
+    private DataSource currentlySelectedInjectionDataSource;
+
+    // PRE-PROCESSING
+    private Map<FeatureRepresenterManager.Metadata, FeatureRepresenter<StockQuote>> quoteFeatureRepresenters;
+    private Map<FeatureRepresenterManager.Metadata, FeatureRepresenter<CleanedDocument>> documentFeatureRepresenters;
+    private List<MissingDataPolicy> missingDataPolicies;
+
+    @Nullable private MissingDataPolicy currentlySelectedMissingDataPolicy;
 
     // TRAINING
     private List<ModelHandlerManager.RuntimeCreator> modelHandlerCreators;
@@ -36,15 +52,57 @@ public class DashboardModel
     protected DashboardModel(DashboardController controller)
     {
         this.controller = controller;
+
+        // Navbar
         timeSeries = new ArrayList<>();
+
+        // Collection
         dataSources = new ArrayList<>();
+
+        // Pre-processing
+        quoteFeatureRepresenters = new HashMap<>();
+        documentFeatureRepresenters = new HashMap<>();
+        missingDataPolicies = new ArrayList<>();
+
+        // Training
         modelHandlerCreators = new ArrayList<>();
+
+        // Evaluation
         trainedModels = new ArrayList<>();
+
+        setCurrentFlowStage(FlowStage.defaultStage());
     }
 
     //////////////////////////////////////////////////////////////////
     //      TIMESERIES UNSPECIFIC (APPLIES TO ALL)
     //////////////////////////////////////////////////////////////////
+
+    public void resolveFlowStage(final TimeSeries seriesFor, Runnable onResolved)
+    {
+        acquireTrainedModels(seriesFor, () ->
+        {
+            final List<String> trained = new ArrayList<>(trainedModels);
+
+            runBgThread(framework ->
+            {
+                File processed = framework.getFileManager().getProcessedCorpusFile(seriesFor);
+
+                FlowStage stage;
+                if (trained.size() > 0)
+                    stage = FlowStage.TRAINING_AND_EVALUATING_MODELS;
+                else if (processed.exists())
+                    stage = FlowStage.PRE_PROCESSED;
+                else
+                    stage = FlowStage.COLLECTING_AND_INJECTING;
+
+                runUIThread(() ->
+                {
+                    setCurrentFlowStage(stage);
+                    onResolved.run();
+                });
+            });
+        });
+    }
 
     public void acquireTimeSeries(Runnable onRetrieval)
     {
@@ -55,8 +113,7 @@ public class DashboardModel
 
             runUIThread(() ->
             {
-                timeSeries.clear();
-                timeSeries.addAll(clone);
+                timeSeries = clone;
                 onRetrieval.run();
             });
         });
@@ -71,8 +128,7 @@ public class DashboardModel
 
             runUIThread(() ->
             {
-                dataSources.clear();
-                dataSources.addAll(clone);
+                dataSources = clone;
                 if (onRetrieval != null) onRetrieval.run();
             });
         });
@@ -87,8 +143,28 @@ public class DashboardModel
 
             runUIThread(() ->
             {
-                modelHandlerCreators.clear();
-                modelHandlerCreators.addAll(creators);
+                modelHandlerCreators = creators;
+                onRetrieval.run();
+            });
+        });
+    }
+
+    public void acquireFeatureRepresentionData(Runnable onRetrieval)
+    {
+        runBgThread(framework ->
+        {
+            final Map<FeatureRepresenterManager.Metadata, FeatureRepresenter<StockQuote>> features =
+                    Collections.unmodifiableMap(framework.getFeatureRepresenterManager().getQuoteRepresenters());
+            final Map<FeatureRepresenterManager.Metadata, FeatureRepresenter<CleanedDocument>> documents =
+                    Collections.unmodifiableMap(framework.getFeatureRepresenterManager().getDocumentRepresenters());
+            final List<MissingDataPolicy> missingDataPolicies =
+                    Collections.unmodifiableList(framework.getFeatureRepresenterManager().getMissingDataPolicies());
+
+            runUIThread(() ->
+            {
+                this.quoteFeatureRepresenters = features;
+                this.documentFeatureRepresenters = documents;
+                this.missingDataPolicies = missingDataPolicies;
                 onRetrieval.run();
             });
         });
@@ -106,8 +182,7 @@ public class DashboardModel
 
             runUIThread(() ->
             {
-                trainedModels.clear();
-                trainedModels.addAll(trained);
+                trainedModels = trained;
                 onRetrieval.run();
             });
         });
@@ -130,17 +205,30 @@ public class DashboardModel
         });
     }
 
+    public FlowStage getCurrentFlowStage()
+    {
+        Framework.debug("GET STAGE " + currentFlowStage);
+        return currentFlowStage;
+    }
+
+    public void setCurrentFlowStage(FlowStage currentFlowStage)
+    {
+        Framework.debug("SET STAGE TO " + currentFlowStage);
+        this.currentFlowStage = currentFlowStage;
+    }
+
     public List<TimeSeries> getTimeSeries()
     {
         return timeSeries;
     }
 
+    @Nullable
     public TimeSeries getCurrentlySelectedTimeSeries()
     {
         return currentlySelectedTimeSeries;
     }
 
-    public void setCurrentlySelectedTimeSeries(TimeSeries currentlySelectedTimeSeries)
+    public void setCurrentlySelectedTimeSeries(@Nullable TimeSeries currentlySelectedTimeSeries)
     {
         this.currentlySelectedTimeSeries = currentlySelectedTimeSeries;
     }
@@ -150,14 +238,24 @@ public class DashboardModel
         return dataSources;
     }
 
-    public DataSource getCurrentlySelectedDataSource()
+    public DataSource getCurrentlySelectedCollectionDataSource()
     {
-        return currentlySelectedDataSource;
+        return currentlySelectedCollectionDataSource;
     }
 
-    public void setCurrentlySelectedDataSource(DataSource currentlySelectedDataSource)
+    public void setCurrentlySelectedCollectionDataSource(DataSource currentlySelectedCollectionDataSource)
     {
-        this.currentlySelectedDataSource = currentlySelectedDataSource;
+        this.currentlySelectedCollectionDataSource = currentlySelectedCollectionDataSource;
+    }
+
+    public DataSource getCurrentlySelectedInjectionDataSource()
+    {
+        return currentlySelectedInjectionDataSource;
+    }
+
+    public void setCurrentlySelectedInjectionDataSource(DataSource currentlySelectedInjectionDataSource)
+    {
+        this.currentlySelectedInjectionDataSource = currentlySelectedInjectionDataSource;
     }
 
     public List<ModelHandlerManager.RuntimeCreator> getModelHandlerCreators()
@@ -173,6 +271,31 @@ public class DashboardModel
     public ModelEvaluation getLastAcquiredEvaluation()
     {
         return lastAcquiredEvaluation;
+    }
+
+    public Map<FeatureRepresenterManager.Metadata, FeatureRepresenter<StockQuote>> getQuoteFeatureRepresenters()
+    {
+        return quoteFeatureRepresenters;
+    }
+
+    public Map<FeatureRepresenterManager.Metadata, FeatureRepresenter<CleanedDocument>> getDocumentFeatureRepresenters()
+    {
+        return documentFeatureRepresenters;
+    }
+
+    public List<MissingDataPolicy> getMissingDataPolicies()
+    {
+        return missingDataPolicies;
+    }
+
+    public MissingDataPolicy getCurrentlySelectedMissingDataPolicy()
+    {
+        return currentlySelectedMissingDataPolicy;
+    }
+
+    public void setCurrentlySelectedMissingDataPolicy(MissingDataPolicy currentlySelectedMissingDataPolicy)
+    {
+        this.currentlySelectedMissingDataPolicy = currentlySelectedMissingDataPolicy;
     }
 
 }

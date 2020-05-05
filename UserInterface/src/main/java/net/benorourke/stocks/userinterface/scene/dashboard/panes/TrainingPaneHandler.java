@@ -16,6 +16,7 @@ import net.benorourke.stocks.userinterface.scene.Controller;
 import net.benorourke.stocks.userinterface.scene.SceneHelper;
 import net.benorourke.stocks.userinterface.scene.dashboard.DashboardController;
 import net.benorourke.stocks.userinterface.scene.dashboard.DashboardModel;
+import net.benorourke.stocks.userinterface.scene.dashboard.FlowStage;
 
 import java.util.stream.Collectors;
 
@@ -74,6 +75,12 @@ public class TrainingPaneHandler extends PaneHandler
         StockApplication.debug("Verändert zum " + series.getName());
     }
 
+    @Override
+    public FlowStage getNavigationRequirement()
+    {
+        return FlowStage.TRAINING_AND_EVALUATING_MODELS;
+    }
+
     /**
      * {@link #inputParents} along with {@link #inputFields} will be set to null, followed by each parent being
      * asynchronously inflated (on differing threads).
@@ -103,7 +110,7 @@ public class TrainingPaneHandler extends PaneHandler
                                         @Nullable String promptText, @Nullable String text,
                                         boolean disableInput)
     {
-        SceneHelper.inflateAsync(DashboardController.INPUT_FIELD_FXML, result -> {
+        SceneHelper.inflateAsync(DashboardController.TEXT_INPUT_FIELD_FXML, result -> {
             if (!result.isSuccess()) return;
 
             FXMLLoader loader = result.getLoader();

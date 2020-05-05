@@ -7,9 +7,6 @@ import net.benorourke.stocks.framework.series.data.DocumentType;
 import java.util.Date;
 import java.util.List;
 
-/**
- * TODO
- */
 public class CleanedDocument extends Data
 {
     private final String originalContent;
@@ -23,6 +20,16 @@ public class CleanedDocument extends Data
         this.originalContent = originalContent;
         this.cleanedTerms = cleanedTerms;
         this.documentType = documentType;
+    }
+
+    @Override
+    public boolean isDuplicate(Data other)
+    {
+        if (!(other instanceof Document))
+            return false;
+
+        CleanedDocument cdOther = (CleanedDocument) other;
+        return originalContent.toLowerCase().equalsIgnoreCase(cdOther.originalContent.toLowerCase());
     }
 
     public String getOriginalContent()

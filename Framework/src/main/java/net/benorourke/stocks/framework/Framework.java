@@ -13,12 +13,16 @@ import net.benorourke.stocks.framework.persistence.FileManager;
 import net.benorourke.stocks.framework.persistence.gson.TimeSeriesAdapter;
 import net.benorourke.stocks.framework.persistence.gson.data.DocumentAdapter;
 import net.benorourke.stocks.framework.persistence.gson.data.StockQuoteAdapter;
-import net.benorourke.stocks.framework.persistence.gson.data.representer.SentimentFeatureRepresenterAdapter;
+import net.benorourke.stocks.framework.persistence.gson.data.representer.BinarySentimentFeatureRepresenterAdapter;
+import net.benorourke.stocks.framework.persistence.gson.data.representer.NormalisedSentimentFeatureRepresenterAdapter;
 import net.benorourke.stocks.framework.persistence.gson.data.representer.StockQuoteFeatureRepresenterAdapter;
 import net.benorourke.stocks.framework.persistence.gson.data.representer.TopTermFeatureRepresenterAdapter;
 import net.benorourke.stocks.framework.persistence.gson.model.ModelDataAdapter;
 import net.benorourke.stocks.framework.persistence.gson.model.ModelEvaluationAdapter;
 import net.benorourke.stocks.framework.persistence.gson.model.ProcessedDatasetAdapter;
+import net.benorourke.stocks.framework.preprocess.FeatureRepresenterManager;
+import net.benorourke.stocks.framework.preprocess.document.representer.sentiment.BinarySentimentFeatureRepresenter;
+import net.benorourke.stocks.framework.preprocess.document.representer.sentiment.NormalisedSentimentFeatureRepresenter;
 import net.benorourke.stocks.framework.preprocess.document.representer.sentiment.SentimentFeatureRepresenter;
 import net.benorourke.stocks.framework.preprocess.document.representer.topterm.TopTermFeatureRepresenter;
 import net.benorourke.stocks.framework.preprocess.quote.StockQuoteFeatureRepresenter;
@@ -46,6 +50,7 @@ public class Framework implements Initialisable
     private final DataSourceManager dataSourceManager;
     private final TimeSeriesManager timeSeriesManager;
     private final TaskManager taskManager;
+    private final FeatureRepresenterManager featureRepresenterManager;
     private final ModelHandlerManager modelHandlerManager;
 
     static
@@ -64,12 +69,13 @@ public class Framework implements Initialisable
                 .registerTypeAdapter(ProcessedDataset.class, new ProcessedDatasetAdapter())
                 .registerTypeAdapter(ModelEvaluation.class, new ModelEvaluationAdapter())
                 .registerTypeAdapter(TopTermFeatureRepresenter.class, new TopTermFeatureRepresenterAdapter())
-                .registerTypeAdapter(SentimentFeatureRepresenter.class, new SentimentFeatureRepresenterAdapter())
+                .registerTypeAdapter(BinarySentimentFeatureRepresenter.class, new BinarySentimentFeatureRepresenterAdapter())
+                .registerTypeAdapter(NormalisedSentimentFeatureRepresenter.class, new NormalisedSentimentFeatureRepresenterAdapter())
                 .registerTypeAdapter(StockQuoteFeatureRepresenter.class, new StockQuoteFeatureRepresenterAdapter());
         // Register the type adapters specified in the configuration
         config.getGsonTypeAdapters().entrySet()
-                .stream()
-                .forEach(e -> builder.registerTypeAdapter(e.getKey(), e.getValue()));
+                                        .stream()
+                                        .forEach(e -> builder.registerTypeAdapter(e.getKey(), e.getValue()));
         gson = builder.create();
 
         // Inject any additional, custom VariableValidators for new DataSources
@@ -80,6 +86,7 @@ public class Framework implements Initialisable
         dataSourceManager = new DataSourceManager();
         timeSeriesManager = new TimeSeriesManager(this);
         taskManager = new TaskManager(config);
+        featureRepresenterManager = new FeatureRepresenterManager();
         modelHandlerManager = new ModelHandlerManager();
     }
 
@@ -92,6 +99,7 @@ public class Framework implements Initialisable
     public void initialise()
     {
         timeSeriesManager.initialise();
+        featureRepresenterManager.initialise();
         modelHandlerManager.initialise();
     }
 
@@ -135,18 +143,18 @@ public class Framework implements Initialisable
         return taskManager;
     }
 
+    public FeatureRepresenterManager getFeatureRepresenterManager()
+    {
+        return featureRepresenterManager;
+    }
+
     public ModelHandlerManager getModelHandlerManager()
     {
         return modelHandlerManager;
     }
 
-    /**
-     * This should only be accessed through the FileManager
-     * @return
-     */
     public Gson getGson()
     {
-        // TODO - Ensure this is thread-safe, it may be used concurrently
         return gson;
     }
 

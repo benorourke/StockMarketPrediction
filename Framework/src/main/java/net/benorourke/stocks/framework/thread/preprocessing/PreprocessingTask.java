@@ -4,18 +4,21 @@ import net.benorourke.stocks.framework.Framework;
 import net.benorourke.stocks.framework.collection.datasource.DataSource;
 import net.benorourke.stocks.framework.exception.InsuficcientRawDataException;
 import net.benorourke.stocks.framework.model.ModelData;
+import net.benorourke.stocks.framework.model.ProcessedDataset;
 import net.benorourke.stocks.framework.persistence.store.DataStore;
 import net.benorourke.stocks.framework.preprocess.FeatureRepresenter;
 import net.benorourke.stocks.framework.preprocess.Preprocess;
-import net.benorourke.stocks.framework.preprocess.ProgressCallback;
 import net.benorourke.stocks.framework.preprocess.assignment.LabelAssignment;
 import net.benorourke.stocks.framework.preprocess.assignment.MissingDataPolicy;
 import net.benorourke.stocks.framework.preprocess.assignment.ModelDataMapper;
 import net.benorourke.stocks.framework.preprocess.document.DimensionalityReduction;
 import net.benorourke.stocks.framework.preprocess.document.FeatureRepresentation;
-import net.benorourke.stocks.framework.model.ProcessedDataset;
 import net.benorourke.stocks.framework.series.data.DataType;
-import net.benorourke.stocks.framework.series.data.impl.*;
+import net.benorourke.stocks.framework.series.data.impl.CleanedDocument;
+import net.benorourke.stocks.framework.series.data.impl.Document;
+import net.benorourke.stocks.framework.series.data.impl.ProcessedDocument;
+import net.benorourke.stocks.framework.series.data.impl.StockQuote;
+import net.benorourke.stocks.framework.thread.Progress;
 import net.benorourke.stocks.framework.thread.Task;
 import net.benorourke.stocks.framework.thread.TaskDescription;
 import net.benorourke.stocks.framework.thread.TaskType;
@@ -30,11 +33,29 @@ import java.util.*;
  */
 public class PreprocessingTask implements Task<TaskDescription, PreprocessingResult>
 {
+    private static final LinkedHashMap<Integer, Double> PROGRESS_STEPS;
+    private static final int PROGRESS_INIT = 0;
+    private static final int PROGRESS_LOAD_QUOTES = 1;
+    private static final int PROGRESS_LOAD_CORPUS = 2;
+    private static final int PROGRESS_REDUCE_DIMENSIONALITY = 3;
+    private static final int PROGRESS_REPRESENT_FEATURES = 4;
+    private static final int PROGRESS_ASSIGN_LABELS = 5;
+
+    static
+    {
+        PROGRESS_STEPS = new LinkedHashMap<>();
+        PROGRESS_STEPS.put(PROGRESS_INIT, 5.0D);
+        PROGRESS_STEPS.put(PROGRESS_LOAD_QUOTES, 7.5D);
+        PROGRESS_STEPS.put(PROGRESS_LOAD_CORPUS, 7.5D);
+        PROGRESS_STEPS.put(PROGRESS_REDUCE_DIMENSIONALITY, 25.0D);
+        PROGRESS_STEPS.put(PROGRESS_REPRESENT_FEATURES, 35.0D);
+        PROGRESS_STEPS.put(PROGRESS_ASSIGN_LABELS, 20.0D);
+    }
+
     private final DataStore store;
     private final Map<DataSource, Integer> collectedDataCounts;
     private final List<FeatureRepresenter<CleanedDocument>> documentFeatureRepresenters;
     private final List<FeatureRepresenter<StockQuote>> quoteFeatureRepresenters;
-
 
     // Document Pre-processes
     private final DimensionalityReduction dimensionalityReduction;
@@ -42,13 +63,22 @@ public class PreprocessingTask implements Task<TaskDescription, PreprocessingRes
     // Document & StockQuote Preprocesses
     private final LabelAssignment labelAssignment;
     // All Preprocesses
+    /**
+     * [0] = dimensionality reduction
+     * [1] = feature representation
+     * [3] = label assignment
+     *
+     * If these change, ensure {@link #initialisePreprocesses()} is updated to reflect the mappings from
+     * preprocess -> progress mapping ID.
+     */
     private final Preprocess[] preprocesses;
 
     private PreprocessingStage stage;
     private DataSource<StockQuote> stockQuoteSource;
     private List<DataSource<Document>> documentSources;
 
-    private PreprocessingProgress progress;
+    private Progress progress;
+    private Progress.Helper progressHelper;
 
     // Data that's loaded/processed progressively:
     private List<StockQuote> loadedQuotes;
@@ -141,9 +171,11 @@ public class PreprocessingTask implements Task<TaskDescription, PreprocessingRes
     }
 
     @Override
-    public PreprocessingProgress createTaskProgress()
+    public Progress createTaskProgress()
     {
-        return progress = new PreprocessingProgress(preprocesses);
+        progress = new Progress();
+        progressHelper = new Progress.Helper(progress, PROGRESS_STEPS);
+        return progress;
     }
 
     @Override
@@ -151,10 +183,7 @@ public class PreprocessingTask implements Task<TaskDescription, PreprocessingRes
     {
         Framework.info("Executing stage " + stage.toString());
         if (executeStage())
-        {
-            progress.onStageCompleted(stage);
             stage = stage.next();
-        }
     }
 
     /**
@@ -198,14 +227,28 @@ public class PreprocessingTask implements Task<TaskDescription, PreprocessingRes
             final int finalI = i;
             Preprocess preprocess = preprocesses[i];
             preprocess.initialise();
-            preprocess.addProgressCallback(new ProgressCallback()
+            preprocess.addProgressAdapter(percentageProgress ->
             {
-                @Override
-                public void onProgressUpdate(double percentageProgress)
+                int progressId;
+                switch (finalI)
                 {
-                    progress.onPreprocessorPercentageChanged(finalI, percentageProgress);
+                    case 0:
+                        progressId = PROGRESS_REDUCE_DIMENSIONALITY;
+                        break;
+                    case 1:
+                        progressId = PROGRESS_REPRESENT_FEATURES;
+                        break;
+                    case 2:
+                    default:
+                        progressId = PROGRESS_ASSIGN_LABELS;
+                        break;
                 }
+
+                progressHelper.updatePercentage(progressId, percentageProgress);
             });
+
+            double percentage = (100.0 * (i + 1.0)) / ((double) preprocesses.length);
+            progressHelper.updatePercentage(PROGRESS_INIT,  percentage);
         }
 
         Framework.info("Initialised " + preprocesses.length + " preprocesses");
@@ -213,10 +256,8 @@ public class PreprocessingTask implements Task<TaskDescription, PreprocessingRes
 
     private void executeLoadQuotes()
     {
-        Class<? extends DataSource<StockQuote>> stockQuoteSourceClazz
-                = (Class<? extends DataSource<StockQuote>>) stockQuoteSource.getClass();
-
-        loadedQuotes.addAll(store.loadRawStockQuotes(stockQuoteSourceClazz));
+        loadedQuotes.addAll(store.loadRawStockQuotes(stockQuoteSource));
+        progressHelper.updatePercentage(PROGRESS_LOAD_QUOTES,  100.0);
         Framework.info("Loaded " + loadedQuotes.size() + " quotes to pre-process");
     }
 
@@ -237,14 +278,13 @@ public class PreprocessingTask implements Task<TaskDescription, PreprocessingRes
             Framework.info("Loading from DocumentSource " + source.getClass().getSimpleName()
                                 + " (" + currentSource + '/' + totalSources + ")");
 
-            Class<? extends DataSource<Document>> documentSourceClazz
-                    = (Class<? extends DataSource<Document>>) source.getClass();
-            loadedCorpus.addAll(store.loadRawDocuments(documentSourceClazz));
+            loadedCorpus.addAll(store.loadRawDocuments(source));
             int loaded = loadedCorpus.size() - documentsLoaded;
 
             currentSource ++;
             documentsLoaded = loadedCorpus.size();
             double percentage = ((double) documentsLoaded / (double) totalDocuments) * 100;
+            progressHelper.updatePercentage(PROGRESS_LOAD_CORPUS,  percentage);
             Framework.info("Loaded from DocumentSource " + source.getClass().getSimpleName()
                                 + " (" + loaded +" loaded, " + percentage + "% complete)");
         }
@@ -253,6 +293,7 @@ public class PreprocessingTask implements Task<TaskDescription, PreprocessingRes
     private void executeReduceDimensionality()
     {
         reducedCorpus.addAll(dimensionalityReduction.preprocess(loadedCorpus));
+        progressHelper.updatePercentage(PROGRESS_REDUCE_DIMENSIONALITY,  100.0); // should already happen from the adapter, but just in case
         Framework.info("[Pre-processing] Reduced Dimensionality of Entire Corpus ("
                             + reducedCorpus.size() + ")");
         loadedCorpus.clear();
@@ -262,6 +303,7 @@ public class PreprocessingTask implements Task<TaskDescription, PreprocessingRes
     private void executeRepresentFeatures()
     {
         representedCorpus = featureRepresentation.preprocess(reducedCorpus);
+        progressHelper.updatePercentage(PROGRESS_REPRESENT_FEATURES,  100.0); // should already happen from the adapter, but just in case
         Framework.info("[Pre-processing] Represented Entire Corpus");
         reducedCorpus.clear();
         reducedCorpus = null;
@@ -273,6 +315,7 @@ public class PreprocessingTask implements Task<TaskDescription, PreprocessingRes
         int features = labelAssignment.getMapper().getFeatureCount();
         int labels = labelAssignment.getMapper().getLabelCount();
         List<ModelData> data = labelAssignment.preprocess(new Tuple<>(representedCorpus, loadedQuotes));
+        progressHelper.updatePercentage(PROGRESS_REPRESENT_FEATURES,  100.0); // should already happen from the adapter, but just in case
         Framework.info("[Pre-processing] Producing Corpus");
         result = new ProcessedDataset(documentFeatureRepresenters, quoteFeatureRepresenters, features, labels, data);
         Framework.info("[Pre-processing] Normalising Corpus");

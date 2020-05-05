@@ -2,7 +2,7 @@ package net.benorourke.stocks.framework.thread;
 
 import net.benorourke.stocks.framework.Configuration;
 import net.benorourke.stocks.framework.Framework;
-import net.benorourke.stocks.framework.exception.TaskAlreadyPresentException;
+import net.benorourke.stocks.framework.exception.TaskStartException;
 import net.benorourke.stocks.framework.util.ThreadSynchronised;
 import net.benorourke.stocks.framework.util.Tuple;
 
@@ -73,40 +73,24 @@ public class TaskManager
     }
 
     /**
-     * Check whether a Task of a given type is running / queued.
-     *
-     * @param type
-     * @return
-     */
-    @ThreadSynchronised
-    public boolean isTaskPresent(TaskType type)
-    {
-        for (TaskDescription value : descriptionMap.values())
-        {
-            if (value.getType().equals(value))
-                return true;
-        }
-        return false;
-    }
-
-    /**
      *
      * @param task
      * @param onFinished
      * @param initialDelay
      * @param period
      * @param timeUnit
-     * @param <T>
+     * @param <S>
+     * @param <U>
      * @return the taskId
      */
     @ThreadSynchronised
     public <S extends TaskDescription,
             U extends Result> UUID scheduleRepeating(Task<S, U> task, ResultCallback<U> onFinished,
                                                      long initialDelay, long period, TimeUnit timeUnit)
-            throws TaskAlreadyPresentException
+            throws TaskStartException
     {
         if (isTaskPresent(task))
-            throw new TaskAlreadyPresentException(task);
+            throw new TaskStartException(task);
         // TODO - ADD A CHECK TO SEE IF ANYTHING ELSE IS RUNNING BEFORE BEGINNING PRE-PROCESSINGS
 
         TaskWrapper wrapper = new TaskWrapper(this, task, onFinished);
@@ -137,8 +121,14 @@ public class TaskManager
     @ThreadSynchronised
     public void cancel(UUID taskId)
     {
+        if (!taskMap.containsKey(taskId)) return;
+
         TaskWrapper wrapper = taskMap.get(taskId);
         if(wrapper.hasHandle()) wrapper.getHandle().cancel(true);
+
+        taskMap.remove(taskId);
+        descriptionMap.remove(taskId);
+        progressMap.remove(taskId);
     }
 
     @ThreadSynchronised
@@ -190,6 +180,34 @@ public class TaskManager
 
         while (progressMapIterator.hasNext())
             progressMap.remove(progressMapIterator.next().getId());
+    }
+
+    /**
+     * Clones the Map, but not the elements within.
+     *
+     * @return
+     */
+    @ThreadSynchronised
+    public Map<UUID, TaskDescription> cloneDescriptionMap()
+    {
+        Map<UUID, TaskDescription> map = new LinkedHashMap<>();
+        for (Map.Entry<UUID, TaskDescription> entry : descriptionMap.entrySet())
+            map.put(entry.getKey(), entry.getValue());
+        return map;
+    }
+
+    /**
+     * Clones the Map, but not the elements within.
+     *
+     * @return
+     */
+    @ThreadSynchronised
+    public Map<UUID, Progress> cloneProgressMap()
+    {
+        Map<UUID, Progress> map = new LinkedHashMap<>();
+        for (Map.Entry<UUID, Progress> entry : progressMap.entrySet())
+            map.put(entry.getKey(), entry.getValue());
+        return map;
     }
 
 

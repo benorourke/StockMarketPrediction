@@ -9,11 +9,9 @@ import net.benorourke.stocks.framework.model.ProcessedDataset;
 import net.benorourke.stocks.framework.thread.*;
 import net.benorourke.stocks.framework.util.DateUtil;
 import net.benorourke.stocks.framework.util.Nullable;
+import net.benorourke.stocks.framework.util.Tuple;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 /**
  * No TaskDescription derivative class required as we only want to enable one
@@ -21,12 +19,28 @@ import java.util.List;
  */
 public class TrainingTask<T extends PredictionModel> implements Task<TaskDescription, TrainingResult<T>>
 {
+    private static final LinkedHashMap<Integer, Double> PROGRESS_STEPS;
+    private static final int PROGRESS_CREATE = 0;
+    private static final int PROGRESS_TRAIN = 1;
+    private static final int PROGRESS_EVALUATE = 2;
+    private static final int PROGRESS_EVALUATE_SORT = 3;
+
+    static
+    {
+        PROGRESS_STEPS = new LinkedHashMap<>();
+        PROGRESS_STEPS.put(PROGRESS_CREATE, 20.0D);
+        PROGRESS_STEPS.put(PROGRESS_TRAIN, 60.0D);
+        PROGRESS_STEPS.put(PROGRESS_EVALUATE, 10.0D);
+        PROGRESS_STEPS.put(PROGRESS_EVALUATE_SORT, 10.0D);
+    }
+
     private final ModelHandler<T> modelHandler;
     private final ProcessedDataset training, testing;
     private final long seed; // TODO - Do something with this
 
     private TrainingStage stage;
     private Progress progress;
+    private Progress.Helper progressHelper;
 
     @Nullable
     private T predictionModel;
@@ -66,7 +80,9 @@ public class TrainingTask<T extends PredictionModel> implements Task<TaskDescrip
     @Override
     public Progress createTaskProgress()
     {
-        return progress = new Progress();
+        progress = new Progress();
+        progressHelper = new Progress.Helper(progress, PROGRESS_STEPS);
+        return progress;
     }
 
     @Override
@@ -99,11 +115,13 @@ public class TrainingTask<T extends PredictionModel> implements Task<TaskDescrip
     private void executeCreate()
     {
         predictionModel = modelHandler.create();
+        progressHelper.updatePercentage(PROGRESS_CREATE, 100.0);
     }
 
     private void executeTrain()
     {
         modelHandler.train(predictionModel, training);
+        progressHelper.updatePercentage(PROGRESS_TRAIN, 100.0);
     }
 
     private void executeEvaluate()
@@ -113,15 +131,10 @@ public class TrainingTask<T extends PredictionModel> implements Task<TaskDescrip
         List<ModelEvaluation.Prediction> predictions = new ArrayList();
         predictions.addAll(evaluation.getTrainingPredictions());
         predictions.addAll(evaluation.getTestingPredictions());
-
-        Framework.debug("Training predictions: " + evaluation.getTrainingPredictions().size());
-        Framework.debug("Testing predictions: " + evaluation.getTestingPredictions().size());
+        progressHelper.updatePercentage(PROGRESS_EVALUATE, 100.0);
 
         Collections.sort(predictions, Comparator.comparing(ModelEvaluation.Prediction::getDate));
-        for (ModelEvaluation.Prediction day : predictions)
-        {
-            Framework.debug(DateUtil.formatSimple(day.getDate()) + ": [" + day.getLabels()[0] + "->" + day.getPredicted()[0] + "]");
-        }
+        progressHelper.updatePercentage(PROGRESS_EVALUATE_SORT, 100.0);
     }
 
     @Override

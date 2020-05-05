@@ -14,10 +14,9 @@ public class DocumentContentFilter implements CollectionFilter<Document>
     public DocumentContentFilter(List<String> searchFor, boolean caseInsensitive)
     {
         if (caseInsensitive)
-            this.searchFor = Collections.unmodifiableList(
-                                    searchFor.stream()
-                                          .map(String::toLowerCase)
-                                          .collect(Collectors.toList()));
+            this.searchFor = Collections.unmodifiableList(searchFor.stream()
+                                                                   .map(String::toLowerCase)
+                                                                   .collect(Collectors.toList()));
         else
             this.searchFor = Collections.unmodifiableList(searchFor);
 

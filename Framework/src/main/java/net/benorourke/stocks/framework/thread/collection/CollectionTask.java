@@ -15,7 +15,6 @@ import net.benorourke.stocks.framework.thread.TaskType;
 public class CollectionTask<T extends Data> implements Task<CollectionDescription, CollectionResult<T>>
 {
     private final DataSource<T> dataSource;
-    private final String apiKey;
     private final APICollectionSession<T> session;
     /**
      * Elements are appended to the list as collected
@@ -24,10 +23,9 @@ public class CollectionTask<T extends Data> implements Task<CollectionDescriptio
 
     private Progress progress;
 
-    public CollectionTask(DataSource<T> dataSource, String apiKey, APICollectionSession<T> session)
+    public CollectionTask(DataSource<T> dataSource, APICollectionSession<T> session)
     {
         this.dataSource = dataSource;
-        this.apiKey = apiKey;
         this.session = session;
         result = new CollectionResult<T>();
     }
@@ -56,7 +54,7 @@ public class CollectionTask<T extends Data> implements Task<CollectionDescriptio
         Query next = session.nextQuery();
         try
         {
-            ConnectionResponse<T> response = dataSource.retrieve(next, apiKey);
+            ConnectionResponse<T> response = dataSource.retrieve(next);
             result.getData().addAll(response.getData());
             Framework.info("Collected " + response.getData().size() + " data for " + next.toString());
         }

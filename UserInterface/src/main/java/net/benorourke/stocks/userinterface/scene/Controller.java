@@ -25,10 +25,16 @@ public class Controller
         snackbar.enqueue(new JFXSnackbar.SnackbarEvent(content));
     }
 
+    public void snackbarNullTimeSeries()
+    {
+        snackbar(SnackbarType.INFO, "Select a Time Series before performing this action!");
+    }
+
     public enum SnackbarType
     {
         INFO("Info"),
-        ERROR("Error");
+        ERROR("Error"),
+        NAVIGATION_RESTRICTION("Restriction");
 
         private String message;
 

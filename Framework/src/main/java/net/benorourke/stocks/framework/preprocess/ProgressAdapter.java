@@ -8,7 +8,7 @@ package net.benorourke.stocks.framework.preprocess;
  *
  * {@link #onProgressUpdate(double)} should be called with 100% when the task is completed.
  */
-public interface ProgressCallback
+public interface ProgressAdapter
 {
 
     void onProgressUpdate(double percentageProgress);

@@ -2,8 +2,9 @@ package net.benorourke.stocks.userinterface.scene;
 
 import javafx.application.Platform;
 import javafx.stage.Stage;
-import net.benorourke.stocks.framework.exception.TaskAlreadyPresentException;
+import net.benorourke.stocks.framework.exception.TaskStartException;
 import net.benorourke.stocks.framework.thread.ResultCallback;
+import net.benorourke.stocks.framework.util.Nullable;
 import net.benorourke.stocks.userinterface.StockApplication;
 import net.benorourke.stocks.userinterface.exception.SceneCreationDataException;
 import net.benorourke.stocks.userinterface.scene.asyncinflater.InflationResult;
@@ -20,7 +21,7 @@ public class SceneHelper
 	/**
 	 * FXML inflation takes a while since a file must be read, this will inflate the FXML file.
 	 *
-	 * Call function from the UI Thread will traverse the threads as follows:
+	 * Call function from the UI Thread will traverse threads as follows:
 	 *
 	 * UI THREAD -> FRAMEWORK THREAD -> THREAD POOLS -> FRAMEWORK THREAD -> UI THREAD
 	 *
@@ -41,31 +42,29 @@ public class SceneHelper
 
 					runUIThread(() -> {
 						// CURRENTLY IN UI THREAD
+						if (!result.isSuccess())
+							StockApplication.error("Unable to inflate FXML at " + fxmlPath);
 
-						if (result.isSuccess())
-							StockApplication.info("Successfully inflated FXML at " + fxmlPath);
-						else
-							StockApplication.info("Unable to inflate FXML at " + fxmlPath);
 						uiCallback.onCallback(result);
 
 					});
 
 				}, 20, 20, TimeUnit.MILLISECONDS);
 			}
-			catch (TaskAlreadyPresentException e)
+			catch (TaskStartException e)
 			{
-				StockApplication.error("Unable to begin InflationTask for " + fxmlPath, e);
+				StockApplication.error("Unable to begin RemoveDuplicatesTask for " + fxmlPath, e);
 			}
-			// TODO: Throw inflation exception on some thread if unsuccessful
 		});
 	}
 
-	public static void modifyStage(Stage stage, String windowTitle,
+	public static void modifyStage(Stage stage, @Nullable String windowTitle,
 								   int minWidth, int minHeight,
 								   boolean resizable, boolean exitOnClose,
 								   SceneType type, Object... params) throws SceneCreationDataException
 	{
-		stage.setTitle(windowTitle);
+		if (windowTitle != null)
+			stage.setTitle(windowTitle);
 		stage.setMinWidth(minWidth);
 		stage.setMinHeight(minHeight);
 		stage.setResizable(resizable);
@@ -79,28 +78,12 @@ public class SceneHelper
 		stage.show();
 	}
 
-	public static void modifyStage(Stage stage, String windowTitle,
-								   boolean resizable, boolean exitOnClose,
-								   SceneType type, Object... params) throws SceneCreationDataException
-	{
-		stage.setTitle(windowTitle);
-		stage.setResizable(resizable);
-		if (exitOnClose)
-			stage.setOnCloseRequest(e ->
-			{
-				Platform.exit();
-				System.exit(0);
-			});
-		stage.setScene(SceneFactory.getInstance().create(type, params));
-		stage.show();
-	}
-
-	public static Stage openStage(String windowTitle,
+	public static Stage openStage(String windowTitle, int minWidth, int minHeight,
 								  boolean resizable, boolean exitOnClose,
 								  SceneType type, Object... params) throws SceneCreationDataException
 	{
 		Stage stage = new Stage();
-		modifyStage(stage, windowTitle, resizable, exitOnClose, type, params);
+		modifyStage(stage, windowTitle, minWidth, minHeight, resizable, exitOnClose, type, params);
 		return stage;
 	}
 
