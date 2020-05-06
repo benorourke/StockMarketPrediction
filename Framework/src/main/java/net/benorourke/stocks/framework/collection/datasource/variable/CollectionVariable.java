@@ -17,7 +17,7 @@ public @interface CollectionVariable
 
     String prompt();
 
-    String[] validators();
+    String[] validators() default {};
 
     enum Type
     {

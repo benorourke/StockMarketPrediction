@@ -17,7 +17,6 @@ import net.benorourke.stocks.framework.series.data.DataType;
 import net.benorourke.stocks.framework.series.data.impl.Document;
 import net.benorourke.stocks.framework.exception.FailedCollectionException;
 import net.benorourke.stocks.framework.series.data.DocumentType;
-import net.benorourke.stocks.framework.collection.ConnectionResponse;
 import net.benorourke.stocks.framework.collection.Query;
 import net.benorourke.stocks.framework.collection.URLConnector;
 
@@ -89,13 +88,9 @@ public class NewsAPI extends DataSource<Document>
     }
 
     @Override
-    public ConnectionResponse<Document> retrieve(Query query) throws ConstraintException, FailedCollectionException
+    public Collection<Document> retrieve(Query query) throws ConstraintException, FailedCollectionException
     {
         checkConstraintsOrThrow(query);
-
-        // TODO CREATE AN OBJECT WITH A DIRECT JSON MAPPING - GSON CAN FREEZE IF THE RESPONSE
-        // DOESN'T MATCH WHAT WE NEED (I.E. AN ERROR)
-
         try
         {
             String url = BASE_URL.concat(buildUrlExtension(query, apiKey));
@@ -111,12 +106,7 @@ public class NewsAPI extends DataSource<Document>
             else
             {
                 JsonObject json = new Gson().fromJson(result, JsonObject.class);
-                List<Document> documents = parseDocuments(json);
-
-                Framework.info("Documents parsed " + documents.size());
-                ConnectionResponse<Document> response
-                        = new ConnectionResponse<>(result, json, documents);
-                return response;
+                return parseDocuments(json);
             }
         }
         catch (IOException e)

@@ -3,7 +3,6 @@ package net.benorourke.stocks.framework.collection.datasource.alphavantage;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import net.benorourke.stocks.framework.Framework;
-import net.benorourke.stocks.framework.collection.ConnectionResponse;
 import net.benorourke.stocks.framework.collection.URLConnector;
 import net.benorourke.stocks.framework.collection.datasource.variable.CollectionVariable;
 import net.benorourke.stocks.framework.collection.session.APICollectionSession;
@@ -22,6 +21,7 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
@@ -82,7 +82,7 @@ public class AlphaVantage extends DataSource<StockQuote>
     }
 
     @Override
-    public ConnectionResponse<StockQuote> retrieve(Query query) throws FailedCollectionException, ConstraintException
+    public Collection<StockQuote> retrieve(Query query) throws FailedCollectionException, ConstraintException
     {
         checkConstraintsOrThrow(query);
 
@@ -101,12 +101,7 @@ public class AlphaVantage extends DataSource<StockQuote>
             else
             {
                 JsonObject json = new Gson().fromJson(result, JsonObject.class);
-                List<StockQuote> quotes = parseQuotes(query, json);
-
-                Framework.info("Documents parsed " + quotes.size());
-                ConnectionResponse<StockQuote> response
-                        = new ConnectionResponse<>(result, json, quotes);
-                return response;
+                return parseQuotes(query, json);
             }
         }
         catch (IOException e)
@@ -117,9 +112,6 @@ public class AlphaVantage extends DataSource<StockQuote>
 
     private List<StockQuote> parseQuotes(Query query, JsonObject json)
     {
-        // TODO CREATE AN OBJECT WITH A DIRECT JSON MAPPING - GSON CAN FREEZE IF THE RESPONSE
-        // DOESN'T MATCH WHAT WE NEED (I.E. AN ERROR)
-
         List<StockQuote> quotes = new ArrayList<StockQuote>();
         JsonObject dataset = json.getAsJsonObject("Time Series (Daily)");
 

@@ -1,22 +1,25 @@
-package net.benorourke.stocks.framework.collection.datasource.newsapi;
+package net.benorourke.stocks.framework.collection.datasource.twitter;
 
 import net.benorourke.stocks.framework.collection.Query;
 import net.benorourke.stocks.framework.collection.session.APICollectionSession;
-import net.benorourke.stocks.framework.collection.session.filter.CollectionFilter;
 import net.benorourke.stocks.framework.collection.session.DailyCollectionSession;
+import net.benorourke.stocks.framework.collection.session.filter.CollectionFilter;
 import net.benorourke.stocks.framework.exception.ConstraintException;
 import net.benorourke.stocks.framework.exception.FailedCollectionException;
 import net.benorourke.stocks.framework.series.data.impl.Document;
+import twitter4j.Twitter;
 
-public class NewsAPICollectionSession extends APICollectionSession<Document>
+public class Twitter4JCollectionSession extends APICollectionSession<Document>
 {
+    private final Twitter twitter;
     // Wrap the object here
     private final DailyCollectionSession<Document> dailySession;
 
-    public NewsAPICollectionSession(Query completeQuery, CollectionFilter<Document> collectionFilter)
+    public Twitter4JCollectionSession(Twitter twitter, Query completeQuery, CollectionFilter<Document> collectionFilter)
     {
         super(collectionFilter);
 
+        this.twitter = twitter;
         dailySession = new DailyCollectionSession<>(completeQuery, collectionFilter);
     }
 
@@ -27,9 +30,10 @@ public class NewsAPICollectionSession extends APICollectionSession<Document>
     }
 
     @Override
-    public Query nextQuery()
+    public Twitter4JQuery nextQuery()
     {
-        return dailySession.nextQuery();
+        Query next = dailySession.nextQuery();
+        return new Twitter4JQuery(twitter, next.getTo(), next.getFrom());
     }
 
     @Override
@@ -55,5 +59,4 @@ public class NewsAPICollectionSession extends APICollectionSession<Document>
     {
         exception.printStackTrace();
     }
-
 }
