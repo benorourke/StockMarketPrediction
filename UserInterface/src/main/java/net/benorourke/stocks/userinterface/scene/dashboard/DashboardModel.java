@@ -1,5 +1,6 @@
 package net.benorourke.stocks.userinterface.scene.dashboard;
 
+import net.benorourke.stocks.framework.Framework;
 import net.benorourke.stocks.framework.collection.datasource.DataSource;
 import net.benorourke.stocks.framework.model.ModelEvaluation;
 import net.benorourke.stocks.framework.model.ModelHandlerManager;
@@ -93,6 +94,8 @@ public class DashboardModel
                     stage = FlowStage.PRE_PROCESSED;
                 else
                     stage = FlowStage.COLLECTING_AND_INJECTING;
+
+                Framework.debug("Resolved as " + stage + " (processedexists: " + processed.exists() + ")");
 
                 runUIThread(() ->
                 {

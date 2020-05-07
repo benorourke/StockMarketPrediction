@@ -78,7 +78,7 @@ public class TrainingPaneHandler extends PaneHandler
     @Override
     public FlowStage getNavigationRequirement()
     {
-        return FlowStage.TRAINING_AND_EVALUATING_MODELS;
+        return FlowStage.PRE_PROCESSED;
     }
 
     /**
