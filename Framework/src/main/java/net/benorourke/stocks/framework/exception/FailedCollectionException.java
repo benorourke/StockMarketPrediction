@@ -1,6 +1,5 @@
 package net.benorourke.stocks.framework.exception;
 
-import twitter4j.TwitterException;
 
 import java.io.IOException;
 
@@ -25,11 +24,6 @@ public class FailedCollectionException extends Exception
     public FailedCollectionException(int responseCode)
     {
         this (Type.RESPONSE_CODE, "Invalid response code: " + responseCode);
-    }
-
-    public FailedCollectionException(TwitterException exception)
-    {
-        this (Type.TWITTER_EXCEPTION, exception.getMessage());
     }
 
     public Type getType()

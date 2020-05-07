@@ -7,19 +7,16 @@ import net.benorourke.stocks.framework.collection.session.filter.CollectionFilte
 import net.benorourke.stocks.framework.exception.ConstraintException;
 import net.benorourke.stocks.framework.exception.FailedCollectionException;
 import net.benorourke.stocks.framework.series.data.impl.Document;
-import twitter4j.Twitter;
 
-public class Twitter4JCollectionSession extends APICollectionSession<Document>
+public class TwitterCollectionSession extends APICollectionSession<Document>
 {
-    private final Twitter twitter;
     // Wrap the object here
     private final DailyCollectionSession<Document> dailySession;
 
-    public Twitter4JCollectionSession(Twitter twitter, Query completeQuery, CollectionFilter<Document> collectionFilter)
+    public TwitterCollectionSession(Query completeQuery, CollectionFilter<Document> collectionFilter)
     {
         super(collectionFilter);
 
-        this.twitter = twitter;
         dailySession = new DailyCollectionSession<>(completeQuery, collectionFilter);
     }
 
@@ -30,10 +27,9 @@ public class Twitter4JCollectionSession extends APICollectionSession<Document>
     }
 
     @Override
-    public Twitter4JQuery nextQuery()
+    public Query nextQuery()
     {
-        Query next = dailySession.nextQuery();
-        return new Twitter4JQuery(twitter, next.getTo(), next.getFrom());
+        return dailySession.nextQuery();
     }
 
     @Override
