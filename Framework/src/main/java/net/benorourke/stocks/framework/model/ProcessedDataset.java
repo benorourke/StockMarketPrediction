@@ -132,9 +132,14 @@ public class ProcessedDataset implements Iterable<ModelData>
         Framework.debug("Calculated Feature Mins/Maxes");
     }
 
+    public void shuffle(long seed)
+    {
+        Collections.shuffle(data, new Random(seed));
+    }
+
     /**
      *
-     * @param splitRatio 0.6 would mean 60% in the first array, 40% in the second
+     * @param splitRatio 0.6 would mean 60% in the first list, 40% in the second
      * @return
      */
     public List<ProcessedDataset> split(double splitRatio)

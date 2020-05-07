@@ -9,7 +9,8 @@ public class HyperParameter
     /**
      *
      * @param name
-     * @param selfGenerated whether the user should have to define this
+     * @param selfGenerated whether the user should have to define this or it is inferred from, and is dependant on,
+     *                      the pre-processed data (i.e. number of inputs / outputs)
      * @param defaultValue
      */
     public HyperParameter(String name, boolean selfGenerated, int defaultValue)

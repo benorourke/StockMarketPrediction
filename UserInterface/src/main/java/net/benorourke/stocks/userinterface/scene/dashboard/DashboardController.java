@@ -1,8 +1,6 @@
 package net.benorourke.stocks.userinterface.scene.dashboard;
 
-import com.jfoenix.controls.JFXButton;
-import com.jfoenix.controls.JFXComboBox;
-import com.jfoenix.controls.JFXDatePicker;
+import com.jfoenix.controls.*;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -109,6 +107,9 @@ public class DashboardController extends Controller
     // TRAINING:
     @FXML private Label trainingHandlerCount;
     @FXML private JFXComboBox<String> trainingComboBox;
+    @FXML private JFXTextField trainTrainingPercentage;
+    @FXML private JFXTextField trainTestingPercentage;
+    @FXML private JFXTextField trainSeed;
     @FXML private VBox trainingFieldBox;
     @FXML private JFXButton trainButton;
     private TrainingPaneHandler trainingPaneHandler;
@@ -116,6 +117,9 @@ public class DashboardController extends Controller
     // EVALUATION:
     @FXML private JFXComboBox<String> evaluationComboBox;
     @FXML private LineChart<String, Number> evaluationChart;
+    @FXML private JFXCheckBox evaluationTrainingCheckBox;
+    @FXML private JFXCheckBox evaluationTestingCheckBox;
+    @FXML private JFXButton evaluationDeleteButton;
     private EvaluationPaneHandler evaluationPaneHandler;
 
     //////////////////////////////////////////////////////////////////
@@ -168,9 +172,13 @@ public class DashboardController extends Controller
                                          preprocessingBegin);
         paneHandlers[DashboardPane.TRAINING.ordinal()] =
                 new TrainingPaneHandler(this, model,
-                                        trainingHandlerCount, trainingComboBox, trainingFieldBox, trainButton);
+                                        trainingHandlerCount, trainingComboBox,
+                                        trainTrainingPercentage, trainTestingPercentage, trainSeed,
+                                        trainingFieldBox, trainButton);
         paneHandlers[DashboardPane.EVALUATION.ordinal()] =
-                new EvaluationPaneHandler(this, model, evaluationComboBox, evaluationChart);
+                new EvaluationPaneHandler(this, model, evaluationComboBox, evaluationChart,
+                                          evaluationTrainingCheckBox, evaluationTestingCheckBox,
+                                          evaluationDeleteButton);
 
         for (PaneHandler handler : paneHandlers)
             handler.initialise();

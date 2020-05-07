@@ -8,7 +8,8 @@ public class TaskStartException extends Exception
 
     public TaskStartException(Task triedToSchedule)
     {
-        super("Tried to schedule a task, but a task with the same description is already queued/running");
+        super("Tried to schedule a task (" + triedToSchedule.getType() + "), but a task with the same description "
+                        + "is already queued/running");
 
         this.triedToSchedule = triedToSchedule;
     }

@@ -49,6 +49,7 @@ public class DashboardModel
     // EVALUATION
     private List<String> trainedModels;
     private ModelEvaluation lastAcquiredEvaluation;
+    private String lastAcquiredEvaluationName;
 
     protected DashboardModel(DashboardController controller)
     {
@@ -191,7 +192,7 @@ public class DashboardModel
         });
     }
 
-    public void acquireEvaluation(TimeSeries seriesFor, String modelName, Runnable onRetrieval)
+    public void acquireEvaluation(TimeSeries seriesFor, final String modelName, Runnable onRetrieval)
     {
         runBgThread(framework ->
         {
@@ -203,6 +204,7 @@ public class DashboardModel
             runUIThread(() ->
             {
                 this.lastAcquiredEvaluation = eval;
+                this.lastAcquiredEvaluationName = modelName;
                 onRetrieval.run();
             });
         });
@@ -309,4 +311,13 @@ public class DashboardModel
         this.currentlySelectedModelHandlerCreator = currentlySelectedModelHandlerCreator;
     }
 
+    public String getLastAcquiredEvaluationName()
+    {
+        return lastAcquiredEvaluationName;
+    }
+
+    public void setLastAcquiredEvaluationName(String lastAcquiredEvaluationName)
+    {
+        this.lastAcquiredEvaluationName = lastAcquiredEvaluationName;
+    }
 }
