@@ -44,6 +44,7 @@ public class DashboardModel
 
     // TRAINING
     private List<ModelHandlerManager.RuntimeCreator> modelHandlerCreators;
+    private ModelHandlerManager.RuntimeCreator currentlySelectedModelHandlerCreator;
 
     // EVALUATION
     private List<String> trainedModels;
@@ -296,6 +297,16 @@ public class DashboardModel
     public void setCurrentlySelectedMissingDataPolicy(MissingDataPolicy currentlySelectedMissingDataPolicy)
     {
         this.currentlySelectedMissingDataPolicy = currentlySelectedMissingDataPolicy;
+    }
+
+    public ModelHandlerManager.RuntimeCreator getCurrentlySelectedModelHandlerCreator()
+    {
+        return currentlySelectedModelHandlerCreator;
+    }
+
+    public void setCurrentlySelectedModelHandlerCreator(ModelHandlerManager.RuntimeCreator currentlySelectedModelHandlerCreator)
+    {
+        this.currentlySelectedModelHandlerCreator = currentlySelectedModelHandlerCreator;
     }
 
 }

@@ -28,14 +28,7 @@ public abstract class PaneHandler implements Initialisable
     @Nullable
     public abstract FlowStage getNavigationRequirement();
 
-    /**
-     * Whether the user can switch to this pane for a given TimeSeries.
-     *
-     * For example, users should not be able to switch to the evaluation pane before they have trained any models.
-     *
-     * @return
-     */
-//    public abstract boolean canSwitch();
+    public abstract void onSwitchedTo();
 
     public DashboardController getController()
     {

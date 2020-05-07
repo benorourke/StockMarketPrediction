@@ -16,6 +16,8 @@ public abstract class ModelHandler<T extends PredictionModel>
      */
     public abstract List<HyperParameter> getRequiredHyperParameters();
 
+    public abstract ModelParameters getConfiguration();
+
     public abstract T create();
 
     public abstract void train(T model, ProcessedDataset corpus);

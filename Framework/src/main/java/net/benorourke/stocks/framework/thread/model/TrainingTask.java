@@ -3,13 +3,13 @@ package net.benorourke.stocks.framework.thread.model;
 import net.benorourke.stocks.framework.Framework;
 import net.benorourke.stocks.framework.model.ModelEvaluation;
 import net.benorourke.stocks.framework.model.ModelHandler;
-import net.benorourke.stocks.framework.model.param.ModelParameters;
 import net.benorourke.stocks.framework.model.PredictionModel;
 import net.benorourke.stocks.framework.model.ProcessedDataset;
-import net.benorourke.stocks.framework.thread.*;
-import net.benorourke.stocks.framework.util.DateUtil;
+import net.benorourke.stocks.framework.thread.Progress;
+import net.benorourke.stocks.framework.thread.Task;
+import net.benorourke.stocks.framework.thread.TaskDescription;
+import net.benorourke.stocks.framework.thread.TaskType;
 import net.benorourke.stocks.framework.util.Nullable;
-import net.benorourke.stocks.framework.util.Tuple;
 
 import java.util.*;
 

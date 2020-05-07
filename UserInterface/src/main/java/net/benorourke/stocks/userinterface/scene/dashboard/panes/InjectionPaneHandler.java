@@ -94,6 +94,9 @@ public class InjectionPaneHandler extends PaneHandler
         return null;
     }
 
+    @Override
+    public void onSwitchedTo() { }
+
     private void selectInjectionDataSource(DataSource source)
     {
         if (model.getCurrentlySelectedInjectionDataSource() != null

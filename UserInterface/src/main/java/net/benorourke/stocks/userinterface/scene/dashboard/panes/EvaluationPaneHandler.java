@@ -49,6 +49,9 @@ public class EvaluationPaneHandler extends PaneHandler
         return FlowStage.TRAINING_AND_EVALUATING_MODELS;
     }
 
+    @Override
+    public void onSwitchedTo() { }
+
     public void updateOptions(TimeSeries series, List<String> trainedModels)
     {
         evaluationComboBox.getSelectionModel().clearSelection();

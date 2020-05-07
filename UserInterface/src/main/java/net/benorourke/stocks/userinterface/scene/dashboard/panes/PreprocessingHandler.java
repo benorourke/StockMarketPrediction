@@ -85,6 +85,9 @@ public class PreprocessingHandler extends PaneHandler
         return FlowStage.COLLECTING_AND_INJECTING;
     }
 
+    @Override
+    public void onSwitchedTo() { }
+
     private void populateTogglesBox()
     {
         preprocessingTogglesBox.getChildren().clear();
@@ -173,6 +176,9 @@ public class PreprocessingHandler extends PaneHandler
                         StockApplication.runUIThread(() ->
                                 controller.snackbar(Controller.SnackbarType.INFO,
                                                     "Successfully pre-processed and wrote to file"));
+
+                        // Resolve the flow stage so if they were to click train models they'd be able to
+                        model.resolveFlowStage(series, () -> {});
                     }
                 }, Constants.PREPROCESSING_DELAY, Constants.PREPROCESSING_INTERVAL, TimeUnit.MILLISECONDS);
             }

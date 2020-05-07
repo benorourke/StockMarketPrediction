@@ -36,7 +36,7 @@ public class FeedForwardModelHandler extends ModelHandler<FeedForwardModel>
     public static final String HYPERPARAMETER_INPUT_NODES = "Input Nodes";
     public static final String HYPERPARAMETER_HIDDEN_NODES = "Hidden Nodes";
     public static final String HYPERPARAMETER_OUTPUT_NODES = "Output Nodes";
-    public static final int    HYPERPARAMETER_HIDDEN_NODES_DEFAULT = 30;
+    public static final int    HYPERPARAMETER_HIDDEN_NODES_DEFAULT = 100;
 
     static
     {
@@ -60,8 +60,8 @@ public class FeedForwardModelHandler extends ModelHandler<FeedForwardModel>
     {
         configuration = new ModelParameters();
         configuration.set(HYPERPARAMETER_INPUT_NODES, numInputs);
-        configuration.set(HYPERPARAMETER_OUTPUT_NODES, numHidden);
-        configuration.set(HYPERPARAMETER_HIDDEN_NODES, numOutputs);
+        configuration.set(HYPERPARAMETER_HIDDEN_NODES, numHidden);
+        configuration.set(HYPERPARAMETER_OUTPUT_NODES, numOutputs);
         configuration.setMissingDefaults(getRequiredHyperParameters());
     }
 
@@ -72,13 +72,19 @@ public class FeedForwardModelHandler extends ModelHandler<FeedForwardModel>
     }
 
     @Override
+    public ModelParameters getConfiguration()
+    {
+        return configuration;
+    }
+
+    @Override
     public FeedForwardModel create()
     {
         int paramFeatures = configuration.get(HYPERPARAMETER_INPUT_NODES);
         int paramHidden = configuration.get(HYPERPARAMETER_HIDDEN_NODES);
         int paramLabels = configuration.get(HYPERPARAMETER_OUTPUT_NODES);
 
-        Framework.debug("Creating Feed Forward Model with features " + paramFeatures + ", labels " + paramLabels);
+        Framework.info("Creating Feed Forward Model with features " + paramFeatures + ", labels " + paramLabels);
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
                 .seed(SEED)
                 .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
@@ -135,7 +141,7 @@ public class FeedForwardModelHandler extends ModelHandler<FeedForwardModel>
         INDArray predicted = predict(trainedModel, features);
         regressionEvaluation.eval(labels, predicted);
         Framework.debug(regressionEvaluation.stats());
-        return regressionEvaluation.rootMeanSquaredError(0); // TODO - Should we take an average of all the cols, in case there is?
+        return regressionEvaluation.rootMeanSquaredError(0);
     }
 
     private List<ModelEvaluation.Prediction> getPredictions(FeedForwardModel model, ProcessedDataset data)

@@ -1,21 +1,20 @@
 package net.benorourke.stocks.framework.model.param;
 
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.LinkedHashMap;
 
 public class ModelParameters
 {
-    private Map<String, Integer> parameters;
+    private LinkedHashMap<String, Integer> parameters;
 
-    public ModelParameters(Map<String, Integer> parameters)
+    public ModelParameters(LinkedHashMap<String, Integer> parameters)
     {
         this.parameters = parameters;
     }
 
     public ModelParameters()
     {
-        this(new HashMap<>());
+        this(new LinkedHashMap<>());
     }
 
     public void setMissingDefaults(Collection<HyperParameter> hyperParameters)
@@ -39,7 +38,7 @@ public class ModelParameters
         return parameters.get(key.toUpperCase());
     }
 
-    public Map<String, Integer> getParameters()
+    public LinkedHashMap<String, Integer> getParameters()
     {
         return parameters;
     }

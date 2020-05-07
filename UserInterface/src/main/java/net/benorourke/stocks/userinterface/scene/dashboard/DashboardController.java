@@ -216,6 +216,7 @@ public class DashboardController extends Controller
 
         SingleSelectionModel<Tab> model = tabPane.getSelectionModel();
         model.select(paneFor.ordinal());
+        handler.onSwitchedTo();
 
         for (HBox row : navRows)
         {
