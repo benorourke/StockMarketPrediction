@@ -6,7 +6,7 @@ import net.benorourke.stocks.framework.exception.InsuficcientRawDataException;
 import net.benorourke.stocks.framework.model.ModelData;
 import net.benorourke.stocks.framework.model.ProcessedDataset;
 import net.benorourke.stocks.framework.persistence.store.DataStore;
-import net.benorourke.stocks.framework.preprocess.FeatureRepresenter;
+import net.benorourke.stocks.framework.preprocess.FeatureRepresentor;
 import net.benorourke.stocks.framework.preprocess.Preprocess;
 import net.benorourke.stocks.framework.preprocess.assignment.LabelAssignment;
 import net.benorourke.stocks.framework.preprocess.assignment.MissingDataPolicy;
@@ -54,8 +54,8 @@ public class PreprocessingTask implements Task<TaskDescription, PreprocessingRes
 
     private final DataStore store;
     private final Map<DataSource, Integer> collectedDataCounts;
-    private final List<FeatureRepresenter<CleanedDocument>> documentFeatureRepresenters;
-    private final List<FeatureRepresenter<StockQuote>> quoteFeatureRepresenters;
+    private final List<FeatureRepresentor<CleanedDocument>> documentFeatureRepresentors;
+    private final List<FeatureRepresentor<StockQuote>> quoteFeatureRepresentors;
 
     // Document Pre-processes
     private final DimensionalityReduction dimensionalityReduction;
@@ -92,28 +92,28 @@ public class PreprocessingTask implements Task<TaskDescription, PreprocessingRes
     private ProcessedDataset result;
 
     /**
-     * Any FeatureRepresenter, for either CleanedDocuments or StockQuotes should have an associated, registered GSON
+     * Any FeatureRepresentor, for either CleanedDocuments or StockQuotes should have an associated, registered GSON
      * TypeAdapter to ensure their persistence.
      *
      * @param store
      * @param collectedDataCounts
-     * @param documentFeatureRepresenters
-     * @param quoteFeatureRepresenters
+     * @param documentFeatureRepresentors
+     * @param quoteFeatureRepresentors
      * @param missingDataPolicy
      * @param modelDataMapper
      * @throws InsuficcientRawDataException
      */
     public PreprocessingTask(DataStore store, Map<DataSource, Integer> collectedDataCounts,
-                             List<FeatureRepresenter<CleanedDocument>> documentFeatureRepresenters,
-                             List<FeatureRepresenter<StockQuote>> quoteFeatureRepresenters,
+                             List<FeatureRepresentor<CleanedDocument>> documentFeatureRepresentors,
+                             List<FeatureRepresentor<StockQuote>> quoteFeatureRepresentors,
                              MissingDataPolicy missingDataPolicy,
                              ModelDataMapper modelDataMapper)
             throws InsuficcientRawDataException
     {
         this.store = store;
         this.collectedDataCounts = collectedDataCounts;
-        this.documentFeatureRepresenters = documentFeatureRepresenters;
-        this.quoteFeatureRepresenters = quoteFeatureRepresenters;
+        this.documentFeatureRepresentors = documentFeatureRepresentors;
+        this.quoteFeatureRepresentors = quoteFeatureRepresentors;
 
         loadedQuotes = new ArrayList<>();
         loadedCorpus = new ArrayList<>();
@@ -121,7 +121,7 @@ public class PreprocessingTask implements Task<TaskDescription, PreprocessingRes
 
         // Processes
         dimensionalityReduction = new DimensionalityReduction();
-        featureRepresentation = new FeatureRepresentation(documentFeatureRepresenters);
+        featureRepresentation = new FeatureRepresentation(documentFeatureRepresentors);
         labelAssignment = new LabelAssignment(missingDataPolicy, modelDataMapper);
         preprocesses = new Preprocess[] {dimensionalityReduction, featureRepresentation, labelAssignment};
 
@@ -317,7 +317,7 @@ public class PreprocessingTask implements Task<TaskDescription, PreprocessingRes
         List<ModelData> data = labelAssignment.preprocess(new Tuple<>(representedCorpus, loadedQuotes));
         progressHelper.updatePercentage(PROGRESS_REPRESENT_FEATURES,  100.0); // should already happen from the adapter, but just in case
         Framework.info("[Pre-processing] Producing Corpus");
-        result = new ProcessedDataset(documentFeatureRepresenters, quoteFeatureRepresenters, features, labels, data);
+        result = new ProcessedDataset(documentFeatureRepresentors, quoteFeatureRepresentors, features, labels, data);
         Framework.info("[Pre-processing] Normalising Corpus");
         result.calculateFeatureMinsMaxes();
         result.normalise();

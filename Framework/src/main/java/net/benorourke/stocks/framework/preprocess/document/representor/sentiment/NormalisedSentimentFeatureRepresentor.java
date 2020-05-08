@@ -1,4 +1,4 @@
-package net.benorourke.stocks.framework.preprocess.document.representer.sentiment;
+package net.benorourke.stocks.framework.preprocess.document.representor.sentiment;
 
 import net.benorourke.stocks.framework.series.data.impl.CleanedDocument;
 
@@ -10,7 +10,7 @@ import net.benorourke.stocks.framework.series.data.impl.CleanedDocument;
  * 4) {@link Sentiment#NEGATIVE}: 0.25
  * 5) {@link Sentiment#VERY_NEGATIVE}: 0.0
  */
-public class NormalisedSentimentFeatureRepresenter extends SentimentFeatureRepresenter
+public class NormalisedSentimentFeatureRepresentor extends SentimentFeatureRepresentor
 {
     private static final double STEP = 1.0D / ((double) Sentiment.values().length - 1.0);
 

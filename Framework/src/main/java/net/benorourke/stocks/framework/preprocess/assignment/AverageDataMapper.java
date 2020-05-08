@@ -2,7 +2,7 @@ package net.benorourke.stocks.framework.preprocess.assignment;
 
 import net.benorourke.stocks.framework.Framework;
 import net.benorourke.stocks.framework.model.ModelData;
-import net.benorourke.stocks.framework.preprocess.FeatureRepresenter;
+import net.benorourke.stocks.framework.preprocess.FeatureRepresentor;
 import net.benorourke.stocks.framework.series.data.impl.*;
 import net.benorourke.stocks.framework.util.StringUtil;
 import net.benorourke.stocks.framework.util.Tuple;
@@ -14,15 +14,15 @@ public class AverageDataMapper extends ModelDataMapper
 {
 
     /**
-     * @param documentRepresenters
-     * @param quoteRepresenters    the feature representers for extracting vectors from the stock quotes
+     * @param documentRepresentors
+     * @param quoteRepresentors    the feature representors for extracting vectors from the stock quotes
      * @param labelsToPredict
      */
-    public AverageDataMapper(List<FeatureRepresenter<CleanedDocument>> documentRepresenters,
-                             List<FeatureRepresenter<StockQuote>> quoteRepresenters,
+    public AverageDataMapper(List<FeatureRepresentor<CleanedDocument>> documentRepresentors,
+                             List<FeatureRepresentor<StockQuote>> quoteRepresentors,
                              StockQuoteDataType[] labelsToPredict)
     {
-        super(documentRepresenters, quoteRepresenters, labelsToPredict);
+        super(documentRepresentors, quoteRepresentors, labelsToPredict);
     }
 
     @Override
@@ -30,22 +30,22 @@ public class AverageDataMapper extends ModelDataMapper
     {
         // FEATURES FROM DOCUMENTS
         double[] documentFeatures = new double[0];
-        for (FeatureRepresenter<CleanedDocument> representer : getDocumentRepresenters())
+        for (FeatureRepresentor<CleanedDocument> representor : getDocumentRepresentors())
         {
             double[][] allFeatures = new double[documents.size()][];
             int idx = 0;
             for (ProcessedDocument document : documents)
-                allFeatures[idx ++] = document.getFeatureVectors().get(representer);
+                allFeatures[idx ++] = document.getFeatureVectors().get(representor);
 
-            double[] average = handleAverage(representer.getCombinationPolicy(), allFeatures);
+            double[] average = handleAverage(representor.getCombinationPolicy(), allFeatures);
             documentFeatures = combineFeatures(documentFeatures, average);
 
-            Framework.debug("Combined " + representer.getName());
+            Framework.debug("Combined " + representor.getName());
         }
 
         // FEATURES FROM QUOTES
-        for (FeatureRepresenter<StockQuote> quoteRepresenter : getQuoteRepresenters())
-            quoteRepresenter.initialise(quotes);
+        for (FeatureRepresentor<StockQuote> quoteRepresentor : getQuoteRepresentors())
+            quoteRepresentor.initialise(quotes);
         double[] featuresFromQuotes = featuresFromQuotes(quotes);
 
         // Ordering doesn't make a difference
@@ -76,21 +76,21 @@ public class AverageDataMapper extends ModelDataMapper
     private double[] featuresFromQuotes(List<StockQuote> quotes)
     {
         double[] features = new double[0];
-        for (FeatureRepresenter<StockQuote> representer : getQuoteRepresenters())
-            features = combineFeatures(features, featureFromQuotes(representer, quotes));
+        for (FeatureRepresentor<StockQuote> representor : getQuoteRepresentors())
+            features = combineFeatures(features, featureFromQuotes(representor, quotes));
 
         return features;
     }
 
-    private double[] featureFromQuotes(FeatureRepresenter<StockQuote> representer, List<StockQuote> quotes)
+    private double[] featureFromQuotes(FeatureRepresentor<StockQuote> representor, List<StockQuote> quotes)
     {
         double[][] features = new double[quotes.size()][];
 
         int idx = 0;
         for (StockQuote quote : quotes)
-            features[idx ++] = representer.getVectorRepresentation(quote);
+            features[idx ++] = representor.getVectorRepresentation(quote);
 
-        return handleAverage(representer.getCombinationPolicy(), features);
+        return handleAverage(representor.getCombinationPolicy(), features);
     }
 
     private double[] labelsFromQuotes(List<StockQuote> quotes)
@@ -112,7 +112,7 @@ public class AverageDataMapper extends ModelDataMapper
         return labels;
     }
 
-    private double[] handleAverage(FeatureRepresenter.CombinationPolicy policy, double[][] toCombine)
+    private double[] handleAverage(FeatureRepresentor.CombinationPolicy policy, double[][] toCombine)
     {
         int featureCount = toCombine[0].length;
         switch (policy)

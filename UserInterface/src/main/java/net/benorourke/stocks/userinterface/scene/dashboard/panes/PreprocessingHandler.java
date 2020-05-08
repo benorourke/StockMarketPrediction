@@ -11,8 +11,8 @@ import net.benorourke.stocks.framework.exception.InsuficcientRawDataException;
 import net.benorourke.stocks.framework.exception.TaskStartException;
 import net.benorourke.stocks.framework.model.ProcessedDataset;
 import net.benorourke.stocks.framework.persistence.store.DataStore;
-import net.benorourke.stocks.framework.preprocess.FeatureRepresenter;
-import net.benorourke.stocks.framework.preprocess.FeatureRepresenterManager;
+import net.benorourke.stocks.framework.preprocess.FeatureRepresentor;
+import net.benorourke.stocks.framework.preprocess.FeatureRepresentorManager;
 import net.benorourke.stocks.framework.preprocess.assignment.AverageDataMapper;
 import net.benorourke.stocks.framework.preprocess.assignment.MissingDataPolicy;
 import net.benorourke.stocks.framework.preprocess.assignment.ModelDataMapper;
@@ -42,7 +42,7 @@ public class PreprocessingHandler extends PaneHandler
     private static final StockQuoteDataType[] LABELS_TO_PREDICT = new StockQuoteDataType[] { StockQuoteDataType.CLOSE };
 
     private final VBox preprocessingTogglesBox;
-    private final Map<JFXToggleButton, FeatureRepresenter> toggleMappings;
+    private final Map<JFXToggleButton, FeatureRepresentor> toggleMappings;
 
     private final JFXComboBox preprocessingPolicyBox;
 
@@ -93,14 +93,14 @@ public class PreprocessingHandler extends PaneHandler
         preprocessingTogglesBox.getChildren().clear();
         toggleMappings.clear();
 
-        createToggleMappings(model.getQuoteFeatureRepresenters());
-        createToggleMappings(model.getDocumentFeatureRepresenters());
+        createToggleMappings(model.getQuoteFeatureRepresentors());
+        createToggleMappings(model.getDocumentFeatureRepresentors());
     }
 
     private <T extends Data> void createToggleMappings(
-            Map<FeatureRepresenterManager.Metadata, FeatureRepresenter<T>> representers)
+            Map<FeatureRepresentorManager.Metadata, FeatureRepresentor<T>> representors)
     {
-        for (Map.Entry<FeatureRepresenterManager.Metadata, FeatureRepresenter<T>> entry : representers.entrySet())
+        for (Map.Entry<FeatureRepresentorManager.Metadata, FeatureRepresentor<T>> entry : representors.entrySet())
         {
             JFXToggleButton toggle = new JFXToggleButton();
             toggle.setText(entry.getKey().getName());
@@ -142,19 +142,19 @@ public class PreprocessingHandler extends PaneHandler
             return;
         }
 
-        final List<FeatureRepresenter<StockQuote>> quoteRepresenters = new ArrayList<>();
-        final List<FeatureRepresenter<CleanedDocument>> documentRepresenters = new ArrayList<>();
+        final List<FeatureRepresentor<StockQuote>> quoteRepresentors = new ArrayList<>();
+        final List<FeatureRepresentor<CleanedDocument>> documentRepresentors = new ArrayList<>();
 
-        for (Map.Entry<JFXToggleButton, FeatureRepresenter> entry : toggleMappings.entrySet())
+        for (Map.Entry<JFXToggleButton, FeatureRepresentor> entry : toggleMappings.entrySet())
         {
             if (!entry.getKey().isSelected())
                 continue;
 
-            FeatureRepresenter representer = entry.getValue();
-            if (representer.getTypeFor().equals(DataType.STOCK_QUOTE))
-                quoteRepresenters.add((FeatureRepresenter<StockQuote>) representer);
-            else if (representer.getTypeFor().equals(DataType.CLEANED_DOCUMENT))
-                documentRepresenters.add((FeatureRepresenter<CleanedDocument>) representer);
+            FeatureRepresentor representor = entry.getValue();
+            if (representor.getTypeFor().equals(DataType.STOCK_QUOTE))
+                quoteRepresentors.add((FeatureRepresentor<StockQuote>) representor);
+            else if (representor.getTypeFor().equals(DataType.CLEANED_DOCUMENT))
+                documentRepresentors.add((FeatureRepresentor<CleanedDocument>) representor);
         }
 
         final MissingDataPolicy policy = model.getCurrentlySelectedMissingDataPolicy();
@@ -163,7 +163,7 @@ public class PreprocessingHandler extends PaneHandler
         {
             try
             {
-                PreprocessingTask task = createTask(framework, series, quoteRepresenters, documentRepresenters, policy);
+                PreprocessingTask task = createTask(framework, series, quoteRepresentors, documentRepresentors, policy);
                 framework.getTaskManager().scheduleRepeating(task, new ResultCallback<PreprocessingResult>()
                 {
                     @Override
@@ -212,8 +212,8 @@ public class PreprocessingHandler extends PaneHandler
      * @return
      */
     private PreprocessingTask createTask(Framework framework, TimeSeries series,
-                                         List<FeatureRepresenter<StockQuote>> quoteRepresenters,
-                                         List<FeatureRepresenter<CleanedDocument>> documentRepresenters,
+                                         List<FeatureRepresentor<StockQuote>> quoteRepresentors,
+                                         List<FeatureRepresentor<CleanedDocument>> documentRepresentors,
                                          MissingDataPolicy policy) throws InsuficcientRawDataException
     {
         DataStore store = framework.getTimeSeriesManager().getDataStore(series);
@@ -229,9 +229,9 @@ public class PreprocessingHandler extends PaneHandler
 
             dataCounts.put(source, entry.getValue());
         }
-        ModelDataMapper mapper = new AverageDataMapper(documentRepresenters, quoteRepresenters, LABELS_TO_PREDICT);
+        ModelDataMapper mapper = new AverageDataMapper(documentRepresentors, quoteRepresentors, LABELS_TO_PREDICT);
 
-        return new PreprocessingTask(store, dataCounts, documentRepresenters, quoteRepresenters, policy, mapper);
+        return new PreprocessingTask(store, dataCounts, documentRepresentors, quoteRepresentors, policy, mapper);
     }
 
 }

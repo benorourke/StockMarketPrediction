@@ -1,6 +1,6 @@
 package net.benorourke.stocks.framework.series.data.impl;
 
-import net.benorourke.stocks.framework.preprocess.FeatureRepresenter;
+import net.benorourke.stocks.framework.preprocess.FeatureRepresentor;
 import net.benorourke.stocks.framework.series.data.Data;
 import net.benorourke.stocks.framework.series.data.DataType;
 
@@ -10,9 +10,9 @@ import java.util.Map;
 
 public class ProcessedDocument extends Data
 {
-    private final Map<FeatureRepresenter<CleanedDocument>, double[]> featureVectors;
+    private final Map<FeatureRepresentor<CleanedDocument>, double[]> featureVectors;
 
-    public ProcessedDocument(Date date, Map<FeatureRepresenter<CleanedDocument>, double[]> featureVectors)
+    public ProcessedDocument(Date date, Map<FeatureRepresentor<CleanedDocument>, double[]> featureVectors)
     {
         super(DataType.PROCESSED_DOCUMENT, date);
 
@@ -32,7 +32,7 @@ public class ProcessedDocument extends Data
         return false;
     }
 
-    public Map<FeatureRepresenter<CleanedDocument>, double[]> getFeatureVectors()
+    public Map<FeatureRepresentor<CleanedDocument>, double[]> getFeatureVectors()
     {
         return featureVectors;
     }
