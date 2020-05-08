@@ -10,10 +10,7 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.PieChart;
-import javafx.scene.control.Label;
-import javafx.scene.control.SingleSelectionModel;
-import javafx.scene.control.Tab;
-import javafx.scene.control.TabPane;
+import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -40,6 +37,7 @@ public class DashboardController extends Controller
     private static final String SERIES_SELECTED_STYLE_CLASS = "series-selected";
     private static final String SERIES_ROW_FXML = "/dashboard-series.fxml";
 
+    public static final String TEXT_FIELD_FXML = "/dashboard-text-field.fxml";
     public static final String TEXT_INPUT_FIELD_FXML = "/dashboard-text-input-field.fxml";
     public static final String GENERIC_INPUT_FIELD_FXML = "/dashboard-generic-input-field.fxml";
     public static final double GENERIC_INPUT_FIELD_WIDTH_BIND_COEFF = 0.92;
@@ -83,7 +81,9 @@ public class DashboardController extends Controller
     @FXML private VBox overviewDataPresentBox;
     @FXML private PieChart overviewDistributionChart;
     @FXML private JFXComboBox<String> overviewViewSources;
-    @FXML private JFXListView overviewEntriesListView;
+    @FXML private VBox overviewEntriesListViewBox;
+    @FXML private VBox overviewEntryViewerBox;
+    @FXML private JFXButton overviewEntryRemove;
     // danger zone
     @FXML private JFXButton overviewDuplicatesRemoveButton;
     @FXML private JFXButton overviewDeleteButton;
@@ -160,7 +160,8 @@ public class DashboardController extends Controller
         paneHandlers[DashboardPane.OVERVIEW.ordinal()] =
                 new OverviewPaneHandler(this, model, overviewComboBox, overviewTabPane,
                                         overviewDataPresentBox, overviewDistributionChart,
-                                        overviewViewSources, overviewEntriesListView,
+                                        overviewViewSources, overviewEntriesListViewBox, overviewEntryViewerBox,
+                                        overviewEntryRemove,
                                         overviewDuplicatesRemoveButton, overviewDeleteButton);
         paneHandlers[DashboardPane.COLLECTION.ordinal()] =
                 new CollectionPaneHandler(this, model, collectionCollectSourceComboBox,

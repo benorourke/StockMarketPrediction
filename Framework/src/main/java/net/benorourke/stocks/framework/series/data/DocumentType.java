@@ -4,4 +4,5 @@ public enum DocumentType
 {
     NEWS_HEADLINE,
     TWEET
+
 }

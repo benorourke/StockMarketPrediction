@@ -180,6 +180,17 @@ public class TimeSeriesManager implements Initialisable
                                 + "(overwrite=" + overwrite + "). Collected Data Counts may be wrong.");
     }
 
+    public void onDataRemoved(TimeSeries series, DataSource source, int count)
+    {
+        int newCount = series.getRawDataCounts().get(source.getClass()) - count;
+        if (newCount <= 0)
+            series.getRawDataCounts().remove(source.getClass());
+        else
+            series.getRawDataCounts().put(source.getClass(), newCount);
+
+        save(series);
+    }
+
     public <T extends Data> int cleanDuplicateData(TimeSeries series, DataSource<T> source)
     {
         DataStore store = getDataStore(series);

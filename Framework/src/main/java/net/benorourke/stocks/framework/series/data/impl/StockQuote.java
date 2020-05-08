@@ -1,14 +1,11 @@
 package net.benorourke.stocks.framework.series.data.impl;
 
-import net.benorourke.stocks.framework.series.data.Data;
-import net.benorourke.stocks.framework.series.data.DataType;
-import net.benorourke.stocks.framework.series.data.RawDataAnnotation;
-import net.benorourke.stocks.framework.series.data.RawDataElementAnnotation;
+import net.benorourke.stocks.framework.series.data.*;
 
 import java.util.Date;
 import java.util.UUID;
 
-public class StockQuote extends Data
+public class StockQuote extends Data implements IdentifiableData
 {
     /**
      * A unique ID to distinguish raw quotes from one another efficiently.
@@ -71,6 +68,7 @@ public class StockQuote extends Data
         return true;
     }
 
+    @Override
     public UUID getId()
     {
         return id;

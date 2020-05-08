@@ -5,7 +5,7 @@ import net.benorourke.stocks.framework.series.data.*;
 import java.util.Date;
 import java.util.UUID;
 
-public class Document extends Data
+public class Document extends Data implements IdentifiableData
 {
     /**
      * A unique ID to distinguish raw quotes from one another efficiently.
@@ -51,6 +51,7 @@ public class Document extends Data
         return content.toLowerCase().equalsIgnoreCase(dOther.content.toLowerCase());
     }
 
+    @Override
     public UUID getId()
     {
         return id;

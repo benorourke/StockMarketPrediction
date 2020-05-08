@@ -4,7 +4,6 @@
 <?import com.jfoenix.controls.JFXCheckBox?>
 <?import com.jfoenix.controls.JFXComboBox?>
 <?import com.jfoenix.controls.JFXDatePicker?>
-<?import com.jfoenix.controls.JFXListView?>
 <?import com.jfoenix.controls.JFXTextField?>
 <?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon?>
 <?import javafx.geometry.Insets?>
@@ -310,13 +309,13 @@
                                                                         <Font size="20.0" />
                                                                      </font>
                                                                   </Label>
-                                                                  <ScrollPane hbarPolicy="NEVER" prefHeight="322.0" prefWidth="298.0" styleClass="training-scrollpane">
+                                                                  <ScrollPane hbarPolicy="NEVER" prefHeight="333.0" prefWidth="298.0" styleClass="training-scrollpane">
                                                                      <content>
                                                                         <AnchorPane prefHeight="314.0" prefWidth="294.0">
                                                                            <children>
-                                                                              <VBox alignment="TOP_CENTER" prefHeight="309.0" prefWidth="291.0" spacing="15.0">
+                                                                              <VBox alignment="CENTER" prefHeight="328.0" prefWidth="291.0" spacing="15.0">
                                                                                  <children>
-                                                                                    <JFXListView fx:id="overviewEntriesListView" styleClass="overview-listview" />
+                                                                                    <VBox fx:id="overviewEntriesListViewBox" alignment="CENTER" maxWidth="175.0" prefHeight="328.0" prefWidth="155.0" spacing="15.0" />
                                                                                  </children>
                                                                               </VBox>
                                                                            </children>
@@ -325,19 +324,32 @@
                                                                   </ScrollPane>
                                                                </children>
                                                             </VBox>
-                                                            <VBox alignment="CENTER_LEFT" layoutX="390.0" layoutY="10.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="638.0" prefWidth="300.0" spacing="50.0">
+                                                            <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="300.0" styleClass="content-box">
                                                                <children>
-                                                                  <VBox prefHeight="180.0" prefWidth="100.0" styleClass="content-box">
+                                                                  <Label text="ENTRY VIEWER">
+                                                                     <padding>
+                                                                        <Insets bottom="15.0" left="20.0" top="15.0" />
+                                                                     </padding>
+                                                                     <font>
+                                                                        <Font size="20.0" />
+                                                                     </font>
+                                                                  </Label>
+                                                                  <ScrollPane hbarPolicy="NEVER" prefHeight="322.0" prefWidth="298.0" styleClass="training-scrollpane">
+                                                                     <content>
+                                                                        <AnchorPane prefHeight="264.0" prefWidth="294.0">
+                                                                           <children>
+                                                                              <VBox fx:id="overviewEntryViewerBox" alignment="TOP_CENTER" prefHeight="272.0" prefWidth="291.0" spacing="15.0" />
+                                                                           </children>
+                                                                        </AnchorPane>
+                                                                     </content>
+                                                                  </ScrollPane>
+                                                                  <VBox alignment="CENTER" prefHeight="108.0" prefWidth="298.0">
                                                                      <children>
-                                                                        <Label text="ENTRY VIEWER">
-                                                                           <padding>
-                                                                              <Insets bottom="15.0" left="20.0" top="15.0" />
-                                                                           </padding>
+                                                                        <JFXButton fx:id="overviewEntryRemove" buttonType="RAISED" prefHeight="15.0" prefWidth="150.0" styleClass="button-negative" text="Remove">
                                                                            <font>
-                                                                              <Font size="20.0" />
+                                                                              <Font size="17.0" />
                                                                            </font>
-                                                                        </Label>
-                                                                        <VBox prefHeight="200.0" prefWidth="100.0" />
+                                                                        </JFXButton>
                                                                      </children>
                                                                   </VBox>
                                                                </children>
