@@ -47,4 +47,12 @@ public class DataSourceManager
                           .collect(Collectors.toList());
     }
 
+    public DataSource getDataSourceByName(String name)
+    {
+        return dataSources.stream()
+                          .filter(s -> s.getName().equalsIgnoreCase(name))
+                          .findFirst()
+                          .orElse(null);
+    }
+
 }

@@ -82,6 +82,7 @@ public class DashboardController extends Controller
     //  overview
     @FXML private VBox overviewDataPresentBox;
     @FXML private PieChart overviewDistributionChart;
+    @FXML private JFXComboBox<String> overviewViewSources;
     @FXML private JFXListView overviewEntriesListView;
     // danger zone
     @FXML private JFXButton overviewDuplicatesRemoveButton;
@@ -159,7 +160,7 @@ public class DashboardController extends Controller
         paneHandlers[DashboardPane.OVERVIEW.ordinal()] =
                 new OverviewPaneHandler(this, model, overviewComboBox, overviewTabPane,
                                         overviewDataPresentBox, overviewDistributionChart,
-                                        overviewEntriesListView,
+                                        overviewViewSources, overviewEntriesListView,
                                         overviewDuplicatesRemoveButton, overviewDeleteButton);
         paneHandlers[DashboardPane.COLLECTION.ordinal()] =
                 new CollectionPaneHandler(this, model, collectionCollectSourceComboBox,

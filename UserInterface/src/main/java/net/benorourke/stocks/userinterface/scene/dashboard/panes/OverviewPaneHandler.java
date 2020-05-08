@@ -13,8 +13,12 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import net.benorourke.stocks.framework.collection.datasource.DataSource;
 import net.benorourke.stocks.framework.collection.datasource.DataSourceManager;
+import net.benorourke.stocks.framework.persistence.store.DataStore;
 import net.benorourke.stocks.framework.series.TimeSeries;
 import net.benorourke.stocks.framework.series.TimeSeriesManager;
+import net.benorourke.stocks.framework.series.data.DataType;
+import net.benorourke.stocks.framework.series.data.impl.Document;
+import net.benorourke.stocks.framework.series.data.impl.StockQuote;
 import net.benorourke.stocks.userinterface.scene.Controller;
 import net.benorourke.stocks.userinterface.scene.SceneHelper;
 import net.benorourke.stocks.userinterface.scene.dashboard.DashboardController;
@@ -23,6 +27,7 @@ import net.benorourke.stocks.userinterface.scene.dashboard.FlowStage;
 import net.benorourke.stocks.userinterface.util.JavaFXUtil;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static net.benorourke.stocks.userinterface.StockApplication.runBgThread;
@@ -42,6 +47,7 @@ public class OverviewPaneHandler extends PaneHandler
     private final PieChart overviewDistributionChart;
 
     // View Data
+    private final JFXComboBox<String> overviewViewSources;
     private final JFXListView overviewEntriesListView;
 
     // Danger Zone
@@ -51,7 +57,7 @@ public class OverviewPaneHandler extends PaneHandler
     public OverviewPaneHandler(DashboardController controller, DashboardModel model,
                                JFXComboBox<String> overviewComboBox, TabPane overviewTabPane,
                                VBox overviewDataPresentBox, PieChart overviewDistributionChart,
-                               JFXListView overviewEntriesListView,
+                               JFXComboBox<String> overviewViewSources, JFXListView overviewEntriesListView,
                                JFXButton overviewDuplicatesRemoveButton, JFXButton overviewDeleteButton)
     {
         super(controller, model);
@@ -60,6 +66,7 @@ public class OverviewPaneHandler extends PaneHandler
         this.overviewTabPane = overviewTabPane;
         this.overviewDataPresentBox = overviewDataPresentBox;
         this.overviewDistributionChart = overviewDistributionChart;
+        this.overviewViewSources = overviewViewSources;
         this.overviewEntriesListView = overviewEntriesListView;
         this.overviewDuplicatesRemoveButton = overviewDuplicatesRemoveButton;
         this.overviewDeleteButton = overviewDeleteButton;
@@ -84,9 +91,12 @@ public class OverviewPaneHandler extends PaneHandler
         // Show Overview to begin with
         overviewComboBox.getSelectionModel().select(0);
 
-        // DUPLICATES / MISSING DATA
-        overviewDuplicatesRemoveButton.setOnMouseClicked(event -> onDuplicatesRemoveClicked());
+        // VIEW DATA
+        overviewViewSources.valueProperty().addListener(
+                (observable, oldValue, newValue) -> onViewDataSourceSelected(newValue));
 
+        // DANGER ZONE
+        overviewDuplicatesRemoveButton.setOnMouseClicked(event -> onDuplicatesRemoveClicked());
         overviewDeleteButton.setOnMouseClicked(event -> onDeleteButtonClicked());
     }
 
@@ -106,13 +116,17 @@ public class OverviewPaneHandler extends PaneHandler
     public void onSwitchedTo() { }
 
     //////////////////////////////////////////////////////////////////
-    //      OVERVIEW
+    //      GENERAL
     //////////////////////////////////////////////////////////////////
 
     public void updateDataPresent(TimeSeries series)
     {
         overviewDataPresentBox.getChildren().clear();
         overviewDistributionChart.getData().clear();
+
+        overviewViewSources.getItems().clear();
+        overviewEntriesListView.getItems().clear();
+
         for (Map.Entry<Class<? extends DataSource>, Integer> entry : series.getRawDataCounts().entrySet())
         {
             final Class<? extends DataSource> clazz = entry.getKey();
@@ -122,10 +136,19 @@ public class OverviewPaneHandler extends PaneHandler
                 final DataSource src = framework.getDataSourceManager().getDataSourceByClass(clazz);
                 if (src == null) return;
 
-                runUIThread(() -> inflateCollectionDataSync(src, count));
+                runUIThread(() ->
+                {
+                    // Populate the present data
+                    inflateCollectionDataSync(src, count);
+                    addViewDataSources(src);
+                });
             });
         }
     }
+
+    //////////////////////////////////////////////////////////////////
+    //      OVERVIEW
+    //////////////////////////////////////////////////////////////////
 
     public void inflateCollectionDataSync(DataSource src, int count)
     {
@@ -157,7 +180,53 @@ public class OverviewPaneHandler extends PaneHandler
     }
 
     //////////////////////////////////////////////////////////////////
-    //      MISSING / DUPLICATE
+    //      VIEW DATA
+    //////////////////////////////////////////////////////////////////
+
+    public void addViewDataSources(DataSource source)
+    {
+        overviewViewSources.getItems().add(source.getName());
+
+        if (overviewViewSources.getItems().size() == 1
+                && !overviewViewSources.getSelectionModel().isSelected(0))
+            overviewViewSources.getSelectionModel().select(0);
+    }
+
+    public void onViewDataSourceSelected(final String name)
+    {
+        if (name == null) return;
+
+        final TimeSeries series = model.getCurrentlySelectedTimeSeries();
+        if (series == null) return; // this should never happen, but in case it does
+
+        runBgThread(framework ->
+        {
+            DataStore store = framework.getTimeSeriesManager().getDataStore(series);
+            DataSource source = framework.getDataSourceManager().getDataSourceByName(name);
+
+            if (source.getDataType().equals(DataType.DOCUMENT))
+            {
+                DataSource<Document> castedSource = (DataSource<Document>) source;
+                runUIThread(() -> populateViewDocumentEntries(store.loadRawDocuments(castedSource)));
+            }
+            else if (source.getDataType().equals(DataType.STOCK_QUOTE))
+            {
+                DataSource<StockQuote> castedSource = (DataSource<StockQuote>) source;
+                runUIThread(() -> populateViewQuotesEntries(store.loadRawStockQuotes(castedSource)));
+            }
+        });
+    }
+
+    private void populateViewDocumentEntries(List<Document> documents)
+    {
+    }
+
+    private void populateViewQuotesEntries(List<StockQuote> quotes)
+    {
+    }
+
+    //////////////////////////////////////////////////////////////////
+    //      DANGER ZONE
     //////////////////////////////////////////////////////////////////
 
     private void onDuplicatesRemoveClicked()
@@ -195,10 +264,6 @@ public class OverviewPaneHandler extends PaneHandler
             });
         });
     }
-
-    //////////////////////////////////////////////////////////////////
-    //      DANGER ZONE
-    //////////////////////////////////////////////////////////////////
 
     private void onDeleteButtonClicked()
     {
