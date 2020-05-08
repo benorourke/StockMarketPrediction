@@ -28,7 +28,7 @@
             </VBox>
             <VBox layoutX="70.0" layoutY="77.0" maxWidth="200.0">
                <children>
-                  <Label text="Stock Name">
+                  <Label text="Stock Ticker">
                      <font>
                         <Font size="13.0" />
                      </font>

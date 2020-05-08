@@ -90,6 +90,12 @@ public class TimeSeriesManager implements Initialisable
         return getByName(name) != null;
     }
 
+    public boolean delete(TimeSeries series)
+    {
+        timeSeries.remove(series);
+        return fileManager.deleteRecursively(fileManager.getTimeSeriesDirectory(series));
+    }
+
     private List<TimeSeries> loadStoredTimeSeries()
     {
         File storageDirectory = fileManager.getTimeSeriesParentDirectory();
@@ -172,6 +178,17 @@ public class TimeSeriesManager implements Initialisable
         else
             Framework.error("Error in writing any Data into TimeSeries " + series.toString()
                                 + "(overwrite=" + overwrite + "). Collected Data Counts may be wrong.");
+    }
+
+    public void onDataRemoved(TimeSeries series, DataSource source, int count)
+    {
+        int newCount = series.getRawDataCounts().get(source.getClass()) - count;
+        if (newCount <= 0)
+            series.getRawDataCounts().remove(source.getClass());
+        else
+            series.getRawDataCounts().put(source.getClass(), newCount);
+
+        save(series);
     }
 
     public <T extends Data> int cleanDuplicateData(TimeSeries series, DataSource<T> source)

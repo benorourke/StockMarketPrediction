@@ -1,12 +1,12 @@
 package net.benorourke.stocks.framework.persistence.store;
 
-import com.google.gson.reflect.TypeToken;
 import net.benorourke.stocks.framework.Framework;
 import net.benorourke.stocks.framework.collection.datasource.DataSource;
 import net.benorourke.stocks.framework.persistence.FileManager;
 import net.benorourke.stocks.framework.persistence.gson.ParameterizedTypes;
 import net.benorourke.stocks.framework.series.TimeSeries;
 import net.benorourke.stocks.framework.series.data.Data;
+import net.benorourke.stocks.framework.series.data.IdentifiableData;
 import net.benorourke.stocks.framework.series.data.impl.Document;
 import net.benorourke.stocks.framework.series.data.impl.StockQuote;
 import net.benorourke.stocks.framework.util.Tuple;
@@ -16,6 +16,7 @@ import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.UUID;
 
 public class DataStore
 {
@@ -138,6 +139,36 @@ public class DataStore
         {
             writeRawData(source, cleaned);
             return data.size() - cleaned.size();
+        }
+        else
+            return 0;
+    }
+
+    /**
+     *
+     * @param source
+     * @param listType
+     * @param toRemove
+     * @param <T>
+     * @return the amount remove. Non-zero if data was removed
+     */
+    public <T extends Data> int removeRawData(DataSource<T> source, ParameterizedType listType, UUID toRemove)
+    {
+        List<T> data = loadRawData(source, listType);
+        List<T> filtered = new ArrayList<>();
+
+        for (T elem : data)
+        {
+            if (elem instanceof IdentifiableData && ((IdentifiableData) elem).getId().equals(toRemove))
+                continue;
+
+            filtered.add(elem);
+        }
+
+        if (data.size() != filtered.size())
+        {
+            writeRawData(source, filtered);
+            return data.size() - filtered.size();
         }
         else
             return 0;

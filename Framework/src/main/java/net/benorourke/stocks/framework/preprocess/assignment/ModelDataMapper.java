@@ -1,7 +1,7 @@
 package net.benorourke.stocks.framework.preprocess.assignment;
 
 import net.benorourke.stocks.framework.model.ModelData;
-import net.benorourke.stocks.framework.preprocess.FeatureRepresenter;
+import net.benorourke.stocks.framework.preprocess.FeatureRepresentor;
 import net.benorourke.stocks.framework.series.data.impl.*;
 
 import java.util.Date;
@@ -9,19 +9,19 @@ import java.util.List;
 
 public abstract class ModelDataMapper
 {
-    private final List<FeatureRepresenter<CleanedDocument>> documentRepresenters;
-    private final List<FeatureRepresenter<StockQuote>> quoteRepresenters;
+    private final List<FeatureRepresentor<CleanedDocument>> documentRepresentors;
+    private final List<FeatureRepresentor<StockQuote>> quoteRepresentors;
     private final StockQuoteDataType[] labelsToPredict;
 
     /**
-     * @param quoteRepresenters the feature representers for extracting vectors from the stock quotes
+     * @param quoteRepresentors the feature representors for extracting vectors from the stock quotes
      */
-    public ModelDataMapper(List<FeatureRepresenter<CleanedDocument>> documentRepresenters,
-                           List<FeatureRepresenter<StockQuote>> quoteRepresenters,
+    public ModelDataMapper(List<FeatureRepresentor<CleanedDocument>> documentRepresentors,
+                           List<FeatureRepresentor<StockQuote>> quoteRepresentors,
                            StockQuoteDataType[] labelsToPredict)
     {
-        this.documentRepresenters = documentRepresenters;
-        this.quoteRepresenters = quoteRepresenters;
+        this.documentRepresentors = documentRepresentors;
+        this.quoteRepresentors = quoteRepresentors;
         this.labelsToPredict = labelsToPredict;
     }
 
@@ -34,23 +34,23 @@ public abstract class ModelDataMapper
      */
     public abstract ModelData toModelData(Date date, List<ProcessedDocument> documents, List<StockQuote> quotes);
 
-    public List<FeatureRepresenter<CleanedDocument>> getDocumentRepresenters()
+    public List<FeatureRepresentor<CleanedDocument>> getDocumentRepresentors()
     {
-        return documentRepresenters;
+        return documentRepresentors;
     }
 
-    public List<FeatureRepresenter<StockQuote>> getQuoteRepresenters()
+    public List<FeatureRepresentor<StockQuote>> getQuoteRepresentors()
     {
-        return quoteRepresenters;
+        return quoteRepresentors;
     }
 
     public int getFeatureCount()
     {
         int sum = 0;
-        for (FeatureRepresenter documentRepresenter : documentRepresenters)
-            sum += documentRepresenter.getVectorSize();
-        for (FeatureRepresenter quoteRepresenter : quoteRepresenters)
-            sum += quoteRepresenter.getVectorSize();
+        for (FeatureRepresentor documentRepresentor : documentRepresentors)
+            sum += documentRepresentor.getVectorSize();
+        for (FeatureRepresentor quoteRepresentor : quoteRepresentors)
+            sum += quoteRepresentor.getVectorSize();
         return sum;
     }
 

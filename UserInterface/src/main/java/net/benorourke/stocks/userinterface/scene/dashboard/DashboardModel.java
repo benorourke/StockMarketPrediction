@@ -4,8 +4,8 @@ import net.benorourke.stocks.framework.Framework;
 import net.benorourke.stocks.framework.collection.datasource.DataSource;
 import net.benorourke.stocks.framework.model.ModelEvaluation;
 import net.benorourke.stocks.framework.model.ModelHandlerManager;
-import net.benorourke.stocks.framework.preprocess.FeatureRepresenter;
-import net.benorourke.stocks.framework.preprocess.FeatureRepresenterManager;
+import net.benorourke.stocks.framework.preprocess.FeatureRepresentor;
+import net.benorourke.stocks.framework.preprocess.FeatureRepresentorManager;
 import net.benorourke.stocks.framework.preprocess.assignment.MissingDataPolicy;
 import net.benorourke.stocks.framework.series.TimeSeries;
 import net.benorourke.stocks.framework.series.data.impl.CleanedDocument;
@@ -36,18 +36,20 @@ public class DashboardModel
     private DataSource currentlySelectedInjectionDataSource;
 
     // PRE-PROCESSING
-    private Map<FeatureRepresenterManager.Metadata, FeatureRepresenter<StockQuote>> quoteFeatureRepresenters;
-    private Map<FeatureRepresenterManager.Metadata, FeatureRepresenter<CleanedDocument>> documentFeatureRepresenters;
+    private Map<FeatureRepresentorManager.Metadata, FeatureRepresentor<StockQuote>> quoteFeatureRepresentors;
+    private Map<FeatureRepresentorManager.Metadata, FeatureRepresentor<CleanedDocument>> documentFeatureRepresentors;
     private List<MissingDataPolicy> missingDataPolicies;
 
     @Nullable private MissingDataPolicy currentlySelectedMissingDataPolicy;
 
     // TRAINING
     private List<ModelHandlerManager.RuntimeCreator> modelHandlerCreators;
+    private ModelHandlerManager.RuntimeCreator currentlySelectedModelHandlerCreator;
 
     // EVALUATION
     private List<String> trainedModels;
     private ModelEvaluation lastAcquiredEvaluation;
+    private String lastAcquiredEvaluationName;
 
     protected DashboardModel(DashboardController controller)
     {
@@ -60,8 +62,8 @@ public class DashboardModel
         dataSources = new ArrayList<>();
 
         // Pre-processing
-        quoteFeatureRepresenters = new HashMap<>();
-        documentFeatureRepresenters = new HashMap<>();
+        quoteFeatureRepresentors = new HashMap<>();
+        documentFeatureRepresentors = new HashMap<>();
         missingDataPolicies = new ArrayList<>();
 
         // Training
@@ -94,6 +96,8 @@ public class DashboardModel
                     stage = FlowStage.PRE_PROCESSED;
                 else
                     stage = FlowStage.COLLECTING_AND_INJECTING;
+
+                Framework.debug("Resolved as " + stage + " (processedexists: " + processed.exists() + ")");
 
                 runUIThread(() ->
                 {
@@ -153,17 +157,17 @@ public class DashboardModel
     {
         runBgThread(framework ->
         {
-            final Map<FeatureRepresenterManager.Metadata, FeatureRepresenter<StockQuote>> features =
-                    Collections.unmodifiableMap(framework.getFeatureRepresenterManager().getQuoteRepresenters());
-            final Map<FeatureRepresenterManager.Metadata, FeatureRepresenter<CleanedDocument>> documents =
-                    Collections.unmodifiableMap(framework.getFeatureRepresenterManager().getDocumentRepresenters());
+            final Map<FeatureRepresentorManager.Metadata, FeatureRepresentor<StockQuote>> features =
+                    Collections.unmodifiableMap(framework.getFeatureRepresentorManager().getQuoteRepresentors());
+            final Map<FeatureRepresentorManager.Metadata, FeatureRepresentor<CleanedDocument>> documents =
+                    Collections.unmodifiableMap(framework.getFeatureRepresentorManager().getDocumentRepresentors());
             final List<MissingDataPolicy> missingDataPolicies =
-                    Collections.unmodifiableList(framework.getFeatureRepresenterManager().getMissingDataPolicies());
+                    Collections.unmodifiableList(framework.getFeatureRepresentorManager().getMissingDataPolicies());
 
             runUIThread(() ->
             {
-                this.quoteFeatureRepresenters = features;
-                this.documentFeatureRepresenters = documents;
+                this.quoteFeatureRepresentors = features;
+                this.documentFeatureRepresentors = documents;
                 this.missingDataPolicies = missingDataPolicies;
                 onRetrieval.run();
             });
@@ -188,7 +192,7 @@ public class DashboardModel
         });
     }
 
-    public void acquireEvaluation(TimeSeries seriesFor, String modelName, Runnable onRetrieval)
+    public void acquireEvaluation(TimeSeries seriesFor, final String modelName, Runnable onRetrieval)
     {
         runBgThread(framework ->
         {
@@ -200,6 +204,7 @@ public class DashboardModel
             runUIThread(() ->
             {
                 this.lastAcquiredEvaluation = eval;
+                this.lastAcquiredEvaluationName = modelName;
                 onRetrieval.run();
             });
         });
@@ -207,13 +212,11 @@ public class DashboardModel
 
     public FlowStage getCurrentFlowStage()
     {
-        Framework.debug("GET STAGE " + currentFlowStage);
         return currentFlowStage;
     }
 
     public void setCurrentFlowStage(FlowStage currentFlowStage)
     {
-        Framework.debug("SET STAGE TO " + currentFlowStage);
         this.currentFlowStage = currentFlowStage;
     }
 
@@ -273,14 +276,14 @@ public class DashboardModel
         return lastAcquiredEvaluation;
     }
 
-    public Map<FeatureRepresenterManager.Metadata, FeatureRepresenter<StockQuote>> getQuoteFeatureRepresenters()
+    public Map<FeatureRepresentorManager.Metadata, FeatureRepresentor<StockQuote>> getQuoteFeatureRepresentors()
     {
-        return quoteFeatureRepresenters;
+        return quoteFeatureRepresentors;
     }
 
-    public Map<FeatureRepresenterManager.Metadata, FeatureRepresenter<CleanedDocument>> getDocumentFeatureRepresenters()
+    public Map<FeatureRepresentorManager.Metadata, FeatureRepresentor<CleanedDocument>> getDocumentFeatureRepresentors()
     {
-        return documentFeatureRepresenters;
+        return documentFeatureRepresentors;
     }
 
     public List<MissingDataPolicy> getMissingDataPolicies()
@@ -298,4 +301,23 @@ public class DashboardModel
         this.currentlySelectedMissingDataPolicy = currentlySelectedMissingDataPolicy;
     }
 
+    public ModelHandlerManager.RuntimeCreator getCurrentlySelectedModelHandlerCreator()
+    {
+        return currentlySelectedModelHandlerCreator;
+    }
+
+    public void setCurrentlySelectedModelHandlerCreator(ModelHandlerManager.RuntimeCreator currentlySelectedModelHandlerCreator)
+    {
+        this.currentlySelectedModelHandlerCreator = currentlySelectedModelHandlerCreator;
+    }
+
+    public String getLastAcquiredEvaluationName()
+    {
+        return lastAcquiredEvaluationName;
+    }
+
+    public void setLastAcquiredEvaluationName(String lastAcquiredEvaluationName)
+    {
+        this.lastAcquiredEvaluationName = lastAcquiredEvaluationName;
+    }
 }

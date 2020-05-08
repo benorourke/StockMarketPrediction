@@ -66,7 +66,7 @@ public class CreateSeriesController extends Controller implements EventHandler<M
             final TimeSeries created = framework.getTimeSeriesManager().getByName(seriesName);
             runUIThread(() ->
             {
-                dashboardController.inflateTimeSeries(created);
+                dashboardController.inflateTimeSeries(created, true);
                 dashboardController.snackbar(SnackbarType.INFO, "Time Series successfully created");
                 singletonInstance.close();
                 singletonInstance = null;

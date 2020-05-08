@@ -1,27 +1,27 @@
-package net.benorourke.stocks.framework.persistence.gson.data.representer;
+package net.benorourke.stocks.framework.persistence.gson.data.representor;
 
 import com.google.gson.*;
 import net.benorourke.stocks.framework.Framework;
 import net.benorourke.stocks.framework.persistence.gson.JsonAdapter;
-import net.benorourke.stocks.framework.preprocess.document.representer.sentiment.SentimentFeatureRepresenter;
-import net.benorourke.stocks.framework.preprocess.document.representer.topterm.RelevancyMetric;
-import net.benorourke.stocks.framework.preprocess.document.representer.topterm.TopTermFeatureRepresenter;
+import net.benorourke.stocks.framework.preprocess.document.representor.sentiment.SentimentFeatureRepresentor;
+import net.benorourke.stocks.framework.preprocess.document.representor.topterm.RelevancyMetric;
+import net.benorourke.stocks.framework.preprocess.document.representor.topterm.TopTermFeatureRepresentor;
 
 import java.lang.reflect.Type;
 
-public class TopTermFeatureRepresenterAdapter extends JsonAdapter<TopTermFeatureRepresenter>
+public class TopTermFeatureRepresentorAdapter extends JsonAdapter<TopTermFeatureRepresentor>
 {
 
     @Override
-    public JsonElement serialize(TopTermFeatureRepresenter representer, Type typeOfSrc, JsonSerializationContext context)
+    public JsonElement serialize(TopTermFeatureRepresentor representor, Type typeOfSrc, JsonSerializationContext context)
     {
         JsonObject obj = new JsonObject();
         obj.add("relevancyMetricClass",
-                new JsonPrimitive(representer.getRelevancyMetric().getClass().getName()));
-        obj.add("maxTopTerms", new JsonPrimitive(representer.getMaxTopTerms()));
+                new JsonPrimitive(representor.getRelevancyMetric().getClass().getName()));
+        obj.add("maxTopTerms", new JsonPrimitive(representor.getMaxTopTerms()));
 
         JsonArray topTermsArray = new JsonArray();
-        for (String topTerm : representer.getTopTerms())
+        for (String topTerm : representor.getTopTerms())
             topTermsArray.add(topTerm);
         obj.add("topTerms", topTermsArray);
 
@@ -29,7 +29,7 @@ public class TopTermFeatureRepresenterAdapter extends JsonAdapter<TopTermFeature
     }
 
     @Override
-    public TopTermFeatureRepresenter deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
+    public TopTermFeatureRepresentor deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
             throws JsonParseException
     {
         JsonObject object = json.getAsJsonObject();
@@ -46,9 +46,9 @@ public class TopTermFeatureRepresenterAdapter extends JsonAdapter<TopTermFeature
             for (int i = 0; i < topTerms.length; i ++)
                 topTerms[i] = topTermsArray.get(i).getAsJsonPrimitive().getAsString();
 
-            TopTermFeatureRepresenter representer = new TopTermFeatureRepresenter(relevancyMetric, maxTopTerms);
-            representer.setTopTerms(topTerms);
-            return representer;
+            TopTermFeatureRepresentor representor = new TopTermFeatureRepresentor(relevancyMetric, maxTopTerms);
+            representor.setTopTerms(topTerms);
+            return representor;
         }
         catch (ClassNotFoundException | InstantiationException | IllegalAccessException e)
         {

@@ -1,46 +1,34 @@
 package net.benorourke.stocks.framework.exception;
 
+
 import java.io.IOException;
 
 public class FailedCollectionException extends Exception
 {
-    public enum Type {HTTP_ERROR, RESPONSE_CODE, COLLECTION_VARIABLE_INVALID};
+    public enum Type {HTTP_ERROR, RESPONSE_CODE, COLLECTION_VARIABLE_INVALID, TWITTER_EXCEPTION}
 
     private final Type type;
-    private final int responseCode;
 
-    public FailedCollectionException(IOException httpException)
+    public FailedCollectionException(Type type, String message)
     {
-        super(httpException);
+        super (message);
 
-        type = Type.HTTP_ERROR;
-        responseCode = -1;
+        this.type = type;
+    }
+
+    public FailedCollectionException(IOException exception)
+    {
+        this (Type.HTTP_ERROR, exception.getMessage());
     }
 
     public FailedCollectionException(int responseCode)
     {
-        super("Invalid response code " + responseCode);
-
-        type = Type.RESPONSE_CODE;
-        this.responseCode = responseCode;
-    }
-
-    public FailedCollectionException(String invalidityReason)
-    {
-        super("Invalid CollectionVariable: " + invalidityReason);
-
-        type = Type.COLLECTION_VARIABLE_INVALID;
-        this.responseCode = -1;
+        this (Type.RESPONSE_CODE, "Invalid response code: " + responseCode);
     }
 
     public Type getType()
     {
         return type;
-    }
-
-    public int getResponseCode()
-    {
-        return responseCode;
     }
 
 }

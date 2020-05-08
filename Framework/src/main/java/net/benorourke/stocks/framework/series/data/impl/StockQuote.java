@@ -1,14 +1,19 @@
 package net.benorourke.stocks.framework.series.data.impl;
 
-import net.benorourke.stocks.framework.series.data.Data;
-import net.benorourke.stocks.framework.series.data.DataType;
-import net.benorourke.stocks.framework.series.data.RawDataAnnotation;
-import net.benorourke.stocks.framework.series.data.RawDataElementAnnotation;
+import net.benorourke.stocks.framework.series.data.*;
 
 import java.util.Date;
+import java.util.UUID;
 
-public class StockQuote extends Data
+public class StockQuote extends Data implements IdentifiableData
 {
+    /**
+     * A unique ID to distinguish raw quotes from one another efficiently.
+     *
+     * Used to remove raw data.
+     */
+    private final UUID id;
+
     @RawDataElementAnnotation
     private double open;
     @RawDataElementAnnotation
@@ -20,16 +25,32 @@ public class StockQuote extends Data
     @RawDataElementAnnotation
     private double volume;
 
-    @RawDataAnnotation(indexOfDate = 0, paramOrder = {"open", "close", "high", "low", "volume"})
-    public StockQuote(Date date, double open, double close, double high, double low, double volume)
+    public StockQuote(UUID id, Date date, double open, double close, double high, double low, double volume)
     {
-        super(DataType.STOCK_QUOTE, date);
+        super (DataType.STOCK_QUOTE, date);
 
+        this.id = id;
         this.open = open;
         this.close = close;
         this.high = high;
         this.low = low;
         this.volume = volume;
+    }
+
+    /**
+     * The constructor used when injecting StockQuotes dynamically through the UI.
+     *
+     * @param date
+     * @param open
+     * @param close
+     * @param high
+     * @param low
+     * @param volume
+     */
+    @RawDataAnnotation(indexOfDate = 0, paramOrder = {"open", "close", "high", "low", "volume"})
+    public StockQuote(Date date, double open, double close, double high, double low, double volume)
+    {
+        this (UUID.randomUUID(), date, open, close, high, low, volume);
     }
 
     @Override
@@ -45,6 +66,12 @@ public class StockQuote extends Data
                 return false;
 
         return true;
+    }
+
+    @Override
+    public UUID getId()
+    {
+        return id;
     }
 
     /**

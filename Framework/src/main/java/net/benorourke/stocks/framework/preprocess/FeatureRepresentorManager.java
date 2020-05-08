@@ -2,12 +2,12 @@ package net.benorourke.stocks.framework.preprocess;
 
 import net.benorourke.stocks.framework.preprocess.assignment.IgnorePolicy;
 import net.benorourke.stocks.framework.preprocess.assignment.MissingDataPolicy;
-import net.benorourke.stocks.framework.preprocess.document.representer.sentiment.BinarySentimentFeatureRepresenter;
-import net.benorourke.stocks.framework.preprocess.document.representer.sentiment.NormalisedSentimentFeatureRepresenter;
-import net.benorourke.stocks.framework.preprocess.document.representer.sentiment.Sentiment;
-import net.benorourke.stocks.framework.preprocess.document.representer.topterm.TF_IDF;
-import net.benorourke.stocks.framework.preprocess.document.representer.topterm.TopTermFeatureRepresenter;
-import net.benorourke.stocks.framework.preprocess.quote.StockQuoteFeatureRepresenter;
+import net.benorourke.stocks.framework.preprocess.document.representor.sentiment.BinarySentimentFeatureRepresentor;
+import net.benorourke.stocks.framework.preprocess.document.representor.sentiment.NormalisedSentimentFeatureRepresentor;
+import net.benorourke.stocks.framework.preprocess.document.representor.sentiment.Sentiment;
+import net.benorourke.stocks.framework.preprocess.document.representor.topterm.TF_IDF;
+import net.benorourke.stocks.framework.preprocess.document.representor.topterm.TopTermFeatureRepresentor;
+import net.benorourke.stocks.framework.preprocess.quote.StockQuoteFeatureRepresentor;
 import net.benorourke.stocks.framework.series.data.impl.CleanedDocument;
 import net.benorourke.stocks.framework.series.data.impl.StockQuote;
 import net.benorourke.stocks.framework.series.data.impl.StockQuoteDataType;
@@ -16,19 +16,19 @@ import net.benorourke.stocks.framework.util.Initialisable;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class FeatureRepresenterManager implements Initialisable
+public class FeatureRepresentorManager implements Initialisable
 {
     private static final int[] MAX_TOP_TERMS = {2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192};
 
-    private final Map<Metadata, FeatureRepresenter<StockQuote>> quoteRepresenters;
-    private final Map<Metadata, FeatureRepresenter<CleanedDocument>> documentRepresenters;
+    private final Map<Metadata, FeatureRepresentor<StockQuote>> quoteRepresentors;
+    private final Map<Metadata, FeatureRepresentor<CleanedDocument>> documentRepresentors;
 
     private final List<MissingDataPolicy> missingDataPolicies;
 
-    public FeatureRepresenterManager()
+    public FeatureRepresentorManager()
     {
-        quoteRepresenters = new LinkedHashMap<>();
-        documentRepresenters = new LinkedHashMap<>();
+        quoteRepresentors = new LinkedHashMap<>();
+        documentRepresentors = new LinkedHashMap<>();
         missingDataPolicies = new ArrayList<>();
     }
 
@@ -36,30 +36,30 @@ public class FeatureRepresenterManager implements Initialisable
     public void initialise()
     {
         // Stock Quotes
-        quoteRepresenters.put(new Metadata("Quote (With Volume)","Stock Quote Data with Volume Traded Present",
+        quoteRepresentors.put(new Metadata("Quote (With Volume)","Stock Quote Data with Volume Traded Present",
                                            StockQuoteDataType.values().length),
-                              new StockQuoteFeatureRepresenter(StockQuoteDataType.values()));
-        quoteRepresenters.put(new Metadata("Quote (No Volume)", "Stock Quote Data with Volume Traded Excluded",
+                              new StockQuoteFeatureRepresentor(StockQuoteDataType.values()));
+        quoteRepresentors.put(new Metadata("Quote (No Volume)", "Stock Quote Data with Volume Traded Excluded",
                         StockQuoteDataType.values().length - 1),
-                              new StockQuoteFeatureRepresenter(quoteTypesWithoutVolume()));
+                              new StockQuoteFeatureRepresentor(quoteTypesWithoutVolume()));
 
         // Document: Sentiment
-        documentRepresenters.put(new Metadata("Binary Sentiment", "1 for mode Sentiment, 0 for all others",
+        documentRepresentors.put(new Metadata("Binary Sentiment", "1 for mode Sentiment, 0 for all others",
                                               Sentiment.values().length),
-                                 new BinarySentimentFeatureRepresenter());
-        documentRepresenters.put(new Metadata("Normalised Sentiment",
+                                 new BinarySentimentFeatureRepresentor());
+        documentRepresentors.put(new Metadata("Normalised Sentiment",
                                    "In the range of [0,1] depending how positive (most = 1, "
                                                     + "least = 0)", 1),
-                                 new NormalisedSentimentFeatureRepresenter());
+                                 new NormalisedSentimentFeatureRepresentor());
 
         // Document: Top Term (TF_IDF)
         for (int maxTopTerms : MAX_TOP_TERMS)
         {
-            documentRepresenters.put(new Metadata("Top Term (TFIDF, " + maxTopTerms + ")",
+            documentRepresentors.put(new Metadata("Top Term (TFIDF, " + maxTopTerms + ")",
                                        "Relevancy Metric: Term Frequency Inverse Document Frequency, "
                                                         + "Max Top Terms: " + maxTopTerms,
                                                   maxTopTerms),
-                                     new TopTermFeatureRepresenter(new TF_IDF(), maxTopTerms));
+                                     new TopTermFeatureRepresentor(new TF_IDF(), maxTopTerms));
         }
 
         // Missing Data Policies
@@ -74,14 +74,14 @@ public class FeatureRepresenterManager implements Initialisable
         return types.toArray(new StockQuoteDataType[StockQuoteDataType.values().length - 1]);
     }
 
-    public Map<Metadata, FeatureRepresenter<StockQuote>> getQuoteRepresenters()
+    public Map<Metadata, FeatureRepresentor<StockQuote>> getQuoteRepresentors()
     {
-        return quoteRepresenters;
+        return quoteRepresentors;
     }
 
-    public Map<Metadata, FeatureRepresenter<CleanedDocument>> getDocumentRepresenters()
+    public Map<Metadata, FeatureRepresentor<CleanedDocument>> getDocumentRepresentors()
     {
-        return documentRepresenters;
+        return documentRepresentors;
     }
 
     public List<MissingDataPolicy> getMissingDataPolicies()

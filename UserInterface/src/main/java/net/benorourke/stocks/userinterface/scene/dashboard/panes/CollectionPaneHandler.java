@@ -105,6 +105,9 @@ public class CollectionPaneHandler extends PaneHandler
         return null;
     }
 
+    @Override
+    public void onSwitchedTo() { }
+
     //////////////////////////////////////////////////////////////////
     //      COLLECT
     //////////////////////////////////////////////////////////////////
@@ -191,21 +194,26 @@ public class CollectionPaneHandler extends PaneHandler
         Tuple<Date, Date> queryDates = getCollectQuerySpecified();
         Query query = new Query(queryDates.getB(), queryDates.getA());
 
-        DataType type = source.getDataType();
-        CollectionTask task;
-        if (type.equals(DataType.DOCUMENT))
-            task = createCollectionTask((DataSource<Document>) source, query,
-                    (CollectionFilter<Document>) source.newDefaultCollectionFilter());
-        else if(type.equals(DataType.STOCK_QUOTE))
-            task = createCollectionTask((DataSource<StockQuote>) source, query,
-                    (CollectionFilter<StockQuote>) source.newDefaultCollectionFilter());
-        else
+        runBgThread(framework ->
         {
-            controller.snackbar(Controller.SnackbarType.ERROR, "Unknown Collection Data Type" + type.getName());
-            return;
-        }
+            // Run this on the BG Thread as some CollectionSessions being generated in createCollectionTask
+            // will connect to APIs (i.e. Twitter)
+            DataType type = source.getDataType();
+            CollectionTask task;
+            if (type.equals(DataType.DOCUMENT))
+                task = createCollectionTask((DataSource<Document>) source, query,
+                        (CollectionFilter<Document>) source.newDefaultCollectionFilter());
+            else if(type.equals(DataType.STOCK_QUOTE))
+                task = createCollectionTask((DataSource<StockQuote>) source, query,
+                        (CollectionFilter<StockQuote>) source.newDefaultCollectionFilter());
+            else
+            {
+                controller.snackbar(Controller.SnackbarType.ERROR, "Unknown Collection Data Type" + type.getName());
+                return;
+            }
 
-        beginCollectionTask(task, series, source);
+            beginCollectionTask(framework, task, series, source);
+        });
     }
 
     private <T extends Data> CollectionTask<T> createCollectionTask(DataSource<T> source, Query query,
@@ -214,38 +222,36 @@ public class CollectionPaneHandler extends PaneHandler
         return new CollectionTask<>(source, source.newSession(query, collectionFilter));
     }
 
-    private <T extends Data> void beginCollectionTask(CollectionTask<T> task, TimeSeries series, DataSource<T> source)
+    private <T extends Data> void beginCollectionTask(Framework framework, CollectionTask<T> task, TimeSeries series,
+                                                      DataSource<T> source)
     {
-        runBgThread(framework ->
+        try
         {
-            try
+            framework.getTaskManager().scheduleRepeating(task, result ->
             {
-                framework.getTaskManager().scheduleRepeating(task, result ->
-                {
-                    final List<T> data = result.getData();
+                final List<T> data = result.getData();
 
-                    TimeSeriesManager manager = framework.getTimeSeriesManager();
-                    // Write the data to the file
-                    manager.onDataCollected(series, source, data, false);
+                TimeSeriesManager manager = framework.getTimeSeriesManager();
+                // Write the data to the file
+                manager.onDataCollected(series, source, data, false);
 
-                    runUIThread(() ->
-                    {
-                        Framework.info("Collected data, cardinality: " + data.size());
-
-                        // Update the data count in the data present overview tab to reflect these changes
-                        ((OverviewPaneHandler) controller.getPaneHandler(DashboardPane.OVERVIEW)).updateDataPresent(series);
-                    });
-                }, Constants.COLLECTION_DELAY, Constants.COLLECTION_INTERVAL, TimeUnit.MILLISECONDS);
-            }
-            catch (TaskStartException e)
-            {
                 runUIThread(() ->
                 {
-                    controller.snackbar(Controller.SnackbarType.ERROR,
-                            "Unable to schedule CollectionTask " + e.getMessage());
+                    Framework.info("Collected data, cardinality: " + data.size());
+
+                    // Update the data count in the data present overview tab to reflect these changes
+                    ((OverviewPaneHandler) controller.getPaneHandler(DashboardPane.OVERVIEW)).updateDataPresent(series);
                 });
-            }
-        });
+            }, Constants.COLLECTION_DELAY, Constants.COLLECTION_INTERVAL, TimeUnit.MILLISECONDS);
+        }
+        catch (TaskStartException e)
+        {
+            runUIThread(() ->
+            {
+                controller.snackbar(Controller.SnackbarType.ERROR,
+                        "Unable to schedule CollectionTask " + e.getMessage());
+            });
+        }
     }
 
     public boolean checkCollectVariableFieldsLoaded()

@@ -1,4 +1,4 @@
-package net.benorourke.stocks.framework.preprocess.document.representer.sentiment;
+package net.benorourke.stocks.framework.preprocess.document.representor.sentiment;
 
 import net.benorourke.stocks.framework.Framework;
 import net.benorourke.stocks.framework.series.data.DocumentType;
@@ -15,8 +15,8 @@ public class Test
 
     public static void main(String[] args)
     {
-        BinarySentimentFeatureRepresenter binary = new BinarySentimentFeatureRepresenter();
-        NormalisedSentimentFeatureRepresenter normalised = new NormalisedSentimentFeatureRepresenter();
+        BinarySentimentFeatureRepresentor binary = new BinarySentimentFeatureRepresentor();
+        NormalisedSentimentFeatureRepresentor normalised = new NormalisedSentimentFeatureRepresentor();
 
         binary.initialise(new ArrayList<>());
         normalised.initialise(new ArrayList<>());

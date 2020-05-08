@@ -1,4 +1,4 @@
-package net.benorourke.stocks.framework.preprocess.document.representer.topterm;
+package net.benorourke.stocks.framework.preprocess.document.representor.topterm;
 
 import net.benorourke.stocks.framework.series.data.impl.CleanedDocument;
 
@@ -28,7 +28,7 @@ public class TF_IDF implements RelevancyMetric
         corpus.clear();
         idfMap.clear();
 
-        // Create the map of terms against the number of documents where a representer appears
+        // Create the map of terms against the number of documents where a representor appears
         corpus.addAll(data);
         corpusSize = (double) corpus.size();
 
@@ -38,7 +38,7 @@ public class TF_IDF implements RelevancyMetric
 
             inner: for (String term : document.getCleanedTerms())
             {
-                // Don't want to increment this representer in the idfMap if we already have
+                // Don't want to increment this representor in the idfMap if we already have
                 // for this document
                 if (!termsSeenThisDocument.contains(term))
                 {
@@ -98,7 +98,7 @@ public class TF_IDF implements RelevancyMetric
 
     public double inverseDocumentFrequency(String term)
     {
-        double denominator = (double) idfMap.get(term); // Can set 1, but a representer should never be missings
+        double denominator = (double) idfMap.get(term); // Can set 1, but a representor should never be missings
         return Math.log10( corpusSize / (denominator) );
     }
 

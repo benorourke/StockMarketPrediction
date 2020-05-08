@@ -2,7 +2,7 @@ package net.benorourke.stocks.framework.collection.datasource;
 
 import net.benorourke.stocks.framework.collection.datasource.alphavantage.AlphaVantage;
 import net.benorourke.stocks.framework.collection.datasource.newsapi.NewsAPI;
-import net.benorourke.stocks.framework.collection.datasource.twitter.Twitter4J;
+import net.benorourke.stocks.framework.collection.datasource.twitter.TwitterFree;
 import net.benorourke.stocks.framework.series.data.Data;
 
 import java.util.ArrayList;
@@ -18,7 +18,7 @@ public class DataSourceManager
         dataSources = new ArrayList<>();
         dataSources.add(new AlphaVantage());
         dataSources.add(new NewsAPI());
-        dataSources.add(new Twitter4J());
+        dataSources.add(new TwitterFree());
     }
 
     public List<DataSource> getDataSources()
@@ -45,6 +45,14 @@ public class DataSourceManager
                           .filter(source -> clazz.isAssignableFrom(source.getDataClass()))
                           .map(source -> (DataSource<T>) source)
                           .collect(Collectors.toList());
+    }
+
+    public DataSource getDataSourceByName(String name)
+    {
+        return dataSources.stream()
+                          .filter(s -> s.getName().equalsIgnoreCase(name))
+                          .findFirst()
+                          .orElse(null);
     }
 
 }

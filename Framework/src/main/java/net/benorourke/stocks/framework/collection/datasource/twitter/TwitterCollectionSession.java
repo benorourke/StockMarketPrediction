@@ -1,19 +1,19 @@
-package net.benorourke.stocks.framework.collection.datasource.newsapi;
+package net.benorourke.stocks.framework.collection.datasource.twitter;
 
 import net.benorourke.stocks.framework.collection.Query;
 import net.benorourke.stocks.framework.collection.session.APICollectionSession;
-import net.benorourke.stocks.framework.collection.session.filter.CollectionFilter;
 import net.benorourke.stocks.framework.collection.session.DailyCollectionSession;
+import net.benorourke.stocks.framework.collection.session.filter.CollectionFilter;
 import net.benorourke.stocks.framework.exception.ConstraintException;
 import net.benorourke.stocks.framework.exception.FailedCollectionException;
 import net.benorourke.stocks.framework.series.data.impl.Document;
 
-public class NewsAPICollectionSession extends APICollectionSession<Document>
+public class TwitterCollectionSession extends APICollectionSession<Document>
 {
     // Wrap the object here
     private final DailyCollectionSession<Document> dailySession;
 
-    public NewsAPICollectionSession(Query completeQuery, CollectionFilter<Document> collectionFilter)
+    public TwitterCollectionSession(Query completeQuery, CollectionFilter<Document> collectionFilter)
     {
         super(collectionFilter);
 
@@ -55,5 +55,4 @@ public class NewsAPICollectionSession extends APICollectionSession<Document>
     {
         exception.printStackTrace();
     }
-
 }

@@ -32,13 +32,13 @@ public class TimeSeries
     @Override
     public String toString()
     {
-        return '[' + name + ", " + stock.toString() + ']';
+        return '[' + name + ", " + stock + ']';
     }
 
     @Override
     public boolean equals(Object obj)
     {
-        return obj != null && obj instanceof TimeSeries && ((TimeSeries) obj).id == id;
+        return obj != null && obj instanceof TimeSeries && obj.hashCode() == hashCode();
     }
 
     @Override

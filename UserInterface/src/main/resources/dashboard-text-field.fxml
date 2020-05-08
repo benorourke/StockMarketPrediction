@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<HBox fx:id="presetSeries" alignment="CENTER_LEFT" prefHeight="48.0" prefWidth="294.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <VBox prefHeight="48.0" prefWidth="297.0">
+         <children>
+            <Label fx:id="header" text="Field Name" />
+            <Label fx:id="content" text="Label">
+               <padding>
+                  <Insets left="15.0" right="30.0" />
+               </padding>
+               <font>
+                  <Font size="19.0" />
+               </font>
+            </Label>
+         </children>
+         <padding>
+            <Insets left="10.0" />
+         </padding>
+      </VBox>
+   </children>
+</HBox>

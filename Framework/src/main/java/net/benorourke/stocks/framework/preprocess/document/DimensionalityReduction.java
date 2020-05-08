@@ -66,6 +66,9 @@ public class DimensionalityReduction extends Preprocess<List<Document>, List<Cle
      */
     public List<String> clean(String documentText)
     {
+        // Remove any URLs
+        documentText = documentText.replaceAll("http.*?\\s", " ");
+        // Remove anything that isn't alphabetic
         documentText = documentText.toLowerCase().replaceAll("[^a-zA-Z ]", "");
 
         List<String> lemmas = new LinkedList<String>();

@@ -1,26 +1,26 @@
-package net.benorourke.stocks.framework.persistence.gson.data.representer;
+package net.benorourke.stocks.framework.persistence.gson.data.representor;
 
 import com.google.gson.*;
 import net.benorourke.stocks.framework.persistence.gson.JsonAdapter;
-import net.benorourke.stocks.framework.preprocess.quote.StockQuoteFeatureRepresenter;
+import net.benorourke.stocks.framework.preprocess.quote.StockQuoteFeatureRepresentor;
 import net.benorourke.stocks.framework.series.data.impl.StockQuoteDataType;
 
 import java.lang.reflect.Type;
 
-public class StockQuoteFeatureRepresenterAdapter extends JsonAdapter<StockQuoteFeatureRepresenter>
+public class StockQuoteFeatureRepresentorAdapter extends JsonAdapter<StockQuoteFeatureRepresentor>
 {
 
     @Override
-    public JsonElement serialize(StockQuoteFeatureRepresenter representer, Type typeOfSrc, JsonSerializationContext context)
+    public JsonElement serialize(StockQuoteFeatureRepresentor representor, Type typeOfSrc, JsonSerializationContext context)
     {
         JsonArray array = new JsonArray();
-        for (StockQuoteDataType dataType : representer.getDataTypes())
+        for (StockQuoteDataType dataType : representor.getDataTypes())
             array.add(dataType.name());
         return array;
     }
 
     @Override
-    public StockQuoteFeatureRepresenter deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
+    public StockQuoteFeatureRepresentor deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
             throws JsonParseException
     {
         JsonArray array = json.getAsJsonArray();
@@ -30,7 +30,7 @@ public class StockQuoteFeatureRepresenterAdapter extends JsonAdapter<StockQuoteF
             String name = array.get(i).getAsJsonPrimitive().getAsString();
             types[i] = StockQuoteDataType.valueOf(name);
         }
-        return new StockQuoteFeatureRepresenter(types);
+        return new StockQuoteFeatureRepresentor(types);
     }
 
 }

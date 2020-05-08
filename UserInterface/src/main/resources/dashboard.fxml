@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import com.jfoenix.controls.JFXButton?>
+<?import com.jfoenix.controls.JFXCheckBox?>
 <?import com.jfoenix.controls.JFXComboBox?>
 <?import com.jfoenix.controls.JFXDatePicker?>
+<?import com.jfoenix.controls.JFXTextField?>
 <?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.chart.CategoryAxis?>
@@ -26,7 +28,7 @@
                <children>
                   <Label fx:id="headerLabel" prefHeight="137.0" prefWidth="218.0" styleClass="header" text="DASHBOARD">
                      <font>
-                        <Font size="32.0" />
+                        <Font size="30.0" />
                      </font>
                      <padding>
                         <Insets left="15.0" />
@@ -214,30 +216,38 @@
                                                    <children>
                                                       <HBox alignment="CENTER" prefHeight="630.0" prefWidth="1059.0" spacing="130.0">
                                                          <children>
-                                                            <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="300.0" styleClass="content-box">
+                                                            <VBox alignment="CENTER_LEFT" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="638.0" prefWidth="300.0" spacing="50.0">
                                                                <children>
-                                                                  <Label text="DATA PRESENT">
-                                                                     <padding>
-                                                                        <Insets bottom="15.0" left="20.0" top="15.0" />
-                                                                     </padding>
-                                                                     <font>
-                                                                        <Font size="20.0" />
-                                                                     </font>
-                                                                  </Label>
-                                                                  <ScrollPane hbarPolicy="NEVER" prefHeight="322.0" prefWidth="298.0" styleClass="training-scrollpane">
-                                                                     <content>
-                                                                        <AnchorPane prefHeight="317.0" prefWidth="294.0">
+                                                                  <VBox layoutX="10.0" layoutY="153.0" prefHeight="217.0" prefWidth="300.0" styleClass="content-box">
+                                                                     <children>
+                                                                        <Label text="DATA PRESENT">
+                                                                           <padding>
+                                                                              <Insets bottom="15.0" left="20.0" top="15.0" />
+                                                                           </padding>
+                                                                           <font>
+                                                                              <Font size="20.0" />
+                                                                           </font>
+                                                                        </Label>
+                                                                        <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0">
                                                                            <children>
-                                                                              <VBox fx:id="overviewDataPresentBox" alignment="CENTER" prefHeight="316.0" prefWidth="291.0" spacing="15.0" />
+                                                                              <ScrollPane hbarPolicy="NEVER" prefHeight="139.0" prefWidth="298.0" styleClass="training-scrollpane">
+                                                                                 <content>
+                                                                                    <AnchorPane prefHeight="121.0" prefWidth="294.0">
+                                                                                       <children>
+                                                                                          <VBox fx:id="overviewDataPresentBox" alignment="CENTER" prefHeight="135.0" prefWidth="291.0" spacing="15.0" />
+                                                                                       </children>
+                                                                                    </AnchorPane>
+                                                                                 </content>
+                                                                              </ScrollPane>
                                                                            </children>
-                                                                        </AnchorPane>
-                                                                     </content>
-                                                                  </ScrollPane>
+                                                                        </VBox>
+                                                                     </children>
+                                                                  </VBox>
                                                                </children>
                                                             </VBox>
                                                             <VBox alignment="CENTER_LEFT" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="638.0" prefWidth="300.0" spacing="50.0">
                                                                <children>
-                                                                  <VBox layoutX="10.0" layoutY="153.0" prefHeight="180.0" prefWidth="100.0" styleClass="content-box">
+                                                                  <VBox layoutX="10.0" layoutY="153.0" prefHeight="219.0" prefWidth="300.0" styleClass="content-box">
                                                                      <children>
                                                                         <Label text="DISTRIBUTION">
                                                                            <padding>
@@ -249,7 +259,7 @@
                                                                         </Label>
                                                                         <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0">
                                                                            <children>
-                                                                              <PieChart fx:id="overviewDistributionChart" />
+                                                                              <PieChart fx:id="overviewDistributionChart" styleClass="overview-piechart" />
                                                                            </children>
                                                                         </VBox>
                                                                      </children>
@@ -262,33 +272,17 @@
                                                 </AnchorPane>
                                           </content>
                                         </Tab>
-                                          <Tab text="Missing / Duplicate Data">
+                                          <Tab text="View Data">
                                              <content>
                                                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                                                    <children>
-                                                      <HBox alignment="CENTER" prefHeight="638.0" prefWidth="1059.0" spacing="130.0">
+                                                      <HBox alignment="CENTER" prefHeight="638.0" prefWidth="1059.0" spacing="40.0">
                                                          <children>
                                                             <VBox alignment="CENTER_LEFT" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="638.0" prefWidth="300.0" spacing="50.0">
                                                                <children>
                                                                   <VBox prefHeight="180.0" prefWidth="100.0" styleClass="content-box">
                                                                      <children>
-                                                                        <Label text="TIMEFRAME">
-                                                                           <padding>
-                                                                              <Insets bottom="15.0" left="20.0" top="15.0" />
-                                                                           </padding>
-                                                                           <font>
-                                                                              <Font size="20.0" />
-                                                                           </font>
-                                                                        </Label>
-                                                                     </children>
-                                                                  </VBox>
-                                                               </children>
-                                                            </VBox>
-                                                            <VBox alignment="CENTER_LEFT" layoutX="390.0" layoutY="10.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="638.0" prefWidth="300.0" spacing="50.0">
-                                                               <children>
-                                                                  <VBox layoutX="10.0" layoutY="153.0" prefHeight="180.0" prefWidth="100.0" styleClass="content-box">
-                                                                     <children>
-                                                                        <Label text="FLUSH DUPLICATES">
+                                                                        <Label text="DATASOURCE">
                                                                            <padding>
                                                                               <Insets bottom="15.0" left="20.0" top="15.0" />
                                                                            </padding>
@@ -298,7 +292,120 @@
                                                                         </Label>
                                                                         <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0">
                                                                            <children>
-                                                                              <JFXButton fx:id="overviewDuplicatesRemoveButton" buttonType="RAISED" prefHeight="15.0" prefWidth="150.0" styleClass="button-primary" text="Scan &amp; Remove">
+                                                                              <JFXComboBox fx:id="overviewViewSources" />
+                                                                           </children>
+                                                                        </VBox>
+                                                                     </children>
+                                                                  </VBox>
+                                                               </children>
+                                                            </VBox>
+                                                            <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="300.0" styleClass="content-box">
+                                                               <children>
+                                                                  <Label text="ENTRIES">
+                                                                     <padding>
+                                                                        <Insets bottom="15.0" left="20.0" top="15.0" />
+                                                                     </padding>
+                                                                     <font>
+                                                                        <Font size="20.0" />
+                                                                     </font>
+                                                                  </Label>
+                                                                  <ScrollPane hbarPolicy="NEVER" prefHeight="333.0" prefWidth="298.0" styleClass="training-scrollpane">
+                                                                     <content>
+                                                                        <AnchorPane prefHeight="314.0" prefWidth="294.0">
+                                                                           <children>
+                                                                              <VBox alignment="CENTER" prefHeight="328.0" prefWidth="291.0" spacing="15.0">
+                                                                                 <children>
+                                                                                    <VBox fx:id="overviewEntriesListViewBox" alignment="CENTER" maxWidth="175.0" prefHeight="328.0" prefWidth="155.0" spacing="15.0" />
+                                                                                 </children>
+                                                                              </VBox>
+                                                                           </children>
+                                                                        </AnchorPane>
+                                                                     </content>
+                                                                  </ScrollPane>
+                                                               </children>
+                                                            </VBox>
+                                                            <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="300.0" styleClass="content-box">
+                                                               <children>
+                                                                  <Label text="ENTRY VIEWER">
+                                                                     <padding>
+                                                                        <Insets bottom="15.0" left="20.0" top="15.0" />
+                                                                     </padding>
+                                                                     <font>
+                                                                        <Font size="20.0" />
+                                                                     </font>
+                                                                  </Label>
+                                                                  <ScrollPane hbarPolicy="NEVER" prefHeight="322.0" prefWidth="298.0" styleClass="training-scrollpane">
+                                                                     <content>
+                                                                        <AnchorPane prefHeight="264.0" prefWidth="294.0">
+                                                                           <children>
+                                                                              <VBox fx:id="overviewEntryViewerBox" alignment="TOP_CENTER" prefHeight="272.0" prefWidth="291.0" spacing="15.0" />
+                                                                           </children>
+                                                                        </AnchorPane>
+                                                                     </content>
+                                                                  </ScrollPane>
+                                                                  <VBox alignment="CENTER" prefHeight="108.0" prefWidth="298.0">
+                                                                     <children>
+                                                                        <JFXButton fx:id="overviewEntryRemove" buttonType="RAISED" prefHeight="15.0" prefWidth="150.0" styleClass="button-negative" text="Remove">
+                                                                           <font>
+                                                                              <Font size="17.0" />
+                                                                           </font>
+                                                                        </JFXButton>
+                                                                     </children>
+                                                                  </VBox>
+                                                               </children>
+                                                            </VBox>
+                                                         </children>
+                                                      </HBox>
+                                                   </children>
+                                                </AnchorPane>
+                                             </content>
+                                          </Tab>
+                                          <Tab text="Danger Zone">
+                                             <content>
+                                                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                                   <children>
+                                                      <HBox alignment="CENTER" prefHeight="638.0" prefWidth="1059.0" spacing="130.0">
+                                                         <children>
+                                                            <VBox alignment="CENTER_LEFT" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="638.0" prefWidth="300.0" spacing="50.0">
+                                                               <children>
+                                                                  <VBox layoutX="10.0" layoutY="153.0" prefHeight="180.0" prefWidth="100.0" styleClass="content-box">
+                                                                     <children>
+                                                                        <Label text="REMOVE DUPLICATES">
+                                                                           <padding>
+                                                                              <Insets bottom="15.0" left="20.0" top="15.0" />
+                                                                           </padding>
+                                                                           <font>
+                                                                              <Font size="20.0" />
+                                                                           </font>
+                                                                        </Label>
+                                                                        <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0">
+                                                                           <children>
+                                                                              <JFXButton fx:id="overviewDuplicatesRemoveButton" buttonType="RAISED" prefHeight="15.0" prefWidth="150.0" styleClass="button-negative" text="Scan &amp; Remove">
+                                                                                 <font>
+                                                                                    <Font size="17.0" />
+                                                                                 </font>
+                                                                              </JFXButton>
+                                                                           </children>
+                                                                        </VBox>
+                                                                     </children>
+                                                                  </VBox>
+                                                               </children>
+                                                            </VBox>
+                                                            <VBox alignment="CENTER_LEFT" layoutX="390.0" layoutY="10.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="638.0" prefWidth="300.0" spacing="50.0">
+                                                               <children>
+                                                                  <VBox layoutX="10.0" layoutY="153.0" prefHeight="180.0" prefWidth="100.0" styleClass="content-box">
+                                                                     <children>
+                                                                        <Label text="DELETE TIME SERIES">
+                                                                           <padding>
+                                                                              <Insets bottom="15.0" left="20.0" top="15.0" />
+                                                                           </padding>
+                                                                           <font>
+                                                                              <Font size="20.0" />
+                                                                           </font>
+                                                                        </Label>
+                                                                        <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0">
+                                                                           <children>
+                                                                              <JFXButton fx:id="overviewDeleteButton" buttonType="RAISED" prefHeight="15.0" prefWidth="150.0" styleClass="button-negative" text="Delete">
                                                                                  <font>
                                                                                     <Font size="17.0" />
                                                                                  </font>
@@ -579,7 +686,7 @@
                     <content>
                       <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                            <children>
-                              <HBox alignment="CENTER" minHeight="0.0" minWidth="0.0" prefHeight="695.0" prefWidth="1059.0" spacing="130.0">
+                              <HBox alignment="CENTER" minHeight="0.0" minWidth="0.0" prefHeight="695.0" prefWidth="1059.0" spacing="40.0">
                                  <children>
                                     <VBox alignment="CENTER_LEFT" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="695.0" prefWidth="300.0" spacing="50.0">
                                        <children>
@@ -623,6 +730,80 @@
                                           </VBox>
                                        </children>
                                     </VBox>
+                                    <VBox alignment="CENTER_LEFT" layoutX="195.0" layoutY="10.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="695.0" prefWidth="300.0" spacing="50.0">
+                                       <children>
+                                          <VBox alignment="CENTER_LEFT" prefHeight="180.0" prefWidth="100.0" styleClass="content-box">
+                                             <children>
+                                                <Label text="DATA SPLIT">
+                                                   <padding>
+                                                      <Insets bottom="15.0" left="20.0" top="15.0" />
+                                                   </padding>
+                                                   <font>
+                                                      <Font size="20.0" />
+                                                   </font>
+                                                </Label>
+                                                <VBox alignment="CENTER" prefHeight="200.0" prefWidth="298.0">
+                                                   <children>
+                                                      <VBox prefHeight="48.0" prefWidth="297.0">
+                                                         <children>
+                                                            <Label text="Training Percentage" />
+                                                            <JFXTextField fx:id="trainTrainingPercentage" maxWidth="150.0" prefHeight="27.0" prefWidth="257.0" promptText="Max 99" text="80">
+                                                               <padding>
+                                                                  <Insets left="15.0" right="30.0" />
+                                                               </padding>
+                                                            </JFXTextField>
+                                                         </children>
+                                                         <padding>
+                                                            <Insets left="10.0" />
+                                                         </padding>
+                                                      </VBox>
+                                                      <VBox prefHeight="48.0" prefWidth="297.0">
+                                                         <children>
+                                                            <Label text="Testing Percentage" />
+                                                            <JFXTextField fx:id="trainTestingPercentage" maxWidth="150.0" prefHeight="27.0" prefWidth="183.0" promptText="Max 99" text="20">
+                                                               <padding>
+                                                                  <Insets left="15.0" right="30.0" />
+                                                               </padding>
+                                                            </JFXTextField>
+                                                         </children>
+                                                         <padding>
+                                                            <Insets left="10.0" />
+                                                         </padding>
+                                                      </VBox>
+                                                   </children>
+                                                </VBox>
+                                             </children>
+                                          </VBox>
+                                          <VBox alignment="CENTER_LEFT" layoutX="10.0" layoutY="268.0" prefHeight="180.0" prefWidth="100.0" styleClass="content-box">
+                                             <children>
+                                                <Label text="RANDOM SEED">
+                                                   <padding>
+                                                      <Insets bottom="15.0" left="20.0" top="15.0" />
+                                                   </padding>
+                                                   <font>
+                                                      <Font size="20.0" />
+                                                   </font>
+                                                </Label>
+                                                <VBox alignment="CENTER" prefHeight="200.0" prefWidth="298.0">
+                                                   <children>
+                                                      <VBox alignment="CENTER" prefHeight="48.0" prefWidth="297.0">
+                                                         <children>
+                                                            <JFXTextField fx:id="trainSeed" alignment="CENTER" maxWidth="150.0" prefHeight="27.0" prefWidth="183.0" text="123">
+                                                               <padding>
+                                                                  <Insets left="15.0" right="30.0" />
+                                                               </padding>
+                                                            </JFXTextField>
+                                                         </children>
+                                                         <padding>
+                                                            <Insets left="10.0" />
+                                                         </padding>
+                                                      </VBox>
+                                                   </children>
+                                                </VBox>
+                                             </children>
+                                          </VBox>
+                                       </children>
+                                    </VBox>
                                     <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="300.0" styleClass="content-box">
                                        <children>
                                           <Label text="TRAIN MODEL">
@@ -638,7 +819,8 @@
                                               <AnchorPane prefHeight="264.0" prefWidth="294.0">
                                                    <children>
                                                       <VBox fx:id="trainingFieldBox" alignment="TOP_CENTER" prefHeight="272.0" prefWidth="291.0" spacing="15.0" />
-                                                   </children></AnchorPane>
+                                                   </children>
+                                                </AnchorPane>
                                             </content>
                                           </ScrollPane>
                                           <VBox alignment="CENTER" prefHeight="108.0" prefWidth="298.0">
@@ -650,7 +832,8 @@
                                                 </JFXButton>
                                              </children>
                                           </VBox>
-                                       </children></VBox>
+                                       </children>
+                                    </VBox>
                                  </children>
                               </HBox>
                            </children></AnchorPane>
@@ -675,7 +858,7 @@
                                        </children></HBox>
                                     <VBox alignment="CENTER" prefHeight="630.0" prefWidth="1059.0">
                                        <children>
-                                          <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="480.0" prefWidth="839.0">
+                                          <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="478.0" prefWidth="1028.0">
                                              <children>
                                                 <Label text="PREDICTIONS">
                                                    <padding>
@@ -685,7 +868,7 @@
                                                       <Font size="20.0" />
                                                    </font>
                                                 </Label>
-                                                <LineChart fx:id="evaluationChart">
+                                                <LineChart fx:id="evaluationChart" prefWidth="871.0">
                                                   <xAxis>
                                                     <CategoryAxis side="BOTTOM" />
                                                   </xAxis>
@@ -693,6 +876,25 @@
                                                     <NumberAxis side="LEFT" />
                                                   </yAxis>
                                                 </LineChart>
+                                             </children>
+                                          </VBox>
+                                          <VBox spacing="30.0">
+                                             <children>
+                                                <HBox alignment="CENTER" prefWidth="200.0" spacing="50.0">
+                                                   <children>
+                                                      <JFXCheckBox fx:id="evaluationTrainingCheckBox" checkedColor="#3792ed" selected="true" text="Show Training Data Predictions" />
+                                                      <JFXCheckBox fx:id="evaluationTestingCheckBox" checkedColor="#3792ed" selected="true" text="Show Testing Data Predictions" />
+                                                   </children>
+                                                </HBox>
+                                                <HBox alignment="CENTER" layoutX="10.0" layoutY="10.0" prefWidth="200.0" spacing="50.0">
+                                                   <children>
+                                                      <JFXButton fx:id="evaluationDeleteButton" buttonType="RAISED" prefHeight="15.0" prefWidth="150.0" styleClass="button-negative" text="Delete Model">
+                                                         <font>
+                                                            <Font size="17.0" />
+                                                         </font>
+                                                      </JFXButton>
+                                                   </children>
+                                                </HBox>
                                              </children>
                                           </VBox>
                                        </children>
@@ -719,8 +921,6 @@
                         <Insets right="10.0" />
                      </HBox.margin>
                   </HBox>
-                  <FontAwesomeIcon iconName="COG" />
-                  <FontAwesomeIcon fx:id="shutdownIcon" iconName="POWER_OFF" layoutX="1051.0" layoutY="27.0" />
                </children>
                <padding>
                   <Insets left="10.0" right="10.0" />

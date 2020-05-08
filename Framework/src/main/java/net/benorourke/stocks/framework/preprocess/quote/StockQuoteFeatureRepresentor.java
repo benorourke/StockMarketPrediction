@@ -1,6 +1,6 @@
 package net.benorourke.stocks.framework.preprocess.quote;
 
-import net.benorourke.stocks.framework.preprocess.FeatureRepresenter;
+import net.benorourke.stocks.framework.preprocess.FeatureRepresentor;
 import net.benorourke.stocks.framework.series.data.DataType;
 import net.benorourke.stocks.framework.series.data.impl.StockQuote;
 import net.benorourke.stocks.framework.series.data.impl.StockQuoteDataType;
@@ -8,13 +8,13 @@ import net.benorourke.stocks.framework.series.data.impl.StockQuoteDataType;
 import java.util.List;
 
 /**
- * A simple representer that will use every {@link#StockQuoteDataType}
+ * A simple representor that will use every {@link#StockQuoteDataType}
  */
-public class StockQuoteFeatureRepresenter implements FeatureRepresenter<StockQuote>
+public class StockQuoteFeatureRepresentor implements FeatureRepresentor<StockQuote>
 {
     private StockQuoteDataType[] dataTypes;
 
-    public StockQuoteFeatureRepresenter(StockQuoteDataType[] dataTypes)
+    public StockQuoteFeatureRepresentor(StockQuoteDataType[] dataTypes)
     {
         this.dataTypes = dataTypes;
     }

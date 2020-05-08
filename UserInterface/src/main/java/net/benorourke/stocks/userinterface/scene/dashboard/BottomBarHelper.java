@@ -6,7 +6,6 @@ import javafx.animation.Interpolator;
 import javafx.animation.RotateTransition;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.util.Duration;
 import net.benorourke.stocks.framework.thread.Progress;
@@ -27,15 +26,12 @@ public class BottomBarHelper implements Initialisable, TaskUpdateAdapter
     @FXML private HBox tasksRunningBox;
     @FXML private FontAwesomeIcon tasksRunningSpinner;
     @FXML private Label tasksRunningLabel;
-    @FXML private FontAwesomeIcon shutdownIcon;
 
-    public BottomBarHelper(HBox tasksRunningBox, FontAwesomeIcon tasksRunningSpinner, Label tasksRunningLabel,
-                           FontAwesomeIcon shutdownIcon)
+    public BottomBarHelper(HBox tasksRunningBox, FontAwesomeIcon tasksRunningSpinner, Label tasksRunningLabel)
     {
         this.tasksRunningBox = tasksRunningBox;
         this.tasksRunningSpinner = tasksRunningSpinner;
         this.tasksRunningLabel = tasksRunningLabel;
-        this.shutdownIcon = shutdownIcon;
     }
 
     @Override
@@ -53,7 +49,6 @@ public class BottomBarHelper implements Initialisable, TaskUpdateAdapter
         spinnerTransition.play();
 
         StockApplication.registerTaskAdapter(this);
-        shutdownIcon.addEventFilter(MouseEvent.MOUSE_PRESSED, mouseEvent -> System.exit(0));
     }
 
     @Override
@@ -71,9 +66,15 @@ public class BottomBarHelper implements Initialisable, TaskUpdateAdapter
             tasksRunningLabel.setText(text);
 
             if (count > 0)
+            {
                 tasksRunningSpinner.setVisible(true);
+                tasksRunningLabel.setVisible(true);
+            }
             else
+            {
                 tasksRunningSpinner.setVisible(false);
+                tasksRunningLabel.setVisible(false);
+            }
         });
     }
 

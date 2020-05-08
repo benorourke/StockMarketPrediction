@@ -2,17 +2,15 @@ package net.benorourke.stocks.framework.preprocess;
 
 import net.benorourke.stocks.framework.series.data.Data;
 import net.benorourke.stocks.framework.series.data.DataType;
-import net.benorourke.stocks.framework.series.data.impl.CleanedDocument;
 
 import java.util.List;
-import java.util.Map;
 
 /**
- * To work, each new FeatureRepresenter needs a respective GSON Adapter injected into the Configuration.
+ * To work, each new FeatureRepresentor needs a respective GSON Adapter injected into the Configuration.
  *
  * @param <T>
  */
-public interface FeatureRepresenter<T extends Data>
+public interface FeatureRepresentor<T extends Data>
 {
     enum CombinationPolicy
     {

@@ -6,7 +6,7 @@ import net.benorourke.stocks.framework.Framework;
 import net.benorourke.stocks.framework.model.ModelData;
 import net.benorourke.stocks.framework.model.ProcessedDataset;
 import net.benorourke.stocks.framework.persistence.gson.JsonAdapter;
-import net.benorourke.stocks.framework.preprocess.FeatureRepresenter;
+import net.benorourke.stocks.framework.preprocess.FeatureRepresentor;
 import net.benorourke.stocks.framework.series.data.Data;
 import net.benorourke.stocks.framework.series.data.impl.CleanedDocument;
 import net.benorourke.stocks.framework.series.data.impl.StockQuote;
@@ -25,10 +25,10 @@ public class ProcessedDatasetAdapter extends JsonAdapter<ProcessedDataset>
         JsonObject result = new JsonObject();
         result.add("numFeatures", new JsonPrimitive(dataset.getNumFeatures()));
         result.add("numLabels", new JsonPrimitive(dataset.getNumLabels()));
-        result.add("documentFeatureRepresenters",
-                serializeRepresenters(context, dataset.getDocumentFeatureRepresenters()));
-        result.add("quoteFeatureRepresenters",
-                serializeRepresenters(context, dataset.getQuoteFeatureRepresenters()));
+        result.add("documentFeatureRepresentors",
+                serializeRepresentors(context, dataset.getDocumentFeatureRepresentors()));
+        result.add("quoteFeatureRepresentors",
+                serializeRepresentors(context, dataset.getQuoteFeatureRepresentors()));
 
         result.add("data", context.serialize(dataset.getData()));
         return result;
@@ -42,57 +42,57 @@ public class ProcessedDatasetAdapter extends JsonAdapter<ProcessedDataset>
         int numFeatures = object.getAsJsonPrimitive("numFeatures").getAsInt();
         int numLabels = object.getAsJsonPrimitive("numLabels").getAsInt();
 
-        List<FeatureRepresenter<CleanedDocument>> documentRepresenters = new ArrayList<>();
-        for (FeatureRepresenter representer : deserializeRepresenters(
-                object.getAsJsonArray("documentFeatureRepresenters"), context))
-            documentRepresenters.add(representer);
-        List<FeatureRepresenter<StockQuote>> quoteRepresenters = new ArrayList<>();
-        for (FeatureRepresenter representer : deserializeRepresenters(
-                object.getAsJsonArray("quoteFeatureRepresenters"), context))
-            quoteRepresenters.add(representer);
+        List<FeatureRepresentor<CleanedDocument>> documentRepresentors = new ArrayList<>();
+        for (FeatureRepresentor representor : deserializeRepresentors(
+                object.getAsJsonArray("documentFeatureRepresentors"), context))
+            documentRepresentors.add(representor);
+        List<FeatureRepresentor<StockQuote>> quoteRepresentors = new ArrayList<>();
+        for (FeatureRepresentor representor : deserializeRepresentors(
+                object.getAsJsonArray("quoteFeatureRepresentors"), context))
+            quoteRepresentors.add(representor);
 
         List<ModelData> data = context.deserialize(object.getAsJsonArray("data"),
                                                    new TypeToken<List<ModelData>>(){}.getType());
 
-        return new ProcessedDataset(documentRepresenters, quoteRepresenters, numFeatures, numLabels, data);
+        return new ProcessedDataset(documentRepresentors, quoteRepresentors, numFeatures, numLabels, data);
     }
 
-    private <T extends Data> JsonArray serializeRepresenters(JsonSerializationContext context,
-                                                              List<FeatureRepresenter<T>> representers)
+    private <T extends Data> JsonArray serializeRepresentors(JsonSerializationContext context,
+                                                              List<FeatureRepresentor<T>> representors)
     {
         JsonArray array = new JsonArray();
 
-        for (FeatureRepresenter representer : representers)
+        for (FeatureRepresentor representor : representors)
         {
             JsonObject elem = new JsonObject();
-            elem.add("class", new JsonPrimitive(representer.getClass().getName()));
-            elem.add("metadata", context.serialize(representer));
+            elem.add("class", new JsonPrimitive(representor.getClass().getName()));
+            elem.add("metadata", context.serialize(representor));
         }
 
         return array;
     }
 
-    private List<FeatureRepresenter> deserializeRepresenters(JsonArray array, JsonDeserializationContext context)
+    private List<FeatureRepresentor> deserializeRepresentors(JsonArray array, JsonDeserializationContext context)
     {
-        List<FeatureRepresenter> representers = new ArrayList<>();
+        List<FeatureRepresentor> representors = new ArrayList<>();
         for (int i = 0; i < array.size(); i ++)
         {
             JsonObject obj = array.get(i).getAsJsonObject();
 
             try
             {
-                Class<? extends FeatureRepresenter> clazz = (Class<? extends FeatureRepresenter>)
+                Class<? extends FeatureRepresentor> clazz = (Class<? extends FeatureRepresentor>)
                         Class.forName(obj.getAsJsonPrimitive("class").getAsString());
 
-                representers.add(context.deserialize(obj, clazz));
+                representors.add(context.deserialize(obj, clazz));
             }
             catch (ClassNotFoundException e)
             {
-                Framework.error("Unable to instantiate FeatureRepresenter", e);
+                Framework.error("Unable to instantiate FeatureRepresentor", e);
             }
 
         }
-        return representers;
+        return representors;
     }
 
 }

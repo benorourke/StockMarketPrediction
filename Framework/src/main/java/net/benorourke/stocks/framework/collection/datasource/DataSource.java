@@ -1,7 +1,6 @@
 package net.benorourke.stocks.framework.collection.datasource;
 
 import net.benorourke.stocks.framework.Framework;
-import net.benorourke.stocks.framework.collection.ConnectionResponse;
 import net.benorourke.stocks.framework.collection.Query;
 import net.benorourke.stocks.framework.collection.constraint.Constraint;
 import net.benorourke.stocks.framework.collection.datasource.variable.CollectionVariable;
@@ -47,7 +46,19 @@ public abstract class DataSource<T extends Data>
 
     public abstract CollectionFilter<T> newDefaultCollectionFilter();
 
-    public abstract ConnectionResponse<T> retrieve(Query query) throws ConstraintException, FailedCollectionException;
+    public abstract Collection<T> retrieve(Query query) throws ConstraintException, FailedCollectionException;
+
+    @Override
+    public int hashCode()
+    {
+        return name.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj)
+    {
+        return (obj instanceof DataSource) ? obj.hashCode() == hashCode() : false;
+    }
 
     /**
      * @return the error with the validation. If null is returned, there were no invalid variables and

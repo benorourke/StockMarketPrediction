@@ -1,25 +1,23 @@
-package net.benorourke.stocks.framework.preprocess.document.representer.topterm;
+package net.benorourke.stocks.framework.preprocess.document.representor.topterm;
 
 import net.benorourke.stocks.framework.Framework;
-import net.benorourke.stocks.framework.preprocess.FeatureRepresenter;
+import net.benorourke.stocks.framework.preprocess.FeatureRepresentor;
 import net.benorourke.stocks.framework.series.data.DataType;
 import net.benorourke.stocks.framework.series.data.impl.CleanedDocument;
 import net.benorourke.stocks.framework.util.StringUtil;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
-public class TopTermFeatureRepresenter implements FeatureRepresenter<CleanedDocument>
+public class TopTermFeatureRepresentor implements FeatureRepresentor<CleanedDocument>
 {
-    private final RelevancyMetric relevancyMetric;
+    private final net.benorourke.stocks.framework.preprocess.document.representor.topterm.RelevancyMetric relevancyMetric;
     private final int maxTopTerms;
 
     private String[] topTerms;
 
-    public TopTermFeatureRepresenter(RelevancyMetric relevancyMetric, int maxTopTerms)
+    public TopTermFeatureRepresentor(net.benorourke.stocks.framework.preprocess.document.representor.topterm.RelevancyMetric relevancyMetric, int maxTopTerms)
     {
         this.relevancyMetric = relevancyMetric;
         this.maxTopTerms = maxTopTerms;
@@ -85,7 +83,7 @@ public class TopTermFeatureRepresenter implements FeatureRepresenter<CleanedDocu
         return CombinationPolicy.TAKE_HIGHEST;
     }
 
-    public RelevancyMetric getRelevancyMetric()
+    public net.benorourke.stocks.framework.preprocess.document.representor.topterm.RelevancyMetric getRelevancyMetric()
     {
         return relevancyMetric;
     }

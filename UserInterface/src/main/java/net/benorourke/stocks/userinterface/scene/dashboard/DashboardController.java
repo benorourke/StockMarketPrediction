@@ -1,8 +1,6 @@
 package net.benorourke.stocks.userinterface.scene.dashboard;
 
-import com.jfoenix.controls.JFXButton;
-import com.jfoenix.controls.JFXComboBox;
-import com.jfoenix.controls.JFXDatePicker;
+import com.jfoenix.controls.*;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -12,10 +10,7 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.PieChart;
-import javafx.scene.control.Label;
-import javafx.scene.control.SingleSelectionModel;
-import javafx.scene.control.Tab;
-import javafx.scene.control.TabPane;
+import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -42,11 +37,12 @@ public class DashboardController extends Controller
     private static final String SERIES_SELECTED_STYLE_CLASS = "series-selected";
     private static final String SERIES_ROW_FXML = "/dashboard-series.fxml";
 
+    public static final String TEXT_FIELD_FXML = "/dashboard-text-field.fxml";
     public static final String TEXT_INPUT_FIELD_FXML = "/dashboard-text-input-field.fxml";
     public static final String GENERIC_INPUT_FIELD_FXML = "/dashboard-generic-input-field.fxml";
     public static final double GENERIC_INPUT_FIELD_WIDTH_BIND_COEFF = 0.92;
 
-    private static final Color[] SERIES_CIRCLE_FILLS = new Color[]
+    public static final Color[] PASTEL_FILLS = new Color[]
     {
             Color.rgb(0x1E, 0x90, 0xFF),    Color.rgb(0xFA, 0xA9, 0x16),
             Color.rgb(0x2A, 0xF5, 0xFF),    Color.rgb(0xFF, 0xEE, 0xDD),
@@ -84,15 +80,19 @@ public class DashboardController extends Controller
     //  overview
     @FXML private VBox overviewDataPresentBox;
     @FXML private PieChart overviewDistributionChart;
-    // missing data & duplicates
+    @FXML private JFXComboBox<String> overviewViewSources;
+    @FXML private VBox overviewEntriesListViewBox;
+    @FXML private VBox overviewEntryViewerBox;
+    @FXML private JFXButton overviewEntryRemove;
+    // danger zone
     @FXML private JFXButton overviewDuplicatesRemoveButton;
+    @FXML private JFXButton overviewDeleteButton;
 
     // COLLECTION:
     @FXML private JFXComboBox collectionCollectSourceComboBox;
     @FXML private JFXDatePicker collectionCollectDataPickerFrom, collectionCollectDataPickerTo;
     @FXML private VBox collectionCollectBox;
     @FXML private JFXButton collectionCollectButton;
-
 
     // INJECTION:
     @FXML private JFXComboBox injectionSourceComboBox;
@@ -108,6 +108,9 @@ public class DashboardController extends Controller
     // TRAINING:
     @FXML private Label trainingHandlerCount;
     @FXML private JFXComboBox<String> trainingComboBox;
+    @FXML private JFXTextField trainTrainingPercentage;
+    @FXML private JFXTextField trainTestingPercentage;
+    @FXML private JFXTextField trainSeed;
     @FXML private VBox trainingFieldBox;
     @FXML private JFXButton trainButton;
     private TrainingPaneHandler trainingPaneHandler;
@@ -115,6 +118,9 @@ public class DashboardController extends Controller
     // EVALUATION:
     @FXML private JFXComboBox<String> evaluationComboBox;
     @FXML private LineChart<String, Number> evaluationChart;
+    @FXML private JFXCheckBox evaluationTrainingCheckBox;
+    @FXML private JFXCheckBox evaluationTestingCheckBox;
+    @FXML private JFXButton evaluationDeleteButton;
     private EvaluationPaneHandler evaluationPaneHandler;
 
     //////////////////////////////////////////////////////////////////
@@ -123,7 +129,6 @@ public class DashboardController extends Controller
     @FXML HBox tasksRunningBox;
     @FXML FontAwesomeIcon tasksRunningSpinner;
     @FXML private Label tasksRunningLabel;
-    @FXML private FontAwesomeIcon shutdownIcon;
     private BottomBarHelper bottomBarHelper;
 
     public DashboardController()
@@ -155,7 +160,9 @@ public class DashboardController extends Controller
         paneHandlers[DashboardPane.OVERVIEW.ordinal()] =
                 new OverviewPaneHandler(this, model, overviewComboBox, overviewTabPane,
                                         overviewDataPresentBox, overviewDistributionChart,
-                                        overviewDuplicatesRemoveButton);
+                                        overviewViewSources, overviewEntriesListViewBox, overviewEntryViewerBox,
+                                        overviewEntryRemove,
+                                        overviewDuplicatesRemoveButton, overviewDeleteButton);
         paneHandlers[DashboardPane.COLLECTION.ordinal()] =
                 new CollectionPaneHandler(this, model, collectionCollectSourceComboBox,
                                           collectionCollectDataPickerFrom, collectionCollectDataPickerTo,
@@ -168,15 +175,19 @@ public class DashboardController extends Controller
                                          preprocessingBegin);
         paneHandlers[DashboardPane.TRAINING.ordinal()] =
                 new TrainingPaneHandler(this, model,
-                                        trainingHandlerCount, trainingComboBox, trainingFieldBox, trainButton);
+                                        trainingHandlerCount, trainingComboBox,
+                                        trainTrainingPercentage, trainTestingPercentage, trainSeed,
+                                        trainingFieldBox, trainButton);
         paneHandlers[DashboardPane.EVALUATION.ordinal()] =
-                new EvaluationPaneHandler(this, model, evaluationComboBox, evaluationChart);
+                new EvaluationPaneHandler(this, model, evaluationComboBox, evaluationChart,
+                                          evaluationTrainingCheckBox, evaluationTestingCheckBox,
+                                          evaluationDeleteButton);
 
         for (PaneHandler handler : paneHandlers)
             handler.initialise();
 
         // Create relevant listeners & animations for the bottom bar
-        bottomBarHelper = new BottomBarHelper(tasksRunningBox, tasksRunningSpinner, tasksRunningLabel, shutdownIcon);
+        bottomBarHelper = new BottomBarHelper(tasksRunningBox, tasksRunningSpinner, tasksRunningLabel);
         bottomBarHelper.initialise();
     }
 
@@ -198,6 +209,13 @@ public class DashboardController extends Controller
 
     private void selectNavbarButton(HBox toSelect, DashboardPane paneFor)
     {
+        // Check if they've selected a TimeSeries - reject otherwise
+        if (model.getCurrentlySelectedTimeSeries() == null && !paneFor.equals(DashboardPane.OVERVIEW))
+        {
+            snackbarNullTimeSeries();
+            return;
+        }
+
         // Determine whether they can navigate to this navigation pane based on the current FlowStage of the TimeSeries
         FlowStage current = model.getCurrentFlowStage();
         PaneHandler handler = paneHandlers[paneFor.ordinal()];
@@ -209,6 +227,7 @@ public class DashboardController extends Controller
 
         SingleSelectionModel<Tab> model = tabPane.getSelectionModel();
         model.select(paneFor.ordinal());
+        handler.onSwitchedTo();
 
         for (HBox row : navRows)
         {
@@ -217,19 +236,24 @@ public class DashboardController extends Controller
         }
     }
 
-    private void selectNavbarButton(DashboardPane paneFor)
+    public void selectNavbarButton(DashboardPane paneFor)
     {
         selectNavbarButton(navRows.get(paneFor.ordinal()), paneFor);
     }
 
-    private void updateTimeSeries()
+    public void updateTimeSeries()
     {
         paneVBox.getChildren().clear();
         for (TimeSeries series : model.getTimeSeries())
-            inflateTimeSeries(series);
+            inflateTimeSeries(series, false);
     }
 
-    public void inflateTimeSeries(TimeSeries series)
+    /**
+     *
+     * @param series
+     * @param select whether to select this series once it has been inflated
+     */
+    public void inflateTimeSeries(TimeSeries series, final boolean select)
     {
         SceneHelper.inflateAsync(SERIES_ROW_FXML, result ->
         {
@@ -244,7 +268,7 @@ public class DashboardController extends Controller
 
             int index = series.getId().hashCode() % 10;
             index = (index < 0) ? index * -1 : index; // Prevent negative indices
-            circle.setFill(SERIES_CIRCLE_FILLS[index]);
+            circle.setFill(PASTEL_FILLS[index]);
             name.setText(series.getName());
             stock.setText(series.getStock());
 
@@ -271,6 +295,9 @@ public class DashboardController extends Controller
                 return nameLabel.getText().toLowerCase();
             }));
             paneVBox.getChildren().setAll(clonedCollection);
+
+            if (select)
+                changeTimeSeries(series, parent);
         });
     }
 

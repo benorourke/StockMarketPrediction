@@ -5,23 +5,23 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import net.benorourke.stocks.framework.Framework;
-import net.benorourke.stocks.framework.collection.datasource.variable.CollectionVariable;
-import net.benorourke.stocks.framework.collection.datasource.DataSource;
+import net.benorourke.stocks.framework.collection.Query;
+import net.benorourke.stocks.framework.collection.URLConnector;
 import net.benorourke.stocks.framework.collection.constraint.Constraint;
 import net.benorourke.stocks.framework.collection.constraint.MaximumAgeConstraint;
 import net.benorourke.stocks.framework.collection.constraint.OrderingConstraint;
+import net.benorourke.stocks.framework.collection.datasource.DataSource;
+import net.benorourke.stocks.framework.collection.datasource.variable.CollectionVariable;
 import net.benorourke.stocks.framework.collection.session.APICollectionSession;
 import net.benorourke.stocks.framework.collection.session.filter.CollectionFilter;
 import net.benorourke.stocks.framework.exception.ConstraintException;
-import net.benorourke.stocks.framework.series.data.DataType;
-import net.benorourke.stocks.framework.series.data.impl.Document;
 import net.benorourke.stocks.framework.exception.FailedCollectionException;
+import net.benorourke.stocks.framework.series.data.DataType;
 import net.benorourke.stocks.framework.series.data.DocumentType;
-import net.benorourke.stocks.framework.collection.ConnectionResponse;
-import net.benorourke.stocks.framework.collection.Query;
-import net.benorourke.stocks.framework.collection.URLConnector;
+import net.benorourke.stocks.framework.series.data.impl.Document;
+import net.benorourke.stocks.framework.util.StringUtil;
 
-import java.io.*;
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -38,13 +38,11 @@ public class NewsAPI extends DataSource<Document>
     private String apiKey;
     @CollectionVariable(name = "Search Term",
                         type = CollectionVariable.Type.STRING,
-                        prompt = "Headlines Containing",
-                        validators = {"ALPHANUMERIC"})
+                        prompt = "Headlines Containing")
     private String searchTerm;
     @CollectionVariable(name = "Headlines per Day",
                         type = CollectionVariable.Type.INTEGER,
-                        prompt = "Number of Headlines per Day",
-                        validators = {})
+                        prompt = "Number of Headlines per Day")
     private int elementsPerDay;
 
     public NewsAPI()
@@ -89,13 +87,9 @@ public class NewsAPI extends DataSource<Document>
     }
 
     @Override
-    public ConnectionResponse<Document> retrieve(Query query) throws ConstraintException, FailedCollectionException
+    public Collection<Document> retrieve(Query query) throws ConstraintException, FailedCollectionException
     {
         checkConstraintsOrThrow(query);
-
-        // TODO CREATE AN OBJECT WITH A DIRECT JSON MAPPING - GSON CAN FREEZE IF THE RESPONSE
-        // DOESN'T MATCH WHAT WE NEED (I.E. AN ERROR)
-
         try
         {
             String url = BASE_URL.concat(buildUrlExtension(query, apiKey));
@@ -111,12 +105,7 @@ public class NewsAPI extends DataSource<Document>
             else
             {
                 JsonObject json = new Gson().fromJson(result, JsonObject.class);
-                List<Document> documents = parseDocuments(json);
-
-                Framework.info("Documents parsed " + documents.size());
-                ConnectionResponse<Document> response
-                        = new ConnectionResponse<>(result, json, documents);
-                return response;
+                return parseDocuments(json);
             }
         }
         catch (IOException e)
@@ -176,7 +165,7 @@ public class NewsAPI extends DataSource<Document>
                                 + "-" + calendar.get(Calendar.DAY_OF_MONTH);
 
         return "v2/everything"
-                    .concat("?q=" + searchTerm)
+                    .concat("?q=" + StringUtil.encodeUrlParam(searchTerm))
                     .concat("&from=".concat(strFrom))
                     .concat("&to=".concat(strTo))
                     .concat("&sortBy=popularity")

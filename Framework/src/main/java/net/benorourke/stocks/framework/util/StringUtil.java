@@ -1,5 +1,7 @@
 package net.benorourke.stocks.framework.util;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -56,6 +58,18 @@ public class StringUtil
         {
             return Arrays.asList(split);
         }
+    }
+
+    public static String encodeUrlParam(String parameter)
+    {
+        String result = parameter;
+        try
+        {
+            result = URLEncoder.encode(parameter, "UTF-8");
+        }
+        catch (UnsupportedEncodingException ignored) { }
+
+        return result;
     }
 
 }

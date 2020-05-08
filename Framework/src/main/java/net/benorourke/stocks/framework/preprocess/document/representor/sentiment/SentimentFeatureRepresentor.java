@@ -1,4 +1,4 @@
-package net.benorourke.stocks.framework.preprocess.document.representer.sentiment;
+package net.benorourke.stocks.framework.preprocess.document.representor.sentiment;
 
 import edu.stanford.nlp.ling.CoreAnnotations;
 import edu.stanford.nlp.pipeline.Annotation;
@@ -6,7 +6,7 @@ import edu.stanford.nlp.pipeline.StanfordCoreNLP;
 import edu.stanford.nlp.sentiment.SentimentCoreAnnotations;
 import edu.stanford.nlp.util.CoreMap;
 import net.benorourke.stocks.framework.Framework;
-import net.benorourke.stocks.framework.preprocess.FeatureRepresenter;
+import net.benorourke.stocks.framework.preprocess.FeatureRepresentor;
 import net.benorourke.stocks.framework.series.data.DataType;
 import net.benorourke.stocks.framework.series.data.impl.CleanedDocument;
 import net.benorourke.stocks.framework.util.Nullable;
@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-public abstract class SentimentFeatureRepresenter implements FeatureRepresenter<CleanedDocument>
+public abstract class SentimentFeatureRepresentor implements FeatureRepresentor<CleanedDocument>
 {
     @Nullable
     private StanfordCoreNLP pipeline;

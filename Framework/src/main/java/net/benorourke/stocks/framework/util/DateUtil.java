@@ -1,17 +1,17 @@
 package net.benorourke.stocks.framework.util;
 
 import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
-import java.util.concurrent.TimeUnit;
+import java.util.TimeZone;
 
 public class DateUtil
 {
     private static final DateFormat SIMPLE_UK_DATE_FORMAT = new SimpleDateFormat("dd-MM-yyyy");
     private static final DateFormat DETAILED_UK_DATE_FORMAT = new SimpleDateFormat("dd/MM/YYYY hh:mm:ss");
+    private static final TimeZone TIME_ZONE = TimeZone.getTimeZone("UTC");
 
     private DateUtil() {}
 
@@ -28,7 +28,9 @@ public class DateUtil
     public static boolean sameDay(Date a, Date b)
     {
         Calendar calA = Calendar.getInstance();
+        calA.setTimeZone(TIME_ZONE);
         Calendar calB = Calendar.getInstance();
+        calB.setTimeZone(TIME_ZONE);
         calA.setTime(a);
         calB.setTime(b);
 
@@ -39,6 +41,7 @@ public class DateUtil
     public static boolean isWeekend(Date date)
     {
         Calendar cal = Calendar.getInstance();
+        cal.setTimeZone(TIME_ZONE);
         cal.setTime(date);
 
         return cal.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY
@@ -54,6 +57,7 @@ public class DateUtil
     public static Date getDayStart(Date date)
     {
         Calendar calendar = new GregorianCalendar();
+        calendar.setTimeZone(TIME_ZONE);
         calendar.setTime(date);
         calendar.set(Calendar.HOUR_OF_DAY, 0);
         calendar.set(Calendar.MINUTE, 1);
@@ -62,17 +66,10 @@ public class DateUtil
         return calendar.getTime();
     }
 
-    public static boolean isMidnight(Date date)
-    {
-        Calendar calendar = new GregorianCalendar();
-        calendar.setTime(date);
-        return calendar.get(Calendar.MINUTE) == 0
-                    && calendar.get(Calendar.HOUR_OF_DAY) == 0;
-    }
-
     public static Date addHours(Date date, int hours)
     {
         Calendar calendar = new GregorianCalendar();
+        calendar.setTimeZone(TIME_ZONE);
         calendar.setTime(date);
         calendar.add(Calendar.HOUR, hours);
         return calendar.getTime();

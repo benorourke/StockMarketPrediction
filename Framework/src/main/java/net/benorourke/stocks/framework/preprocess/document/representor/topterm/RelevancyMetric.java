@@ -1,4 +1,4 @@
-package net.benorourke.stocks.framework.preprocess.document.representer.topterm;
+package net.benorourke.stocks.framework.preprocess.document.representor.topterm;
 
 import net.benorourke.stocks.framework.series.data.impl.CleanedDocument;
 

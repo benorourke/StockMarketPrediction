@@ -1,16 +1,18 @@
 package net.benorourke.stocks.framework.thread.collection;
 
 import net.benorourke.stocks.framework.Framework;
-import net.benorourke.stocks.framework.collection.ConnectionResponse;
-import net.benorourke.stocks.framework.collection.session.APICollectionSession;
-import net.benorourke.stocks.framework.collection.datasource.DataSource;
 import net.benorourke.stocks.framework.collection.Query;
+import net.benorourke.stocks.framework.collection.datasource.DataSource;
+import net.benorourke.stocks.framework.collection.session.APICollectionSession;
+import net.benorourke.stocks.framework.collection.session.filter.CollectionFilter;
 import net.benorourke.stocks.framework.exception.ConstraintException;
 import net.benorourke.stocks.framework.exception.FailedCollectionException;
 import net.benorourke.stocks.framework.series.data.Data;
-import net.benorourke.stocks.framework.thread.Task;
 import net.benorourke.stocks.framework.thread.Progress;
+import net.benorourke.stocks.framework.thread.Task;
 import net.benorourke.stocks.framework.thread.TaskType;
+
+import java.util.Collection;
 
 public class CollectionTask<T extends Data> implements Task<CollectionDescription, CollectionResult<T>>
 {
@@ -54,9 +56,11 @@ public class CollectionTask<T extends Data> implements Task<CollectionDescriptio
         Query next = session.nextQuery();
         try
         {
-            ConnectionResponse<T> response = dataSource.retrieve(next);
-            result.getData().addAll(response.getData());
-            Framework.info("Collected " + response.getData().size() + " data for " + next.toString());
+            Collection<T> data = dataSource.retrieve(next);
+            CollectionFilter<T> filter = session.getCollectionFilter();
+            Collection<T> filtered = CollectionFilter.reduce(data, filter);
+            result.getData().addAll(filtered);
+            Framework.info("Collected " + filtered.size() + " data for " + next.toString());
         }
         catch (ConstraintException e)
         {

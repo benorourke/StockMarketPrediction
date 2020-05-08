@@ -1,7 +1,7 @@
 package net.benorourke.stocks.framework.model;
 
 import net.benorourke.stocks.framework.Framework;
-import net.benorourke.stocks.framework.preprocess.FeatureRepresenter;
+import net.benorourke.stocks.framework.preprocess.FeatureRepresentor;
 import net.benorourke.stocks.framework.series.data.impl.CleanedDocument;
 import net.benorourke.stocks.framework.series.data.impl.StockQuote;
 import org.nd4j.linalg.api.ndarray.INDArray;
@@ -12,30 +12,30 @@ import java.util.*;
 
 public class ProcessedDataset implements Iterable<ModelData>
 {
-    private final List<FeatureRepresenter<CleanedDocument>> documentFeatureRepresenters;
-    private final List<FeatureRepresenter<StockQuote>> quoteFeatureRepresenters;
+    private final List<FeatureRepresentor<CleanedDocument>> documentFeatureRepresentors;
+    private final List<FeatureRepresentor<StockQuote>> quoteFeatureRepresentors;
     private final int numFeatures, numLabels;
     private final List<ModelData> data;
 
     // Have to be manually calculated; can't calculate on the fly if we normalise
     private double[] featureMinimums, featureMaximums;
 
-    public ProcessedDataset(List<FeatureRepresenter<CleanedDocument>> documentFeatureRepresenters,
-                            List<FeatureRepresenter<StockQuote>> quoteFeatureRepresenters,
+    public ProcessedDataset(List<FeatureRepresentor<CleanedDocument>> documentFeatureRepresentors,
+                            List<FeatureRepresentor<StockQuote>> quoteFeatureRepresentors,
                             int numFeatures, int numLabels, List<ModelData> data)
     {
-        this.documentFeatureRepresenters = documentFeatureRepresenters;
-        this.quoteFeatureRepresenters = quoteFeatureRepresenters;
+        this.documentFeatureRepresentors = documentFeatureRepresentors;
+        this.quoteFeatureRepresentors = quoteFeatureRepresentors;
         this.numFeatures = numFeatures;
         this.numLabels = numLabels;
         this.data = data;
     }
 
-    public ProcessedDataset(List<FeatureRepresenter<CleanedDocument>> documentFeatureRepresenters,
-                            List<FeatureRepresenter<StockQuote>> quoteFeatureRepresenters,
+    public ProcessedDataset(List<FeatureRepresentor<CleanedDocument>> documentFeatureRepresentors,
+                            List<FeatureRepresentor<StockQuote>> quoteFeatureRepresentors,
                             int numFeatures, int numLabels)
     {
-        this(documentFeatureRepresenters, quoteFeatureRepresenters, numFeatures, numLabels, new ArrayList<>());
+        this(documentFeatureRepresentors, quoteFeatureRepresentors, numFeatures, numLabels, new ArrayList<>());
     }
 
     public List<ModelData> getData()
@@ -132,9 +132,14 @@ public class ProcessedDataset implements Iterable<ModelData>
         Framework.debug("Calculated Feature Mins/Maxes");
     }
 
+    public void shuffle(long seed)
+    {
+        Collections.shuffle(data, new Random(seed));
+    }
+
     /**
      *
-     * @param splitRatio 0.6 would mean 60% in the first array, 40% in the second
+     * @param splitRatio 0.6 would mean 60% in the first list, 40% in the second
      * @return
      */
     public List<ProcessedDataset> split(double splitRatio)
@@ -151,9 +156,9 @@ public class ProcessedDataset implements Iterable<ModelData>
         Framework.debug("[ProcessedDataset] Splitting @" + index + " (cardinality=" + cardinality + ')');
 
         List<ProcessedDataset> datasets = new ArrayList<>();
-        datasets.add(new ProcessedDataset(documentFeatureRepresenters, quoteFeatureRepresenters,
+        datasets.add(new ProcessedDataset(documentFeatureRepresentors, quoteFeatureRepresentors,
                                           numFeatures, numLabels, data.subList(0, index + 1)));
-        datasets.add(new ProcessedDataset(documentFeatureRepresenters, quoteFeatureRepresenters,
+        datasets.add(new ProcessedDataset(documentFeatureRepresentors, quoteFeatureRepresentors,
                                           numFeatures, numLabels, data.subList(index + 1, cardinality)));
         return datasets;
     }
@@ -195,14 +200,14 @@ public class ProcessedDataset implements Iterable<ModelData>
         return numLabels;
     }
 
-    public List<FeatureRepresenter<CleanedDocument>> getDocumentFeatureRepresenters()
+    public List<FeatureRepresentor<CleanedDocument>> getDocumentFeatureRepresentors()
     {
-        return documentFeatureRepresenters;
+        return documentFeatureRepresentors;
     }
 
-    public List<FeatureRepresenter<StockQuote>> getQuoteFeatureRepresenters()
+    public List<FeatureRepresentor<StockQuote>> getQuoteFeatureRepresentors()
     {
-        return quoteFeatureRepresenters;
+        return quoteFeatureRepresentors;
     }
 
 }

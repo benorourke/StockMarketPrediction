@@ -1,4 +1,4 @@
-package net.benorourke.stocks.framework.preprocess.document.representer.sentiment;
+package net.benorourke.stocks.framework.preprocess.document.representor.sentiment;
 
 import net.benorourke.stocks.framework.series.data.impl.CleanedDocument;
 
@@ -7,7 +7,7 @@ import java.util.Arrays;
 /**
  * For a Sentiment of {@link Sentiment#VERY_POSITIVE}, the resultant vector would be [1, 0, 0, 0, 0].
  */
-public class BinarySentimentFeatureRepresenter extends SentimentFeatureRepresenter
+public class BinarySentimentFeatureRepresentor extends SentimentFeatureRepresentor
 {
 
     @Override
