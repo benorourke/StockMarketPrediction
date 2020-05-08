@@ -4,6 +4,7 @@ import net.benorourke.stocks.framework.Framework;
 import net.benorourke.stocks.framework.collection.Query;
 import net.benorourke.stocks.framework.collection.datasource.DataSource;
 import net.benorourke.stocks.framework.collection.session.APICollectionSession;
+import net.benorourke.stocks.framework.collection.session.filter.CollectionFilter;
 import net.benorourke.stocks.framework.exception.ConstraintException;
 import net.benorourke.stocks.framework.exception.FailedCollectionException;
 import net.benorourke.stocks.framework.series.data.Data;
@@ -56,8 +57,10 @@ public class CollectionTask<T extends Data> implements Task<CollectionDescriptio
         try
         {
             Collection<T> data = dataSource.retrieve(next);
-            result.getData().addAll(data);
-            Framework.info("Collected " + data.size() + " data for " + next.toString());
+            CollectionFilter<T> filter = session.getCollectionFilter();
+            Collection<T> filtered = CollectionFilter.reduce(data, filter);
+            result.getData().addAll(filtered);
+            Framework.info("Collected " + filtered.size() + " data for " + next.toString());
         }
         catch (ConstraintException e)
         {
