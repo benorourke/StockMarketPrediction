@@ -63,6 +63,12 @@
     -fx-text-fill: #2e87e0;
 }
 
+.overview-listview {
+    -fx-background: #ffffff;
+    -fx-border-color: #ffffff;
+    -fx-focus-color: transparent;
+}
+
 .training-scrollpane {
     -fx-background: #ffffff;
     -fx-border-color: #ffffff;

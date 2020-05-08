@@ -2,6 +2,7 @@ package net.benorourke.stocks.userinterface.scene.dashboard.panes;
 
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXComboBox;
+import com.jfoenix.controls.JFXListView;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.chart.PieChart;
@@ -31,7 +32,7 @@ import static net.benorourke.stocks.userinterface.scene.dashboard.DashboardContr
 
 public class OverviewPaneHandler extends PaneHandler
 {
-    private static final String[] COMBO_OPTIONS = new String[] {"Overview", "Missing / Duplicate Data", "Danger Zone"};
+    private static final String[] COMBO_OPTIONS = new String[] {"Overview", "View Data", "Danger Zone"};
 
     private final JFXComboBox<String> overviewComboBox;
     private final TabPane overviewTabPane;
@@ -40,15 +41,17 @@ public class OverviewPaneHandler extends PaneHandler
     private final VBox overviewDataPresentBox;
     private final PieChart overviewDistributionChart;
 
-    // Missing / Duplicate Data
-    private JFXButton overviewDuplicatesRemoveButton;
+    // View Data
+    private final JFXListView overviewEntriesListView;
 
     // Danger Zone
-    private JFXButton overviewDeleteButton;
+    private final JFXButton overviewDuplicatesRemoveButton;
+    private final JFXButton overviewDeleteButton;
 
     public OverviewPaneHandler(DashboardController controller, DashboardModel model,
                                JFXComboBox<String> overviewComboBox, TabPane overviewTabPane,
                                VBox overviewDataPresentBox, PieChart overviewDistributionChart,
+                               JFXListView overviewEntriesListView,
                                JFXButton overviewDuplicatesRemoveButton, JFXButton overviewDeleteButton)
     {
         super(controller, model);
@@ -57,6 +60,7 @@ public class OverviewPaneHandler extends PaneHandler
         this.overviewTabPane = overviewTabPane;
         this.overviewDataPresentBox = overviewDataPresentBox;
         this.overviewDistributionChart = overviewDistributionChart;
+        this.overviewEntriesListView = overviewEntriesListView;
         this.overviewDuplicatesRemoveButton = overviewDuplicatesRemoveButton;
         this.overviewDeleteButton = overviewDeleteButton;
     }
