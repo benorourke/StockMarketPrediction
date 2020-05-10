@@ -37,6 +37,8 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import static net.benorourke.stocks.userinterface.StockApplication.runUIThread;
+
 public class PreprocessingHandler extends PaneHandler
 {
     private static final StockQuoteDataType[] LABELS_TO_PREDICT = new StockQuoteDataType[] { StockQuoteDataType.CLOSE };
@@ -161,6 +163,15 @@ public class PreprocessingHandler extends PaneHandler
 
         StockApplication.runBgThread(framework ->
         {
+            if (framework.getTimeSeriesManager().getTrainedModels(series).size() > 0)
+            {
+                runUIThread( () -> {controller.snackbar(Controller.SnackbarType.ERROR,
+                                                "You have already trained models using this pre-processed data"
+                                                            + " set! Delete them before attempting to pre-process again."
+                        );});
+                return;
+            }
+
             try
             {
                 PreprocessingTask task = createTask(framework, series, quoteRepresentors, documentRepresentors, policy);
@@ -173,7 +184,7 @@ public class PreprocessingHandler extends PaneHandler
                         ProcessedDataset dataset = result.getDataset();
                         framework.getFileManager().writeJson(file, dataset);
 
-                        StockApplication.runUIThread(() ->
+                        runUIThread(() ->
                                 controller.snackbar(Controller.SnackbarType.INFO,
                                                     "Successfully pre-processed and wrote to file"));
 
@@ -184,7 +195,7 @@ public class PreprocessingHandler extends PaneHandler
             }
             catch (final InsuficcientRawDataException insufficientException)
             {
-                StockApplication.runUIThread(() ->
+                runUIThread(() ->
                 {
                     String types = insufficientException.getMissing()
                                             .stream()
@@ -197,7 +208,7 @@ public class PreprocessingHandler extends PaneHandler
 
             catch (TaskStartException e)
             {
-                StockApplication.runUIThread(() ->
+                runUIThread(() ->
                 {
                     controller.snackbar(Controller.SnackbarType.ERROR, e.getMessage());
                 });
