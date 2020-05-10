@@ -12,24 +12,30 @@ import net.benorourke.stocks.framework.thread.Progress;
 import net.benorourke.stocks.framework.thread.Task;
 import net.benorourke.stocks.framework.thread.TaskType;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 public class CollectionTask<T extends Data> implements Task<CollectionDescription, CollectionResult<T>>
 {
     private final DataSource<T> dataSource;
     private final APICollectionSession<T> session;
+    private final CollectionExceptionHook exceptionHook;
+
     /**
      * Elements are appended to the list as collected
      */
-    private final CollectionResult<T> result;
-
+    private List<T> collected;
     private Progress progress;
 
-    public CollectionTask(DataSource<T> dataSource, APICollectionSession<T> session)
+    public CollectionTask(DataSource<T> dataSource, APICollectionSession<T> session,
+                          CollectionExceptionHook exceptionHook)
     {
         this.dataSource = dataSource;
         this.session = session;
-        result = new CollectionResult<T>();
+        this.exceptionHook = exceptionHook;
+
+        collected = new ArrayList<>();
     }
 
     @Override
@@ -53,8 +59,6 @@ public class CollectionTask<T extends Data> implements Task<CollectionDescriptio
     @Override
     public void run()
     {
-        Framework.debug("COLLECTION LOOP");
-
         Query next = session.nextQuery();
         try
         {
@@ -63,7 +67,7 @@ public class CollectionTask<T extends Data> implements Task<CollectionDescriptio
             {
                 CollectionFilter<T> filter = session.getCollectionFilter();
                 Collection<T> filtered = CollectionFilter.reduce(data, filter);
-                result.getData().addAll(filtered);
+                collected.addAll(filtered);
 
                 Framework.info("Collected " + filtered.size() + " data for " + next.toString());
             }
@@ -72,28 +76,31 @@ public class CollectionTask<T extends Data> implements Task<CollectionDescriptio
         }
         catch (ConstraintException e)
         {
-            session.onConstraintException(e);
+            exceptionHook.onConstraintException(e);
         }
         catch (FailedCollectionException e)
         {
-            session.onCollectionException(e);
+            exceptionHook.onCollectionException(e);
         }
 
         int total = session.completed() + session.remaining();
-        double ratio = (double) total / (double) session.completed();
+        double ratio = (double) session.completed() / (double) total;
         progress.setProgress(ratio * 100);
+        Framework.info("[Collection] Completed: " + session.completed() + ". Remaining: " + session.remaining()
+                            + ". Progress: " + progress.getProgress() + "%");
     }
 
     @Override
     public boolean isFinished()
     {
-        Framework.debug("Finished: " + session.isFinished());
         return session.isFinished();
     }
 
     @Override
-    public CollectionResult getResult()
+    public CollectionResult<T> getResult()
     {
+        CollectionResult<T> result = new CollectionResult<T>();
+        result.getData().addAll(collected);
         return result;
     }
 

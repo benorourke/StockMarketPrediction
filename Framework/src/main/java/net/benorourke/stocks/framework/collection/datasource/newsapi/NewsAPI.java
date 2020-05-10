@@ -9,7 +9,6 @@ import net.benorourke.stocks.framework.collection.Query;
 import net.benorourke.stocks.framework.collection.URLConnector;
 import net.benorourke.stocks.framework.collection.constraint.Constraint;
 import net.benorourke.stocks.framework.collection.constraint.MaximumAgeConstraint;
-import net.benorourke.stocks.framework.collection.constraint.OrderingConstraint;
 import net.benorourke.stocks.framework.collection.datasource.DataSource;
 import net.benorourke.stocks.framework.collection.datasource.variable.CollectionVariable;
 import net.benorourke.stocks.framework.collection.session.APICollectionSession;
@@ -69,7 +68,6 @@ public class NewsAPI extends DataSource<Document>
     {
         return new Constraint[]
         {
-                new OrderingConstraint(),
                 new MaximumAgeConstraint(28)
         };
     }
@@ -100,7 +98,7 @@ public class NewsAPI extends DataSource<Document>
 
             if(connector.getResponseCode() != URLConnector.RESPONSE_OK)
             {
-                throw new FailedCollectionException(connector.getResponseCode());
+                throw new FailedCollectionException(this, connector.getResponseCode());
             }
             else
             {
@@ -110,7 +108,7 @@ public class NewsAPI extends DataSource<Document>
         }
         catch (IOException e)
         {
-            throw new FailedCollectionException(e);
+            throw new FailedCollectionException(this, e);
         }
     }
 

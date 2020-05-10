@@ -4,8 +4,6 @@ import net.benorourke.stocks.framework.collection.Query;
 import net.benorourke.stocks.framework.collection.session.APICollectionSession;
 import net.benorourke.stocks.framework.collection.session.DailyCollectionSession;
 import net.benorourke.stocks.framework.collection.session.filter.CollectionFilter;
-import net.benorourke.stocks.framework.exception.ConstraintException;
-import net.benorourke.stocks.framework.exception.FailedCollectionException;
 import net.benorourke.stocks.framework.series.data.impl.Document;
 
 public class TwitterCollectionSession extends APICollectionSession<Document>
@@ -42,17 +40,5 @@ public class TwitterCollectionSession extends APICollectionSession<Document>
     public int remaining()
     {
         return dailySession.remaining();
-    }
-
-    @Override
-    public void onCollectionException(FailedCollectionException exception)
-    {
-        exception.printStackTrace();
-    }
-
-    @Override
-    public void onConstraintException(ConstraintException exception)
-    {
-        exception.printStackTrace();
     }
 }

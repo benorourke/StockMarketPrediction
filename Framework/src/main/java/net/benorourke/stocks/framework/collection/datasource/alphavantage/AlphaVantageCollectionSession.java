@@ -3,8 +3,6 @@ package net.benorourke.stocks.framework.collection.datasource.alphavantage;
 import net.benorourke.stocks.framework.collection.Query;
 import net.benorourke.stocks.framework.collection.session.APICollectionSession;
 import net.benorourke.stocks.framework.collection.session.filter.CollectionFilter;
-import net.benorourke.stocks.framework.exception.ConstraintException;
-import net.benorourke.stocks.framework.exception.FailedCollectionException;
 import net.benorourke.stocks.framework.series.data.impl.StockQuote;
 
 /**
@@ -48,18 +46,6 @@ public class AlphaVantageCollectionSession extends APICollectionSession<StockQuo
     public int remaining()
     {
         return done ? 0 : 1;
-    }
-
-    @Override
-    public void onCollectionException(FailedCollectionException exception)
-    {
-        // TODO
-    }
-
-    @Override
-    public void onConstraintException(ConstraintException exception)
-    {
-        // TODO
     }
 
 }

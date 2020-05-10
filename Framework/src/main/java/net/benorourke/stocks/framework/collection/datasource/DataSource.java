@@ -3,6 +3,7 @@ package net.benorourke.stocks.framework.collection.datasource;
 import net.benorourke.stocks.framework.Framework;
 import net.benorourke.stocks.framework.collection.Query;
 import net.benorourke.stocks.framework.collection.constraint.Constraint;
+import net.benorourke.stocks.framework.collection.constraint.OrderingConstraint;
 import net.benorourke.stocks.framework.collection.datasource.variable.CollectionVariable;
 import net.benorourke.stocks.framework.collection.datasource.variable.Validators;
 import net.benorourke.stocks.framework.collection.datasource.variable.VariableValidator;
@@ -40,6 +41,21 @@ public abstract class DataSource<T extends Data>
 
     public abstract DataType getDataType();
 
+    /**
+     * Get the constraints that are DataSource-independent.
+     *
+     * @return the constraints
+     */
+    public final Constraint[] getCoreConstrants()
+    {
+        return new Constraint[] { new OrderingConstraint() };
+    }
+
+    /**
+     * Get the constraints that are DataSource-specific.
+     *
+     * @return the constraints
+     */
     public abstract Constraint[] getConstraints();
 
     public abstract APICollectionSession<T> newSession(Query completeQuery, CollectionFilter<T> collectionFilter);
@@ -119,10 +135,13 @@ public abstract class DataSource<T extends Data>
 
     public void checkConstraintsOrThrow(final Query query) throws ConstraintException
     {
-        for (Constraint constraint : getConstraints())
-        {
+        // Check the DataSource-independent constraints
+        for (Constraint constraint : getCoreConstrants())
             constraint.checkValid(query);
-        }
+
+        // Check the DataSource-specific constraints
+        for (Constraint constraint : getConstraints())
+            constraint.checkValid(query);
     }
 
     public String getName()

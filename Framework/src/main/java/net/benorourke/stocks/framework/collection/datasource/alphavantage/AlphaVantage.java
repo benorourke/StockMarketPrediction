@@ -3,18 +3,17 @@ package net.benorourke.stocks.framework.collection.datasource.alphavantage;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import net.benorourke.stocks.framework.Framework;
+import net.benorourke.stocks.framework.collection.Query;
 import net.benorourke.stocks.framework.collection.URLConnector;
+import net.benorourke.stocks.framework.collection.constraint.Constraint;
+import net.benorourke.stocks.framework.collection.datasource.DataSource;
 import net.benorourke.stocks.framework.collection.datasource.variable.CollectionVariable;
 import net.benorourke.stocks.framework.collection.session.APICollectionSession;
 import net.benorourke.stocks.framework.collection.session.filter.CollectionFilter;
-import net.benorourke.stocks.framework.collection.constraint.Constraint;
-import net.benorourke.stocks.framework.collection.datasource.DataSource;
-import net.benorourke.stocks.framework.collection.Query;
-import net.benorourke.stocks.framework.collection.constraint.OrderingConstraint;
 import net.benorourke.stocks.framework.exception.ConstraintException;
+import net.benorourke.stocks.framework.exception.FailedCollectionException;
 import net.benorourke.stocks.framework.series.data.DataType;
 import net.benorourke.stocks.framework.series.data.impl.StockQuote;
-import net.benorourke.stocks.framework.exception.FailedCollectionException;
 import net.benorourke.stocks.framework.util.DateUtil;
 
 import java.io.IOException;
@@ -63,10 +62,7 @@ public class AlphaVantage extends DataSource<StockQuote>
     @Override
     public Constraint[] getConstraints()
     {
-        return new Constraint[]
-        {
-                new OrderingConstraint()
-        };
+        return new Constraint[0];
     }
 
     @Override
@@ -96,7 +92,7 @@ public class AlphaVantage extends DataSource<StockQuote>
 
             if(connector.getResponseCode() != URLConnector.RESPONSE_OK)
             {
-                throw new FailedCollectionException(connector.getResponseCode());
+                throw new FailedCollectionException(this, connector.getResponseCode());
             }
             else
             {
@@ -106,7 +102,7 @@ public class AlphaVantage extends DataSource<StockQuote>
         }
         catch (IOException e)
         {
-            throw new FailedCollectionException(e);
+            throw new FailedCollectionException(this, e);
         }
     }
 

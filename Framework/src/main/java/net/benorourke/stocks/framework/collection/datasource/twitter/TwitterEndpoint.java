@@ -7,7 +7,6 @@ import com.google.gson.JsonObject;
 import net.benorourke.stocks.framework.Framework;
 import net.benorourke.stocks.framework.collection.Query;
 import net.benorourke.stocks.framework.collection.constraint.Constraint;
-import net.benorourke.stocks.framework.collection.constraint.OrderingConstraint;
 import net.benorourke.stocks.framework.collection.datasource.DataSource;
 import net.benorourke.stocks.framework.collection.datasource.variable.CollectionVariable;
 import net.benorourke.stocks.framework.collection.session.APICollectionSession;
@@ -39,6 +38,8 @@ public abstract class TwitterEndpoint extends DataSource<Document>
     private static final DateFormat SINCE_UNTIL_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
     private static final DateFormat RESPONSE_DATE_FORMAT = new SimpleDateFormat("EEE MMM dd HH:mm:ss ZZZZZ yyyy");
 
+    private final EndpointType type;
+
     @CollectionVariable(name = "Consumer Key",
                         type = CollectionVariable.Type.STRING,
                         prompt = "API Key")
@@ -66,6 +67,7 @@ public abstract class TwitterEndpoint extends DataSource<Document>
     {
         super("Twitter: " + type.getLocale());
 
+        this.type = type;
         this.elementsPerDay = 100;
     }
 
@@ -86,10 +88,9 @@ public abstract class TwitterEndpoint extends DataSource<Document>
     @Override
     public Constraint[] getConstraints()
     {
-        return new Constraint[]
-        {
-                new OrderingConstraint(),
-        };
+        return type.getAgeConstraint() == null
+                    ? new Constraint[0]
+                    : new Constraint[] { type.getAgeConstraint() };
     }
 
     @Override
@@ -150,7 +151,8 @@ public abstract class TwitterEndpoint extends DataSource<Document>
         }
         catch (Exception e)
         {
-            e.printStackTrace();
+            throw new FailedCollectionException(this, FailedCollectionException.Type.HTTP_ERROR,
+                                                "Unable to collect from " + url);
         }
 
         return result;
@@ -161,7 +163,7 @@ public abstract class TwitterEndpoint extends DataSource<Document>
         return ("?q=" + StringUtil.encodeUrlParam(query))
 //                    .concat("&from=".concat(StringUtil.encodeUrlParam(from)))
 //                    .concat("&until=".concat(StringUtil.encodeUrlParam(until)))
-                    .concat("&lang=en")
+                    .concat("&lang=".concat(LANG))
                     .concat("&result_type=mixed")
                     .concat("&count=" + count);
     }
