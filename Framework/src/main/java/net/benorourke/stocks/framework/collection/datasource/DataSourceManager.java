@@ -3,6 +3,8 @@ package net.benorourke.stocks.framework.collection.datasource;
 import net.benorourke.stocks.framework.collection.datasource.alphavantage.AlphaVantage;
 import net.benorourke.stocks.framework.collection.datasource.newsapi.NewsAPI;
 import net.benorourke.stocks.framework.collection.datasource.twitter.TwitterFree;
+import net.benorourke.stocks.framework.collection.datasource.twitter.TwitterPremium30Day;
+import net.benorourke.stocks.framework.collection.datasource.twitter.TwitterPremiumFullArchive;
 import net.benorourke.stocks.framework.series.data.Data;
 
 import java.util.ArrayList;
@@ -19,6 +21,8 @@ public class DataSourceManager
         dataSources.add(new AlphaVantage());
         dataSources.add(new NewsAPI());
         dataSources.add(new TwitterFree());
+        dataSources.add(new TwitterPremium30Day());
+        dataSources.add(new TwitterPremiumFullArchive());
     }
 
     public List<DataSource> getDataSources()

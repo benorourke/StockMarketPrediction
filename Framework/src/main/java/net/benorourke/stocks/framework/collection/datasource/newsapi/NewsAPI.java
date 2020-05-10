@@ -42,7 +42,7 @@ public class NewsAPI extends DataSource<Document>
     private String searchTerm;
     @CollectionVariable(name = "Headlines per Day",
                         type = CollectionVariable.Type.INTEGER,
-                        prompt = "Number of Headlines per Day")
+                        prompt = "Max 100")
     private int elementsPerDay;
 
     public NewsAPI()

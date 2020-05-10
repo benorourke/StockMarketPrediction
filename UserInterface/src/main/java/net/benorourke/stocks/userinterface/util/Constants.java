@@ -27,8 +27,8 @@ public class Constants
 
     public static final int TASK_POOL_SIZE = 10;
 
-    public static final long COLLECTION_DELAY = 200;
-    public static final long COLLECTION_INTERVAL = 200;
+    public static final long COLLECTION_DELAY = 1000;
+    public static final long COLLECTION_INTERVAL = 1000;
 
     public static final long PREPROCESSING_DELAY = 200;
     public static final long PREPROCESSING_INTERVAL = 200;

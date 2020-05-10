@@ -4,6 +4,7 @@ import com.jfoenix.controls.JFXSnackbar;
 import com.jfoenix.controls.JFXSnackbarLayout;
 import javafx.fxml.FXML;
 import javafx.scene.layout.Pane;
+import net.benorourke.stocks.framework.util.Nullable;
 
 /**
  * All FXML files belonging to the Controller must have a root node, called root,
@@ -13,6 +14,9 @@ public class Controller
     @FXML
     private Pane root;
 
+    @Nullable
+    private JFXSnackbar lastSnackbar;
+
     public Pane getRoot()
     {
         return root;
@@ -20,9 +24,13 @@ public class Controller
 
     public void snackbar(SnackbarType type, String message)
     {
+        if (lastSnackbar != null)
+            lastSnackbar.setVisible(false);
+
         JFXSnackbar snackbar = new JFXSnackbar(root);
         JFXSnackbarLayout content = new JFXSnackbarLayout(type.message, message, null);
         snackbar.enqueue(new JFXSnackbar.SnackbarEvent(content));
+        lastSnackbar = snackbar;
     }
 
     public void snackbarNullTimeSeries()

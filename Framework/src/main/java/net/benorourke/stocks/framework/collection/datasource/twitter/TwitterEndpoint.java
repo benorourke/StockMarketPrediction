@@ -15,6 +15,7 @@ import net.benorourke.stocks.framework.collection.session.filter.CollectionFilte
 import net.benorourke.stocks.framework.exception.ConstraintException;
 import net.benorourke.stocks.framework.exception.FailedCollectionException;
 import net.benorourke.stocks.framework.series.data.DataType;
+import net.benorourke.stocks.framework.series.data.DocumentType;
 import net.benorourke.stocks.framework.series.data.impl.Document;
 import net.benorourke.stocks.framework.util.StringUtil;
 import oauth.signpost.OAuthConsumer;
@@ -29,11 +30,14 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
+import java.util.List;
 
 public abstract class TwitterEndpoint extends DataSource<Document>
 {
     private static final String LANG = "en";
     private static final DateFormat SINCE_UNTIL_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
+    private static final DateFormat RESPONSE_DATE_FORMAT = new SimpleDateFormat("EEE MMM dd HH:mm:ss ZZZZZ yyyy");
 
     @CollectionVariable(name = "Consumer Key",
                         type = CollectionVariable.Type.STRING,
@@ -49,7 +53,7 @@ public abstract class TwitterEndpoint extends DataSource<Document>
     private String query;
     @CollectionVariable(name = "Tweets per Day",
                         type = CollectionVariable.Type.INTEGER,
-                        prompt = "Number of Tweets per Day",
+                        prompt = "Max 100",
                         validators = {})
     private int elementsPerDay;
 
@@ -104,65 +108,43 @@ public abstract class TwitterEndpoint extends DataSource<Document>
         return data -> false;
     }
 
-    // TODO Remove
-    public static boolean done = false;
-
     @Override
     public Collection<Document> retrieve(Query query) throws ConstraintException, FailedCollectionException
     {
         checkConstraintsOrThrow(query);
 
-        if (done)
-            return null;
-
-        done = true;
-
-        Framework.debug("1");
+        List<Document> result = new ArrayList<>();
 
         OAuthConsumer consumer = new CommonsHttpOAuthConsumer(apiKey, apiSecret);
         consumer.setTokenWithSecret(accessToken, accessTokenSecret);
-        Framework.debug("2");
-
-         // TODO: Count iterator of some sorts (i.e. exceed 100)
 
         String since = SINCE_UNTIL_DATE_FORMAT.format(query.getFrom());
         String until = SINCE_UNTIL_DATE_FORMAT.format(query.getTo());
 
-        String url = getBaseUrl() + buildUrlExtension(since, until, 100);
+        String url = getBaseUrl() + buildUrlExtension(since, until, elementsPerDay);
+        Framework.info("Connecting to " + url);
         HttpGet request = new HttpGet(url);
 
-        Framework.debug("3");
         try
         {
             consumer.sign(request);
-            Framework.debug("4");
-
             HttpClient client = new DefaultHttpClient();
-            Framework.debug("5");
             HttpResponse response = client.execute(request);
-            Framework.debug("6");
-
             String responseToString = EntityUtils.toString(response.getEntity(), "UTF-8");
 
-            Framework.info(responseToString);
-
-            Framework.debug("7");
             JsonObject json = new Gson().fromJson(responseToString, JsonObject.class);
-            Framework.debug("8");
-
             JsonArray tweets = json.getAsJsonArray("statuses");
-            Framework.debug("Number of tweets received: " + tweets.size());
+            Framework.info("Number of tweets received: " + tweets.size());
 
             int ind = 0;
             for (JsonElement element : tweets)
             {
                 JsonObject obj = element.getAsJsonObject();
-
-                Framework.debug((ind ++) + ": ");
                 String createdAt = obj.get("created_at").getAsString();
-                Framework.debug("    Created @ " + createdAt);
                 String tweet = obj.get("text").getAsString();
-                Framework.debug("    Text: " + tweet);
+
+                Date date = RESPONSE_DATE_FORMAT.parse(createdAt);
+                result.add(new Document(date, tweet, DocumentType.TWEET));
             }
 
         }
@@ -171,7 +153,7 @@ public abstract class TwitterEndpoint extends DataSource<Document>
             e.printStackTrace();
         }
 
-        return new ArrayList();
+        return result;
     }
 
     private String buildUrlExtension(String from, String until, int count)
@@ -179,6 +161,7 @@ public abstract class TwitterEndpoint extends DataSource<Document>
         return ("?q=" + StringUtil.encodeUrlParam(query))
 //                    .concat("&from=".concat(StringUtil.encodeUrlParam(from)))
 //                    .concat("&until=".concat(StringUtil.encodeUrlParam(until)))
+                    .concat("&lang=en")
                     .concat("&result_type=mixed")
                     .concat("&count=" + count);
     }

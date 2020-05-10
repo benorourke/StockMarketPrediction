@@ -53,14 +53,22 @@ public class CollectionTask<T extends Data> implements Task<CollectionDescriptio
     @Override
     public void run()
     {
+        Framework.debug("COLLECTION LOOP");
+
         Query next = session.nextQuery();
         try
         {
             Collection<T> data = dataSource.retrieve(next);
-            CollectionFilter<T> filter = session.getCollectionFilter();
-            Collection<T> filtered = CollectionFilter.reduce(data, filter);
-            result.getData().addAll(filtered);
-            Framework.info("Collected " + filtered.size() + " data for " + next.toString());
+            if (!data.isEmpty())
+            {
+                CollectionFilter<T> filter = session.getCollectionFilter();
+                Collection<T> filtered = CollectionFilter.reduce(data, filter);
+                result.getData().addAll(filtered);
+
+                Framework.info("Collected " + filtered.size() + " data for " + next.toString());
+            }
+            else
+                Framework.info("Collected no data for " + next.toString());
         }
         catch (ConstraintException e)
         {
