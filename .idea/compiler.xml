@@ -21,9 +21,11 @@
         <outputRelativeToContentRoot value="true" />
         <module name="Framework" />
         <module name="UserInterface" />
+        <module name="Examples" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel target="8">
+      <module name="Examples" target="1.8" />
       <module name="Framework" target="1.8" />
       <module name="UserInterface" target="1.8" />
     </bytecodeTargetLevel>

@@ -6,6 +6,7 @@
         <option value="$PROJECT_DIR$/Framework/pom.xml" />
         <option value="$PROJECT_DIR$/Preprocessor/pom.xml" />
         <option value="$PROJECT_DIR$/UserInterface/pom.xml" />
+        <option value="$PROJECT_DIR$/Examples/pom.xml" />
       </list>
     </option>
   </component>
