@@ -1,5 +1,8 @@
 package net.benorourke.stocks.framework.series.data.impl;
 
+/**
+ * The types of data stored within a StockQuote.
+ */
 public enum StockQuoteDataType
 {
     OPEN("Open", 0),

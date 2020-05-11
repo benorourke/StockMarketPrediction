@@ -17,7 +17,7 @@ import net.benorourke.stocks.framework.series.TimeSeries;
 import net.benorourke.stocks.framework.series.TimeSeriesManager;
 import net.benorourke.stocks.framework.series.data.Data;
 import net.benorourke.stocks.framework.series.data.DataType;
-import net.benorourke.stocks.framework.series.data.RawDataAnnotation;
+import net.benorourke.stocks.framework.series.data.RawDataConstructorAnnotation;
 import net.benorourke.stocks.framework.series.data.RawDataElementAnnotation;
 import net.benorourke.stocks.framework.series.data.impl.Document;
 import net.benorourke.stocks.framework.series.data.impl.StockQuote;
@@ -215,8 +215,8 @@ public class InjectionPaneHandler extends PaneHandler
         Class<? extends Data> dataClazz = source.getDataClass();
         Constructor<? extends Data> constructor =
                 (Constructor<? extends Data>) ReflectionUtil.getConstructorByAnnotation(dataClazz,
-                                                                                        RawDataAnnotation.class);
-        RawDataAnnotation annotation = constructor.getAnnotation(RawDataAnnotation.class);
+                                                                                        RawDataConstructorAnnotation.class);
+        RawDataConstructorAnnotation annotation = constructor.getAnnotation(RawDataConstructorAnnotation.class);
         assert (constructor.getParameterCount() == 1 + annotation.paramOrder().length);
 
         // Create the parameters array (in the correct order; date included)

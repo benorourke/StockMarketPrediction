@@ -62,7 +62,7 @@ public class URLConnector
     {
         return connection.getResponseCode();
     }
-    
+
     public static URLConnector connect(String url) throws IOException
     {
         return new URLConnector(url, "GET");

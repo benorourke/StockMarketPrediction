@@ -2,6 +2,9 @@ package net.benorourke.stocks.framework.series.data;
 
 import java.util.Date;
 
+/**
+ * A piece of data.
+ */
 public abstract class Data implements IData
 {
     private final DataType type;
@@ -31,12 +34,6 @@ public abstract class Data implements IData
     public Date getDate()
     {
         return date;
-    }
-
-    @Override
-    public boolean isProcessed()
-    {
-        return true;
     }
 
 }

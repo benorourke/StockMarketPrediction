@@ -9,6 +9,4 @@ public interface IData
 
     Date getDate();
 
-    boolean isProcessed();
-
 }

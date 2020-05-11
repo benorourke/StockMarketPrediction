@@ -5,6 +5,9 @@ import net.benorourke.stocks.framework.series.data.*;
 import java.util.Date;
 import java.util.UUID;
 
+/**
+ * A textual piece of data.
+ */
 public class Document extends Data implements IdentifiableData
 {
     /**
@@ -19,6 +22,14 @@ public class Document extends Data implements IdentifiableData
     @RawDataElementAnnotation
     private final DocumentType documentType;
 
+    /**
+     * Create a new instance.
+     *
+     * @param id the unique identifier for this document.
+     * @param date the date this document was created
+     * @param content the textual data of the document
+     * @param documentType the type of the document
+     */
     public Document(UUID id, Date date, String content, DocumentType documentType)
     {
         super (DataType.DOCUMENT, date);
@@ -31,11 +42,11 @@ public class Document extends Data implements IdentifiableData
     /**
      * The constructor used when injecting Documents dynamically through the UI.
      *
-     * @param date
-     * @param content
-     * @param documentType
+     * @param date the date this document was created
+     * @param content the textual data of the document
+     * @param documentType the type of the document
      */
-    @RawDataAnnotation(indexOfDate = 0, paramOrder = {"content", "documentType"})
+    @RawDataConstructorAnnotation(indexOfDate = 0, paramOrder = {"content", "documentType"})
     public Document(Date date, String content, DocumentType documentType)
     {
         this (UUID.randomUUID(), date, content, documentType);

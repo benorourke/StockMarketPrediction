@@ -18,6 +18,9 @@ public class ParameterizedTypes
 
     private ParameterizedTypes() {}
 
+    /**
+     * A Type that explicitly states it's parameter.
+     */
     private static class ListParameterizedType implements ParameterizedType
     {
         private Type type;

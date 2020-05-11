@@ -5,6 +5,9 @@ import net.benorourke.stocks.framework.series.data.*;
 import java.util.Date;
 import java.util.UUID;
 
+/**
+ * A technical indicator for a given stock.
+ */
 public class StockQuote extends Data implements IdentifiableData
 {
     /**
@@ -25,6 +28,18 @@ public class StockQuote extends Data implements IdentifiableData
     @RawDataElementAnnotation
     private double volume;
 
+    /**
+     * Create a new instance
+     *
+     * @param id the unique identifier for this document.
+     * @param date the date this document was created
+     * @param date
+     * @param open
+     * @param close
+     * @param high
+     * @param low
+     * @param volume
+     */
     public StockQuote(UUID id, Date date, double open, double close, double high, double low, double volume)
     {
         super (DataType.STOCK_QUOTE, date);
@@ -40,14 +55,14 @@ public class StockQuote extends Data implements IdentifiableData
     /**
      * The constructor used when injecting StockQuotes dynamically through the UI.
      *
-     * @param date
+     * @param date the date this document was created
      * @param open
      * @param close
      * @param high
      * @param low
      * @param volume
      */
-    @RawDataAnnotation(indexOfDate = 0, paramOrder = {"open", "close", "high", "low", "volume"})
+    @RawDataConstructorAnnotation(indexOfDate = 0, paramOrder = {"open", "close", "high", "low", "volume"})
     public StockQuote(Date date, double open, double close, double high, double low, double volume)
     {
         this (UUID.randomUUID(), date, open, close, high, low, volume);
@@ -75,9 +90,11 @@ public class StockQuote extends Data implements IdentifiableData
     }
 
     /**
+     * Get the indicator as a vector, rather than individual constituents.
+     *
      * Do not use this to mutate the data within this class.
      *
-     * @return
+     * @return the data vector
      */
     public double[] toVector()
     {

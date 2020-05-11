@@ -8,6 +8,11 @@ import java.util.UUID;
 public interface IdentifiableData
 {
 
+    /**
+     * Get the unique identifier for this piece of raw data.
+     *
+     * @return the unique ID.
+     */
     UUID getId();
 
 }

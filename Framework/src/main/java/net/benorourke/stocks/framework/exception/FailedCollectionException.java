@@ -5,6 +5,9 @@ import net.benorourke.stocks.framework.collection.datasource.DataSource;
 
 import java.io.IOException;
 
+/**
+ * Exception thrown when data was unable to be collected.
+ */
 public class FailedCollectionException extends Exception
 {
     public enum Type {HTTP_ERROR, RESPONSE_CODE, COLLECTION_VARIABLE_INVALID, TWITTER_EXCEPTION}

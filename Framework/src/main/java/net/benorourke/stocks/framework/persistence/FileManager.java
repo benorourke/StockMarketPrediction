@@ -11,6 +11,9 @@ import java.lang.reflect.ParameterizedType;
 import java.util.Collection;
 import java.util.Optional;
 
+/**
+ * The handler that provides the paths to all files used / some basic file handling.
+ */
 public class FileManager
 {
     private final Framework framework;
@@ -55,6 +58,13 @@ public class FileManager
     //      GSON
     //////////////////////////////////////////////////////////////////
 
+    /**
+     * Write a JSON serializable object to file.
+     *
+     * @param file the file
+     * @param object the object
+     * @return whether it was a success
+     */
     public boolean writeJson(File file, Object object)
     {
         try
@@ -78,10 +88,11 @@ public class FileManager
 
     /**
      * Returns an Optional with null inside if it the object couldn't be loaded
-     * @param file
-     * @param classOfType
-     * @param <T>
-     * @return
+     *
+     * @param file the file to load from
+     * @param classOfType the type to be loaded
+     * @param <T> the inferred type
+     * @returnan Optional with null inside if it the object couldn't be loaded
      */
     public <T> Optional<T> loadJson(File file, Class<T> classOfType)
     {
@@ -100,11 +111,12 @@ public class FileManager
     }
 
     /**
-     * Be careful of type erasure with this function
-     * @param file
-     * @param type
-     * @param <T>
-     * @return
+     * Load a list / JSON array of json deserializable objects from a file.
+     *
+     * @param file the file
+     * @param type to prevent type erasure
+     * @param <T> the inferred type
+     * @return the list of json objects
      */
     public <T> Optional<Collection<T>> loadJsonList(File file, ParameterizedType type)
     {
@@ -112,7 +124,6 @@ public class FileManager
 
         try
         {
-            Framework.debug("Type: " + type.toString());
             JsonReader reader = new JsonReader(new FileReader(file));
             Collection<T> data = framework.getGson().fromJson(reader, type);
 

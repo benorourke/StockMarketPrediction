@@ -15,6 +15,9 @@ import java.io.File;
 import java.util.*;
 import java.util.regex.Pattern;
 
+/**
+ * A manager for all the time series the user has created.
+ */
 public class TimeSeriesManager implements Initialisable
 {
     private final Framework framework;
@@ -42,6 +45,13 @@ public class TimeSeriesManager implements Initialisable
     //      TIMESERIES MANAGEMENT
     //////////////////////////////////////////////////////////////////
 
+    /**
+     * Create a TimeSeries and save it.
+     *
+     * @param name the name of the timeseries
+     * @param stock the ticker
+     * @return
+     */
     public boolean create(String name, String stock)
     {
         TimeSeries series = new TimeSeries(name, stock);
@@ -59,6 +69,12 @@ public class TimeSeriesManager implements Initialisable
         }
     }
 
+    /**
+     * Manually save a time series
+     *
+     * @param series the series
+     * @return whether it was a success
+     */
     public boolean save(TimeSeries series)
     {
         File info = fileManager.getTimeSeriesInfoFile(series);
@@ -96,6 +112,10 @@ public class TimeSeriesManager implements Initialisable
         return fileManager.deleteRecursively(fileManager.getTimeSeriesDirectory(series));
     }
 
+    /**
+     * Load the cache of stored Time Series
+     * @return
+     */
     private List<TimeSeries> loadStoredTimeSeries()
     {
         File storageDirectory = fileManager.getTimeSeriesParentDirectory();
@@ -105,21 +125,24 @@ public class TimeSeriesManager implements Initialisable
 
         List<TimeSeries> result = new ArrayList<TimeSeries>();
 
+        // If there's none, just return
         if (storageDirectory.listFiles() == null)
             return result;
 
+        // Loop through all the files
         for (File file : storageDirectory.listFiles())
         {
             if (!file.isDirectory()) continue;
 
             File infoFile = fileManager.getTimeSeriesInfoFile(file);
 
-            if(!infoFile.exists()) // There's a TimeSeries splash but the info file is missing
+            if(!infoFile.exists())
             {
                 Framework.info("Timeseries info.json " + infoFile.getPath() + " is missing! Unable to load");
                 continue;
             }
 
+            // If we can load it, return the loaded TimeSeries
             Optional<TimeSeries> timeSeries = fileManager.loadJson(infoFile, TimeSeries.class);
             if(timeSeries != null)
                 result.add(timeSeries.get());
@@ -139,12 +162,13 @@ public class TimeSeriesManager implements Initialisable
     }
 
     /**
+     * Handle the data count map and save the series for when data is added to a series.
      *
-     * @param series
-     * @param source
-     * @param data
+     * @param series the series to add to
+     * @param source the source to add to
+     * @param data the data to add
      * @param overwrite whether to overwrite any existing data
-     * @param <T>
+     * @param <T> the inferred type
      */
     public <T extends Data> void onDataCollected(TimeSeries series, DataSource<T> source, List<T> data,
                                                  boolean overwrite)
@@ -180,6 +204,13 @@ public class TimeSeriesManager implements Initialisable
                                 + "(overwrite=" + overwrite + "). Collected Data Counts may be wrong.");
     }
 
+    /**
+     * Handle the data count map and save the series for when data is removed from a series.
+     *
+     * @param series the series that had data removed
+     * @param source the source that had data removed
+     * @param count the number of data removed
+     */
     public void onDataRemoved(TimeSeries series, DataSource source, int count)
     {
         int newCount = series.getRawDataCounts().get(source.getClass()) - count;
@@ -191,6 +222,14 @@ public class TimeSeriesManager implements Initialisable
         save(series);
     }
 
+    /**
+     * Clean duplicate raw data for a time series.
+     *
+     * @param series the series
+     * @param source the data source to clean
+     * @param <T> the inferred type
+     * @return the amount of data cleaned
+     */
     public <T extends Data> int cleanDuplicateData(TimeSeries series, DataSource<T> source)
     {
         DataStore store = getDataStore(series);
@@ -213,6 +252,12 @@ public class TimeSeriesManager implements Initialisable
         return amountCleaned;
     }
 
+    /**
+     * Get the mappings of collected data counts for a time series.
+     *
+     * @param series the series
+     * @return the mappings
+     */
     public Map<DataSource, Integer> getCollectedDataCounts(TimeSeries series)
     {
         Map<DataSource, Integer> counts = new HashMap<>();
@@ -229,9 +274,12 @@ public class TimeSeriesManager implements Initialisable
     //////////////////////////////////////////////////////////////////
 
     /**
-     * To retrieve a model the model file and it's corresponding evaluation file must exist
-     * @param timeSeries
-     * @return
+     * Get the names of all trained models for a time series.
+     *
+     * To retrieve a model the model file and it's corresponding evaluation file must exist.
+     * @param timeSeries the time series
+     *
+     * @return the list of trained models. Empty if none.
      */
     public List<String> getTrainedModels(TimeSeries timeSeries)
     {

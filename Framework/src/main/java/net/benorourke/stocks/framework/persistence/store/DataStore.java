@@ -18,12 +18,21 @@ import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * A TimeSeries-specific class that handles data operations for a TimeSeries.
+ */
 public class DataStore
 {
     private final Framework framework;
     private final FileManager fileManager;
     private final TimeSeries timeSeries;
 
+    /**
+     * Create a new instance.
+     *
+     * @param framework the framework instance
+     * @param timeSeries the timeseries this store is for
+     */
     public DataStore(Framework framework, TimeSeries timeSeries)
     {
         this.framework = framework;
@@ -38,12 +47,12 @@ public class DataStore
     /**
      * Will replace any existing data.
      *
-     * 0 indicates an error.
+     * 0 indicates an error/no data was written.
      *
-     * @param source
-     * @param data
-     * @param <T>
-     * @return the amount of data written. 0 if unsuccessful
+     * @param source the source to write data for
+     * @param data the data to write
+     * @param <T> the inferred type
+     * @return the amount of data written. 0 if unsuccessful/no data was written
      */
     public <T extends Data> int writeRawData(DataSource source, Collection<T> data)
     {
@@ -69,9 +78,9 @@ public class DataStore
      *
      * 0 indicates an error.
      *
-     * @param source
-     * @param toInject
-     * @param <T>
+     * @param source the source to inject data for
+     * @param toInject the data to inject
+     * @param <T> the inferred type
      * @return A: the total data written, B: the number of data injected
      */
     private <T extends Data> Tuple<Integer, Integer> injectRawData(DataSource<T> source, List<T> toInject,
@@ -93,6 +102,14 @@ public class DataStore
         return injectRawData(source, toInject, ParameterizedTypes.LIST_DOCUMENT);
     }
 
+    /**
+     * Load a set of raw data from a file.
+     *
+     * @param source the datasource to load data from
+     * @param listType needed to prevent GSON type erasure
+     * @param <T>
+     * @return the raw data
+     */
     private <T extends Data> List<T> loadRawData(DataSource<T> source, ParameterizedType listType)
     {
         File file = fileManager.getRawDataFile(timeSeries, source);
@@ -118,6 +135,14 @@ public class DataStore
         return loadRawData(source, ParameterizedTypes.LIST_DOCUMENT);
     }
 
+    /**
+     * Remove any duplicate raw data from a datasource.
+     *
+     * @param source the source to remove duplicates from
+     * @param listType needed to prevent GSON type erasure
+     * @param <T> the inferred type
+     * @return the number o data removed
+     */
     private <T extends Data> int cleanDuplicateRawData(DataSource<T> source, ParameterizedType listType)
     {
         List<T> data = loadRawData(source, listType);
@@ -145,10 +170,11 @@ public class DataStore
     }
 
     /**
+     * Remove a specific piece of raw data.
      *
-     * @param source
-     * @param listType
-     * @param toRemove
+     * @param source the data source to remove the data from
+     * @param listType  needed to prevent GSON type erasure
+     * @param toRemove the ID of the data to remove
      * @param <T>
      * @return the amount remove. Non-zero if data was removed
      */
