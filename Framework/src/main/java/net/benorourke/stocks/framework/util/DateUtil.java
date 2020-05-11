@@ -25,6 +25,13 @@ public class DateUtil
         return DETAILED_UK_DATE_FORMAT.format(date);
     }
 
+    /**
+     * Determine whether two dates are on the same day, irrespective of time.
+     *
+     * @param a the first date
+     * @param b the second date
+     * @return whether they're on the same day.
+     */
     public static boolean sameDay(Date a, Date b)
     {
         Calendar calA = Calendar.getInstance();
@@ -38,6 +45,12 @@ public class DateUtil
                     && calA.get(Calendar.YEAR) == calB.get(Calendar.YEAR);
     }
 
+    /**
+     * Check whether a given date is on a Saturday or Sunday.
+     *
+     * @param date the date
+     * @return whether it is a weekend.
+     */
     public static boolean isWeekend(Date date)
     {
         Calendar cal = Calendar.getInstance();
@@ -66,6 +79,13 @@ public class DateUtil
         return calendar.getTime();
     }
 
+    /**
+     * Add hours to a day, or subtract if hours is -ve.
+     *
+     * @param date the date to add to
+     * @param hours the number of hours to add
+     * @return the new instance with the time added
+     */
     public static Date addHours(Date date, int hours)
     {
         Calendar calendar = new GregorianCalendar();

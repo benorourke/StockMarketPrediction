@@ -9,10 +9,17 @@ import net.benorourke.stocks.framework.util.Initialisable;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Stores all the model handlers; allowing for the injection of additional model handlers.
+ *
+ */
 public class ModelHandlerManager implements Initialisable
 {
     public static final RuntimeCreator<FeedForwardModelHandler> FEED_FORWARD_CREATOR = new FeedForwardRuntimeCreator();
 
+    /**
+     * The cache of model handlers that can be created at runtime.
+     */
     private final List<RuntimeCreator> creators;
 
     public ModelHandlerManager()
@@ -23,16 +30,8 @@ public class ModelHandlerManager implements Initialisable
     @Override
     public void initialise()
     {
+        // By default, add a Feed Forward Creator
         creators.add(FEED_FORWARD_CREATOR);
-    }
-
-    public ModelHandler createByName(String name, ModelParameters parameters)
-    {
-        return creators.stream()
-                        .filter(c -> c.name().equalsIgnoreCase(name))
-                        .findFirst()
-                        .orElse(null)
-                    .createFromParameters(parameters);
     }
 
     public List<RuntimeCreator> getCreators()
@@ -44,7 +43,7 @@ public class ModelHandlerManager implements Initialisable
      *  Needs dynamic creation since differing corpuses can have differing number of inputs / outputs so these
      *  need to be specified at runtime.
      *
-     * @param <T>
+     * @param <T> the type of ModelHandler to be created at runtime
      */
     public interface RuntimeCreator<T extends ModelHandler>
     {
@@ -53,9 +52,9 @@ public class ModelHandlerManager implements Initialisable
 
         List<HyperParameter> getRequiredParameters();
 
-        T createFromParameters(ModelParameters parameters);
+        T createFromParameters(long seed, ModelParameters parameters);
 
-        T createFromDataset(ProcessedDataset dataset);
+        T createFromDataset(long seed, ProcessedDataset dataset);
 
     }
 

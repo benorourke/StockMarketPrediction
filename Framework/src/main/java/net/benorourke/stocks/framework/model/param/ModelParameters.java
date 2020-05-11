@@ -3,8 +3,13 @@ package net.benorourke.stocks.framework.model.param;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 
+/**
+ * A storage class for model parameters.
+ */
 public class ModelParameters
 {
+
+    /** Parameter identifiers (in uppercase) mapped against their value. */
     private LinkedHashMap<String, Integer> parameters;
 
     public ModelParameters(LinkedHashMap<String, Integer> parameters)
@@ -17,6 +22,11 @@ public class ModelParameters
         this(new LinkedHashMap<>());
     }
 
+    /**
+     * Add any missing parameters default value by the required hyper-parameters.
+     *
+     * @param hyperParameters the parameters
+     */
     public void setMissingDefaults(Collection<HyperParameter> hyperParameters)
     {
         for (HyperParameter param : hyperParameters)
