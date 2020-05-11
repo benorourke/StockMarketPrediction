@@ -27,6 +27,7 @@ public class DataSourceManagerTest implements Initialisable
     private DummySource dummy;
 
     @Before
+    @Override
     public void initialise()
     {
         manager = new DataSourceManager();
