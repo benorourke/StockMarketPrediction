@@ -9,7 +9,7 @@ import net.benorourke.stocks.framework.collection.Query;
 import net.benorourke.stocks.framework.collection.constraint.Constraint;
 import net.benorourke.stocks.framework.collection.datasource.DataSource;
 import net.benorourke.stocks.framework.collection.datasource.variable.CollectionVariable;
-import net.benorourke.stocks.framework.collection.session.APICollectionSession;
+import net.benorourke.stocks.framework.collection.session.DailyCollectionSession;
 import net.benorourke.stocks.framework.collection.session.filter.CollectionFilter;
 import net.benorourke.stocks.framework.exception.ConstraintException;
 import net.benorourke.stocks.framework.exception.FailedCollectionException;
@@ -116,9 +116,9 @@ public abstract class TwitterEndpoint extends DataSource<Document>
     }
 
     @Override
-    public APICollectionSession<Document> newSession(Query completeQuery, CollectionFilter<Document> collectionFilter)
+    public DailyCollectionSession<Document> newSession(Query completeQuery, CollectionFilter<Document> collectionFilter)
     {
-        return new TwitterCollectionSession(completeQuery, collectionFilter);
+        return new DailyCollectionSession(completeQuery, collectionFilter);
     }
 
     @Override

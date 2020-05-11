@@ -3,7 +3,7 @@ package net.benorourke.stocks.framework.thread.collection;
 import net.benorourke.stocks.framework.Framework;
 import net.benorourke.stocks.framework.collection.Query;
 import net.benorourke.stocks.framework.collection.datasource.DataSource;
-import net.benorourke.stocks.framework.collection.session.APICollectionSession;
+import net.benorourke.stocks.framework.collection.session.CollectionSession;
 import net.benorourke.stocks.framework.collection.session.filter.CollectionFilter;
 import net.benorourke.stocks.framework.exception.ConstraintException;
 import net.benorourke.stocks.framework.exception.FailedCollectionException;
@@ -19,7 +19,7 @@ import java.util.List;
 public class CollectionTask<T extends Data> implements Task<CollectionDescription, CollectionResult<T>>
 {
     private final DataSource<T> dataSource;
-    private final APICollectionSession<T> session;
+    private final CollectionSession<T> session;
     private final CollectionExceptionHook exceptionHook;
 
     /**
@@ -28,7 +28,7 @@ public class CollectionTask<T extends Data> implements Task<CollectionDescriptio
     private List<T> collected;
     private Progress progress;
 
-    public CollectionTask(DataSource<T> dataSource, APICollectionSession<T> session,
+    public CollectionTask(DataSource<T> dataSource, CollectionSession<T> session,
                           CollectionExceptionHook exceptionHook)
     {
         this.dataSource = dataSource;

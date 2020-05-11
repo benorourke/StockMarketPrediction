@@ -83,7 +83,8 @@ public class Framework implements Initialisable
                                         .forEach(e -> builder.registerTypeAdapter(e.getKey(), e.getValue()));
         gson = builder.create();
 
-        // Inject any additional, custom VariableValidators for new DataSources
+        // Inject any additional, custom VariableValidators for new DataSources.
+        // This must happen before the DataSources are instantiated
         for (Map.Entry<String, VariableValidator> entry : config.getCollectionValidators().entrySet())
             Validators.inject(entry.getKey(), entry.getValue());
 

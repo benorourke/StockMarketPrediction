@@ -1,7 +1,6 @@
 package net.benorourke.stocks.framework.collection.datasource.alphavantage;
 
 import net.benorourke.stocks.framework.collection.Query;
-import net.benorourke.stocks.framework.collection.session.APICollectionSession;
 import net.benorourke.stocks.framework.collection.session.filter.CollectionFilter;
 import net.benorourke.stocks.framework.series.data.impl.StockQuote;
 
@@ -9,7 +8,7 @@ import net.benorourke.stocks.framework.series.data.impl.StockQuote;
  * A simple APICollectionSession; the collection task only runs once since AlphaVantage returns all of the required
  * data in one call.
  */
-public class AlphaVantageCollectionSession extends APICollectionSession<StockQuote>
+public class AlphaVantageCollectionSession extends net.benorourke.stocks.framework.collection.session.CollectionSession<StockQuote>
 {
     private final Query completeQuery;
     private boolean done;

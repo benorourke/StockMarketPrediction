@@ -8,6 +8,9 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Splits the query up into compounded daily queries.
+ */
 public class DailyCollectionSession<T extends Data> extends CollectionSession<T>
 {
     private final Query completeQuery;

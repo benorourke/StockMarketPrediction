@@ -2,7 +2,7 @@ package net.benorourke.stocks.framework.collection.datasource;
 
 import net.benorourke.stocks.framework.collection.Query;
 import net.benorourke.stocks.framework.collection.constraint.Constraint;
-import net.benorourke.stocks.framework.collection.session.APICollectionSession;
+import net.benorourke.stocks.framework.collection.session.CollectionSession;
 import net.benorourke.stocks.framework.collection.session.filter.CollectionFilter;
 import net.benorourke.stocks.framework.exception.ConstraintException;
 import net.benorourke.stocks.framework.exception.FailedCollectionException;
@@ -93,7 +93,7 @@ public class DataSourceManagerTest implements Initialisable
         }
 
         @Override
-        public APICollectionSession<Data> newSession(Query completeQuery, CollectionFilter<Data> collectionFilter)
+        public CollectionSession<Data> newSession(Query completeQuery, CollectionFilter<Data> collectionFilter)
         {
             return null;
         }

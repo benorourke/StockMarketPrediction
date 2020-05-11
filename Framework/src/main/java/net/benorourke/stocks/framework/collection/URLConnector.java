@@ -6,6 +6,9 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+/**
+ * A utility class to connect to URLs and get a response.
+ */
 public class URLConnector
 {
     public static final int RESPONSE_OK = 200;
@@ -15,6 +18,13 @@ public class URLConnector
 
     private HttpURLConnection connection;
 
+    /**
+     * Create a new instance and open the connection.
+     *
+     * @param strUrl the URL to connect to
+     * @param requestMethod the method to use
+     * @throws IOException if the connection could not be opened
+     */
     private URLConnector(String strUrl, String requestMethod) throws IOException
     {
         URL url = new URL(strUrl);
@@ -26,6 +36,12 @@ public class URLConnector
         connection.setInstanceFollowRedirects(false);
     }
 
+    /**
+     * Read the response to the request.
+     *
+     * @return the response as a String
+     * @throws IOException if the response was unable to be read
+     */
     public String read() throws IOException
     {
         connection.getResponseCode();
@@ -46,7 +62,7 @@ public class URLConnector
     {
         return connection.getResponseCode();
     }
-
+    
     public static URLConnector connect(String url) throws IOException
     {
         return new URLConnector(url, "GET");

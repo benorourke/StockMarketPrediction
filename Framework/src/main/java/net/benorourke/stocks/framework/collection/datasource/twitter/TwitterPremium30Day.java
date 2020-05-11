@@ -1,5 +1,8 @@
 package net.benorourke.stocks.framework.collection.datasource.twitter;
 
+/**
+ * The premium twitter endpoint where tweets from up to 30 days can be accessed.
+ */
 public class TwitterPremium30Day extends PremiumTwitterEndpoint
 {
     private static final String BASE_URL = "https://api.twitter.com/1.1/search/30day/";

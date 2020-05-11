@@ -8,7 +8,7 @@ import net.benorourke.stocks.framework.collection.URLConnector;
 import net.benorourke.stocks.framework.collection.constraint.Constraint;
 import net.benorourke.stocks.framework.collection.datasource.DataSource;
 import net.benorourke.stocks.framework.collection.datasource.variable.CollectionVariable;
-import net.benorourke.stocks.framework.collection.session.APICollectionSession;
+import net.benorourke.stocks.framework.collection.session.CollectionSession;
 import net.benorourke.stocks.framework.collection.session.filter.CollectionFilter;
 import net.benorourke.stocks.framework.exception.ConstraintException;
 import net.benorourke.stocks.framework.exception.FailedCollectionException;
@@ -70,7 +70,7 @@ public class AlphaVantage extends DataSource<StockQuote>
     }
 
     @Override
-    public APICollectionSession<StockQuote> newSession(Query completeQuery, CollectionFilter<StockQuote> collectionFilter)
+    public CollectionSession<StockQuote> newSession(Query completeQuery, CollectionFilter<StockQuote> collectionFilter)
     {
         return new AlphaVantageCollectionSession(completeQuery, collectionFilter);
     }
