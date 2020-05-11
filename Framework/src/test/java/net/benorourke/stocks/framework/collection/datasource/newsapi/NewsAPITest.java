@@ -1,6 +1,5 @@
 package net.benorourke.stocks.framework.collection.datasource.newsapi;
 
-import net.benorourke.stocks.framework.collection.datasource.alphavantage.AlphaVantage;
 import org.junit.Test;
 
 import java.util.Arrays;
