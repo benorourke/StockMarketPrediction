@@ -3,7 +3,6 @@ package net.benorourke.stocks.framework.persistence.gson.data.representor;
 import com.google.gson.*;
 import net.benorourke.stocks.framework.Framework;
 import net.benorourke.stocks.framework.persistence.gson.JsonAdapter;
-import net.benorourke.stocks.framework.preprocess.document.representor.sentiment.SentimentFeatureRepresentor;
 import net.benorourke.stocks.framework.preprocess.document.representor.topterm.RelevancyMetric;
 import net.benorourke.stocks.framework.preprocess.document.representor.topterm.TopTermFeatureRepresentor;
 

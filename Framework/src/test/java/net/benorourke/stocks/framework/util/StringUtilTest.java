@@ -82,7 +82,7 @@ public class StringUtilTest
     @Test
     public void formatDoubles_Cardinality1_ShouldEqualExpected()
     {
-        String expected = "[0.00]";
+        String expected = "[0]";
 
         assertEquals(expected, StringUtil.formatDoubles(new double[]{0.00}));
     }
