@@ -24,7 +24,7 @@ public class NewsAPITest
     @Test
     public void getCollectionVariables_OnceConstructed_ShouldMatchVariables()
     {
-        AlphaVantage source = new AlphaVantage();
+        NewsAPI source = new NewsAPI();
         List<String> actual = source.getCollectionVariables()
                                                     .stream()
                                                     .map(v -> v.name())
