@@ -5,6 +5,9 @@ import net.benorourke.stocks.framework.util.Tuple;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+/**
+ * A simple class to store the volatile progress of a task.
+ */
 public class Progress
 {
     /**
@@ -27,23 +30,28 @@ public class Progress
         this.progress = progress;
     }
 
+    /**
+     * A helper class that allows for sub-dividing tasks and automatically calculating percentage changed based on the
+     * completion of a sub-division.
+     */
     public static class Helper
     {
         private final Progress progress;
         private final Map<Integer, Tuple<Double, Double>> boundMappings;
 
         /**
+         * Create a new instance.
          *
-         * he sum of values within weights should equal 100
-         *
-         * @param progress
-         * @param weights t
+         * @param progress the progress object to help
+         * @param weights the mappings of task sub-division IDs against their weight (summing 100)
          */
         public Helper(Progress progress, LinkedHashMap<Integer, Double> weights)
         {
             this.progress = progress;
             this.boundMappings = new LinkedHashMap<>();
 
+            // from: stores the starting % of this subdivision
+            // to: stores the ending % of this subdivision
             double from = 0;
             for (Map.Entry<Integer, Double> entry : weights.entrySet())
             {
@@ -54,9 +62,10 @@ public class Progress
         }
 
         /**
+         * Update the Progress percentage based on the completion of a sub-task.
          *
-         * @param id
-         * @param subPercentage 0-100
+         * @param id the id of the sub-task
+         * @param subPercentage the percentage completion of the sub-task 0-100
          * @return
          */
         public void updatePercentage(int id, double subPercentage)

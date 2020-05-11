@@ -10,14 +10,15 @@ import java.util.*;
 import java.util.concurrent.*;
 
 /**
+ * The manager for all concurrency tasks.
+ *
  * Do not call any of these functions from within a Task.
  *
- * Update the Progress/Result objects within Tasks to pass feedforward to the main thread.
+ * Update the Progress/Result objects within Tasks to pass data to the main thread.
  */
 public class TaskManager
 {
-    // TODO - Synchronise the methods that remove/set to queues using a single lock
-
+    /** The thread pool*/
     @ThreadSynchronised
     private final ScheduledExecutorService executor;
     /**
@@ -33,6 +34,11 @@ public class TaskManager
      */
     @ThreadSynchronised
     private final ConcurrentHashMap<UUID, TaskDescription> descriptionMap;
+    /**
+     * Stores the progresses of every currently ongoing task.
+     *
+     * Further facilitates parallelism by reducing the calls on {@link #taskMap}.
+     */
     @ThreadSynchronised
     private final ConcurrentHashMap<UUID, Progress> progressMap;
     /**
@@ -56,9 +62,10 @@ public class TaskManager
     }
 
     /**
-     * Check whether a Task with the same description is running / queued.
-     * @param task
-     * @return
+     * Check whether a Task with a description that would collide with this Task is already present.
+     *
+     * @param task the task's description to check
+     * @return whether there is a colliding task already scheduled
      */
     @ThreadSynchronised
     public boolean isTaskPresent(Task task)
@@ -72,16 +79,19 @@ public class TaskManager
         return false;
     }
 
+
     /**
+     * Schedule a task to be run by the thread pool executor.
      *
-     * @param task
-     * @param onFinished
-     * @param initialDelay
-     * @param period
-     * @param timeUnit
-     * @param <S>
-     * @param <U>
-     * @return the taskId
+     * @param task the task
+     * @param onFinished the callback once the task has finished
+     * @param initialDelay the delay before running the task for the first time
+     * @param period the delay between running the tasks
+     * @param timeUnit the time unit for the above delays
+     * @param <S> the type of the TaskDescription used to compare colliding tasks
+     * @param <U> the type of the Result for this task
+     * @return the ID of the task (wrapper)
+     * @throws TaskStartException if a task with a colliding TaskDescription is already present
      */
     @ThreadSynchronised
     public <S extends TaskDescription,
@@ -91,7 +101,6 @@ public class TaskManager
     {
         if (isTaskPresent(task))
             throw new TaskStartException(task);
-        // TODO - ADD A CHECK TO SEE IF ANYTHING ELSE IS RUNNING BEFORE BEGINNING PRE-PROCESSINGS
 
         TaskWrapper wrapper = new TaskWrapper(this, task, onFinished);
         taskMap.put(wrapper.getId(), wrapper);
@@ -108,9 +117,12 @@ public class TaskManager
     }
 
     /**
-     * Do not regularly call - instead maintain a reference; the members are volatile anyway
-     * @param taskId
-     * @return
+     * Get the progress for a given task.
+     *
+     * Do not regularly call - instead maintain a reference; the percentage field is volatile.
+     *
+     * @param taskId the task to get the progress instance of
+     * @return the progress object
      */
     @ThreadSynchronised
     public Progress getProgress(UUID taskId)
@@ -118,6 +130,11 @@ public class TaskManager
         return progressMap.get(taskId);
     }
 
+    /**
+     * Cancel a task by it's (wrapper) ID.
+     *
+     * @param taskId it's unique identifier
+     */
     @ThreadSynchronised
     public void cancel(UUID taskId)
     {
@@ -131,6 +148,10 @@ public class TaskManager
         progressMap.remove(taskId);
     }
 
+    /**
+     *
+     * @param wrapper
+     */
     @ThreadSynchronised
     public void onTaskFinished(TaskWrapper wrapper)
     {
@@ -140,7 +161,8 @@ public class TaskManager
     }
 
     /**
-     * Only to be called by a single, main thread in order to get the results / callbacks of tasks.
+     * Call this frequently on the main framework thread in order to consume and run the callbacks for
+     * completed tasks.
      */
     @ThreadSynchronised
     public void consumeCallbacks()
@@ -185,7 +207,7 @@ public class TaskManager
     /**
      * Clones the Map, but not the elements within.
      *
-     * @return
+     * @return the cloned map of task descriptions
      */
     @ThreadSynchronised
     public Map<UUID, TaskDescription> cloneDescriptionMap()
@@ -199,7 +221,7 @@ public class TaskManager
     /**
      * Clones the Map, but not the elements within.
      *
-     * @return
+     * @return the cloned map of task progresses
      */
     @ThreadSynchronised
     public Map<UUID, Progress> cloneProgressMap()
