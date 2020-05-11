@@ -25,9 +25,13 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+/**
+ * The DataSource for the News API.
+ */
 public class NewsAPI extends DataSource<Document>
 {
     private static final String BASE_URL = "https://newsapi.org/";
+    /** The format of the publishing dates of Documents in News API responses */
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
 
     @CollectionVariable(name = "API Key",
@@ -44,6 +48,9 @@ public class NewsAPI extends DataSource<Document>
                         prompt = "Max 100")
     private int elementsPerDay;
 
+    /**
+     * Create a new instance.
+     */
     public NewsAPI()
     {
         super("NewsAPI");
@@ -68,6 +75,7 @@ public class NewsAPI extends DataSource<Document>
     {
         return new Constraint[]
         {
+                // NewsAPI only allows you to collect up to 28 days worth of news
                 new MaximumAgeConstraint(28)
         };
     }
@@ -81,6 +89,7 @@ public class NewsAPI extends DataSource<Document>
     @Override
     public CollectionFilter<Document> newDefaultCollectionFilter()
     {
+        // Filter any data that doesn't contain the news we want
         return data -> !data.getContent().toLowerCase().contains(searchTerm.toLowerCase());
     }
 
@@ -88,11 +97,12 @@ public class NewsAPI extends DataSource<Document>
     public Collection<Document> retrieve(Query query) throws ConstraintException, FailedCollectionException
     {
         checkConstraintsOrThrow(query);
+
         try
         {
-            String url = BASE_URL.concat(buildUrlExtension(query, apiKey));
+            // Connect to the URL
+            String url = BASE_URL.concat(buildUrlExtension(query));
             Framework.info("Connecting to " + url);
-
             URLConnector connector = URLConnector.connect(url);
             String result = connector.read();
 
@@ -117,6 +127,7 @@ public class NewsAPI extends DataSource<Document>
         List<Document> documents = new ArrayList<Document>();
         JsonArray articles = json.getAsJsonArray("articles");
 
+        // Parse the data received and return a list of deserialized objects
         for (JsonElement elem : articles)
         {
             JsonObject article = elem.getAsJsonObject();
@@ -129,9 +140,10 @@ public class NewsAPI extends DataSource<Document>
     }
 
     /**
-     * Example: "publishedAt": "2020-02-04T18:45:00Z"
-     * @param strDate
-     * @return
+     * Example: "publishedAt": "2020-02-04T18:45:00Z".
+     *
+     * @param strDate the string representation of the Date
+     * @return the parsed Date
      */
     private Date parseDate(String strDate)
     {
@@ -147,8 +159,13 @@ public class NewsAPI extends DataSource<Document>
         }
     }
 
-    ///v2/everything?q=apple&from=2019-12-20&to=2019-12-20&sortBy=popularity&apiKey=78d93a9d68584e61be38b1d90217d1e7
-    private String buildUrlExtension(Query query, String apiKey)
+    /**
+     * Build the URL based on the current collection variables.
+     *
+     * @param query the time frame to collect data between
+     * @return the URL to connect to
+     */
+    private String buildUrlExtension(Query query)
     {
         Calendar calendar = Calendar.getInstance();
 

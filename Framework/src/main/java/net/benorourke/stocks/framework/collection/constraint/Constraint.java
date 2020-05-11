@@ -3,6 +3,9 @@ package net.benorourke.stocks.framework.collection.constraint;
 import net.benorourke.stocks.framework.collection.Query;
 import net.benorourke.stocks.framework.exception.ConstraintException;
 
+/**
+ * An interface that states a reason why a DataSource would not be able to collect based on a given Query.
+ */
 public interface Constraint
 {
 

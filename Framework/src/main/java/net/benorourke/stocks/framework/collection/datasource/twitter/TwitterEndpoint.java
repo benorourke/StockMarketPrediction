@@ -32,37 +32,53 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * An abstract DataSource for the Official Twitter API Endpoint(s).
+ *
+ * Numerous endpoints can be used, which is specified in the constructor using {@link EndpointType}.
+ */
 public abstract class TwitterEndpoint extends DataSource<Document>
 {
+    /** The language to query for. */
     private static final String LANG = "en";
+    /** The format to request data within a given timeframe in. */
     private static final DateFormat SINCE_UNTIL_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
+    /** The format that dates of tweets in a TwitterAPI response are in. */
     private static final DateFormat RESPONSE_DATE_FORMAT = new SimpleDateFormat("EEE MMM dd HH:mm:ss ZZZZZ yyyy");
 
+    /** The type of endpoint for this instance. */
     private final EndpointType type;
 
     @CollectionVariable(name = "Consumer Key",
                         type = CollectionVariable.Type.STRING,
                         prompt = "API Key")
-    private String consumerKey;
+    private String apiKey;
     @CollectionVariable(name = "Consumer Secret",
                         type = CollectionVariable.Type.STRING,
                         prompt = "API Secret Key")
-    private String consumerSecret;
+    private String apiSecret;
+    @CollectionVariable(name = "Access Token",
+                        type = CollectionVariable.Type.STRING,
+                        prompt = "Access Token")
+    private String accessToken;
+    @CollectionVariable(name = "Access Token Secret",
+                        type = CollectionVariable.Type.STRING,
+                        prompt = "Access Token Secret")
+    private String accessTokenSecret;
     @CollectionVariable(name = "Query",
                         type = CollectionVariable.Type.STRING,
                         prompt = "English Tweets Containing")
     private String query;
     @CollectionVariable(name = "Tweets per Day",
                         type = CollectionVariable.Type.INTEGER,
-                        prompt = "Max 100",
-                        validators = {})
+                        prompt = "Max 100")
     private int elementsPerDay;
 
-    public static final String apiKey = "F5eGt12ivPWYFDvPTSgjCy60M";
-    public static final String apiSecret = "WtSjuel0VsK03hbBDP9gEzIXNPsuRp0RFUtmYF180atfu4jZPl";
-    public static final String accessToken = "1257440547033284608-ITOKERP6rRTaZK72lfjkvySMyEbSyD";
-    public static final String accessTokenSecret = "bXNyHNaNxcV6sGySvwbHsFFmM9jHRBDr9hAiG9G4Q8uc3";
-
+    /**
+     * Create a new instance.
+     *
+     * @param type the endpoint to use for this instance
+     */
     public TwitterEndpoint(EndpointType type)
     {
         super("Twitter: " + type.getLocale());
@@ -71,6 +87,11 @@ public abstract class TwitterEndpoint extends DataSource<Document>
         this.elementsPerDay = 100;
     }
 
+    /**
+     * Get the base URL of this endpoint.
+     *
+     * @return the base URL
+     */
     public abstract String getBaseUrl();
 
     @Override
@@ -88,6 +109,7 @@ public abstract class TwitterEndpoint extends DataSource<Document>
     @Override
     public Constraint[] getConstraints()
     {
+        // If the endpoint does not have access to the full archive, we must apply the age constraint
         return type.getAgeConstraint() == null
                     ? new Constraint[0]
                     : new Constraint[] { type.getAgeConstraint() };
@@ -103,8 +125,8 @@ public abstract class TwitterEndpoint extends DataSource<Document>
     public CollectionFilter<Document> newDefaultCollectionFilter()
     {
         /**
-         * No default collection filter - Twitter will allow for complex search results that may not necessarily be
-         * in the order of what we searched.
+         * No default collection filter - Twitter will allow for complex search results containing the search term
+         * we requested so we might as well use this.
          */
         return data -> false;
     }
@@ -114,30 +136,33 @@ public abstract class TwitterEndpoint extends DataSource<Document>
     {
         checkConstraintsOrThrow(query);
 
-        List<Document> result = new ArrayList<>();
-
+        // Request OAuth authentication using the details provided
         OAuthConsumer consumer = new CommonsHttpOAuthConsumer(apiKey, apiSecret);
         consumer.setTokenWithSecret(accessToken, accessTokenSecret);
 
+        // Create the URL Request for the endpoint that data will be retrieved from
         String since = SINCE_UNTIL_DATE_FORMAT.format(query.getFrom());
         String until = SINCE_UNTIL_DATE_FORMAT.format(query.getTo());
-
         String url = getBaseUrl() + buildUrlExtension(since, until, elementsPerDay);
         Framework.info("Connecting to " + url);
-        HttpGet request = new HttpGet(url);
 
+        List<Document> result = new ArrayList<>();
         try
         {
+            HttpGet request = new HttpGet(url);
+            // Sign the GET request with the authentication
             consumer.sign(request);
             HttpClient client = new DefaultHttpClient();
+            // Get the response
             HttpResponse response = client.execute(request);
             String responseToString = EntityUtils.toString(response.getEntity(), "UTF-8");
 
+            // Parse the response using JSON
             JsonObject json = new Gson().fromJson(responseToString, JsonObject.class);
             JsonArray tweets = json.getAsJsonArray("statuses");
             Framework.info("Number of tweets received: " + tweets.size());
 
-            int ind = 0;
+            // Populate the response with the deserialized tweets
             for (JsonElement element : tweets)
             {
                 JsonObject obj = element.getAsJsonObject();
@@ -158,6 +183,14 @@ public abstract class TwitterEndpoint extends DataSource<Document>
         return result;
     }
 
+    /**
+     * Create the URL extension parameters to connect to.
+     *
+     * @param from when to collect tweets from
+     * @param until when to collect tweets until
+     * @param count the number of tweets to connect
+     * @return the URL extension parameters
+     */
     private String buildUrlExtension(String from, String until, int count)
     {
         return ("?q=" + StringUtil.encodeUrlParam(query))

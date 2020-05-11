@@ -6,6 +6,10 @@ import net.benorourke.stocks.framework.collection.session.DailyCollectionSession
 import net.benorourke.stocks.framework.collection.session.filter.CollectionFilter;
 import net.benorourke.stocks.framework.series.data.impl.Document;
 
+/**
+ * A simple wrapper class for the DailyCollectionSession, which doesn't extend APICollectionSession, therefore must
+ * be wrapped.
+ */
 public class NewsAPICollectionSession extends APICollectionSession<Document>
 {
     // Wrap the object here

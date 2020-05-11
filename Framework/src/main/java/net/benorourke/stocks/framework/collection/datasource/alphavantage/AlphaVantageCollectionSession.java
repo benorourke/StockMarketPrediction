@@ -6,9 +6,8 @@ import net.benorourke.stocks.framework.collection.session.filter.CollectionFilte
 import net.benorourke.stocks.framework.series.data.impl.StockQuote;
 
 /**
- * Session only runs once since AlphaVantage returns enough feedforward in one API call.
- *
- * TODO - API key cycling
+ * A simple APICollectionSession; the collection task only runs once since AlphaVantage returns all of the required
+ * data in one call.
  */
 public class AlphaVantageCollectionSession extends APICollectionSession<StockQuote>
 {
