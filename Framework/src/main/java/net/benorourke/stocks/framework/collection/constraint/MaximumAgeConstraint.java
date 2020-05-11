@@ -6,19 +6,29 @@ import net.benorourke.stocks.framework.exception.ConstraintException;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * A Constraint that states that the from date of the Query must be before a given date relative to the current time.
+ */
 public class MaximumAgeConstraint implements Constraint
 {
-    private long maximumTimeMs;
+    private final long maximumTimeMs;
 
     /**
-     * Constructor
-     * @param maximumTimeMs
+     * Create a new instance.
+     *
+     * @param maximumTimeMs the maximum time, in milliseconds, from the current date that the from date of a query
+     *                      can be
      */
     public MaximumAgeConstraint(long maximumTimeMs)
     {
         this.maximumTimeMs = maximumTimeMs;
     }
 
+    /**
+     * Create a new instance.
+     *
+     * @param maximumTimeDays the maximum time, in days, from the current date that the from date of a query can be
+     */
     public MaximumAgeConstraint(int maximumTimeDays)
     {
         this(TimeUnit.DAYS.toMillis(maximumTimeDays));
@@ -32,9 +42,9 @@ public class MaximumAgeConstraint implements Constraint
     }
 
     /**
-     * Dynamically create a Date as we want to get the maximum Date relative to the current.
+     * Dynamically create a Date relative to the current time based on the maximum amount of allowed time.
      *
-     * @return
+     * @return the furthest away Date that will not throw a ConstraintException
      */
     private Date getMaximumDate()
     {

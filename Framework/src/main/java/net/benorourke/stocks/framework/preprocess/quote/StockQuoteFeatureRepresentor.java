@@ -8,7 +8,7 @@ import net.benorourke.stocks.framework.series.data.impl.StockQuoteDataType;
 import java.util.List;
 
 /**
- * A simple representor that will use every {@link#StockQuoteDataType}
+ * A simple representor that will use every StockQuoteDataType
  */
 public class StockQuoteFeatureRepresentor implements FeatureRepresentor<StockQuote>
 {

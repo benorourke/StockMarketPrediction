@@ -15,6 +15,8 @@ import net.benorourke.stocks.framework.collection.Query;
 import net.benorourke.stocks.framework.collection.datasource.DataSource;
 import net.benorourke.stocks.framework.collection.datasource.variable.CollectionVariable;
 import net.benorourke.stocks.framework.collection.session.filter.CollectionFilter;
+import net.benorourke.stocks.framework.exception.ConstraintException;
+import net.benorourke.stocks.framework.exception.FailedCollectionException;
 import net.benorourke.stocks.framework.exception.TaskStartException;
 import net.benorourke.stocks.framework.series.TimeSeries;
 import net.benorourke.stocks.framework.series.TimeSeriesManager;
@@ -22,6 +24,7 @@ import net.benorourke.stocks.framework.series.data.Data;
 import net.benorourke.stocks.framework.series.data.DataType;
 import net.benorourke.stocks.framework.series.data.impl.Document;
 import net.benorourke.stocks.framework.series.data.impl.StockQuote;
+import net.benorourke.stocks.framework.thread.collection.CollectionExceptionHook;
 import net.benorourke.stocks.framework.thread.collection.CollectionTask;
 import net.benorourke.stocks.framework.util.Nullable;
 import net.benorourke.stocks.framework.util.Tuple;
@@ -45,7 +48,7 @@ import static net.benorourke.stocks.userinterface.StockApplication.runUIThread;
 import static net.benorourke.stocks.userinterface.scene.dashboard.DashboardController.GENERIC_INPUT_FIELD_FXML;
 import static net.benorourke.stocks.userinterface.scene.dashboard.DashboardController.GENERIC_INPUT_FIELD_WIDTH_BIND_COEFF;
 
-public class CollectionPaneHandler extends PaneHandler
+public class CollectionPaneHandler extends PaneHandler implements CollectionExceptionHook
 {
     // Collect Data
     private final JFXComboBox collectionCollectSourceComboBox;
@@ -219,7 +222,24 @@ public class CollectionPaneHandler extends PaneHandler
     private <T extends Data> CollectionTask<T> createCollectionTask(DataSource<T> source, Query query,
                                                                     CollectionFilter<T> collectionFilter)
     {
-        return new CollectionTask<>(source, source.newSession(query, collectionFilter));
+        // We'll use the pane handler as an exception hook so we can display popups
+        return new CollectionTask<>(source, source.newSession(query, collectionFilter), this);
+    }
+
+    @Override
+    public void onCollectionException(FailedCollectionException exception)
+    {
+        runUIThread(() -> controller.snackbar(Controller.SnackbarType.ERROR,
+                                        "Unable to collect data from " + exception.getSource().getName()
+                                                    + ":\n" + exception.getMessage()));
+    }
+
+    @Override
+    public void onConstraintException(ConstraintException exception)
+    {
+        runUIThread(() -> controller.snackbar(Controller.SnackbarType.ERROR,
+                                      "Unable to collect data, the following constraint is violated"
+                                                    + ":\n " + exception.getMessage()));
     }
 
     private <T extends Data> void beginCollectionTask(Framework framework, CollectionTask<T> task, TimeSeries series,
@@ -348,4 +368,6 @@ public class CollectionPaneHandler extends PaneHandler
         return new Tuple<>( (from == null) ? null : Date.from(from.atStartOfDay(ZoneId.systemDefault()).toInstant()),
                 (to == null)   ? null : Date.from(to.atStartOfDay(ZoneId.systemDefault()).toInstant()));
     }
+
+
 }

@@ -138,7 +138,7 @@ public class TrainingPaneHandler extends PaneHandler
                 }
 
                 // So that we can have the correct number of inputs, outputs, etc.
-                ModelHandler instance = creator.createFromDataset(processed);
+                ModelHandler instance = creator.createFromDataset(-1, processed);
                 ModelParameters config = instance.getConfiguration();
 
                 inflateInputFieldAsync(0, "Model Name", "Enter Name", null, false);
@@ -216,6 +216,17 @@ public class TrainingPaneHandler extends PaneHandler
             return;
         }
 
+        long seed;
+        try
+        {
+            seed = Long.parseLong(trainSeed.getText());
+        }
+        catch (NumberFormatException ignored)
+        {
+            controller.snackbar(Controller.SnackbarType.ERROR, "Unable to parse random seed as long");
+            return;
+        }
+
         ModelHandlerManager.RuntimeCreator creator = model.getCurrentlySelectedModelHandlerCreator();
         // We could create from either parameters or dataset here, but we'll use parameters since the dynamic
         // values such as number of model inputs/outputs are already stored within the FX input fields.
@@ -223,7 +234,7 @@ public class TrainingPaneHandler extends PaneHandler
         // The ModelHandler should have also populated the parameters object with missing default values;
         // which we can change.
         ModelParameters configuration = new ModelParameters();
-        ModelHandler handlerInstance = creator.createFromParameters(configuration);
+        ModelHandler handlerInstance = creator.createFromParameters(seed, configuration);
         // Now to modify all the parameters based on the FX input fields
         for (int i = 0; i < creator.getRequiredParameters().size(); i ++)
         {
@@ -246,16 +257,7 @@ public class TrainingPaneHandler extends PaneHandler
         // We can now use our ModelHandler to train the model
         Tuple<Boolean, Double> splitAt = getSplitAt();
         if (!splitAt.getA()) return;
-
-        try
-        {
-            long seed = Long.parseLong(trainSeed.getText());
-            beginTraining(series, handlerInstance, modelName, splitAt.getB(), seed);
-        }
-        catch (NumberFormatException ignored)
-        {
-            controller.snackbar(Controller.SnackbarType.ERROR, "Unable to parse random seed as long");
-        }
+        beginTraining(series, handlerInstance, modelName, splitAt.getB(), seed);
     }
 
     private void beginTraining(TimeSeries series, ModelHandler handler, String name, double splitAt, long seed)

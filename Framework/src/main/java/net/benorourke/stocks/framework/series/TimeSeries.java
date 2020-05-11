@@ -6,6 +6,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+/**
+ * The instance of a time series that data is being collected for.
+ */
 public class TimeSeries
 {
     private final UUID id;
@@ -16,6 +19,15 @@ public class TimeSeries
      */
     private Map<Class<? extends DataSource>, Integer> rawDataCounts;
 
+    /**
+     * Create a new instance.
+     *
+     * @param id it's unique identifier
+     * @param name the name of the time series
+     * @param stock the ticker for this time series
+     * @param rawDataCounts the map of data sources against the total number of data it has stored within for this time
+     *                      series
+     */
     public TimeSeries(UUID id, String name, String stock, Map<Class<? extends DataSource>, Integer> rawDataCounts)
     {
         this.id = id;
@@ -24,6 +36,12 @@ public class TimeSeries
         this.rawDataCounts = rawDataCounts;
     }
 
+    /**
+     * Create a new instance.
+     *
+     * @param name the name of the time series
+     * @param stock the ticker for this time series
+     */
     public TimeSeries(String name, String stock)
     {
         this(UUID.randomUUID(), name, stock, new HashMap<>());

@@ -1,18 +1,14 @@
 package net.benorourke.stocks.framework.collection.datasource.alphavantage;
 
 import net.benorourke.stocks.framework.collection.Query;
-import net.benorourke.stocks.framework.collection.session.APICollectionSession;
 import net.benorourke.stocks.framework.collection.session.filter.CollectionFilter;
-import net.benorourke.stocks.framework.exception.ConstraintException;
-import net.benorourke.stocks.framework.exception.FailedCollectionException;
 import net.benorourke.stocks.framework.series.data.impl.StockQuote;
 
 /**
- * Session only runs once since AlphaVantage returns enough feedforward in one API call.
- *
- * TODO - API key cycling
+ * A simple APICollectionSession; the collection task only runs once since AlphaVantage returns all of the required
+ * data in one call.
  */
-public class AlphaVantageCollectionSession extends APICollectionSession<StockQuote>
+public class AlphaVantageCollectionSession extends net.benorourke.stocks.framework.collection.session.CollectionSession<StockQuote>
 {
     private final Query completeQuery;
     private boolean done;
@@ -48,18 +44,6 @@ public class AlphaVantageCollectionSession extends APICollectionSession<StockQuo
     public int remaining()
     {
         return done ? 0 : 1;
-    }
-
-    @Override
-    public void onCollectionException(FailedCollectionException exception)
-    {
-        // TODO
-    }
-
-    @Override
-    public void onConstraintException(ConstraintException exception)
-    {
-        // TODO
     }
 
 }

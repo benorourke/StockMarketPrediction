@@ -3,9 +3,18 @@ package net.benorourke.stocks.framework.model;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * An storage struct to be produced when evaluating a model.
+ *
+ * This allows for visual representations of a model's predictions
+ */
 public class ModelEvaluation
 {
     private double score;
+    /**
+     * Predictions to be made based on training data may also show insight into the model.if there is not enough
+     * data.
+     */
     private final List<Prediction> trainingPredictions;
     private final List<Prediction> testingPredictions;
 
@@ -31,6 +40,9 @@ public class ModelEvaluation
         return testingPredictions;
     }
 
+    /**
+     * A struct for actual labels mapped against the predicted labels on a given date.
+     */
     public static class Prediction
     {
         private Date date;

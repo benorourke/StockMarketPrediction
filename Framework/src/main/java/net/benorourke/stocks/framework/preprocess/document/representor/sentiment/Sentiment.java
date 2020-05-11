@@ -1,7 +1,5 @@
 package net.benorourke.stocks.framework.preprocess.document.representor.sentiment;
 
-import java.util.Arrays;
-
 public enum Sentiment
 {
     VERY_NEGATIVE,

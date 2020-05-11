@@ -10,16 +10,32 @@ import org.nd4j.linalg.factory.Nd4j;
 
 import java.util.*;
 
+/**
+ * The dataset that contains all features and labels mapped against each other.
+ */
 public class ProcessedDataset implements Iterable<ModelData>
 {
+    /** The representors that were used to extract features from documents. */
     private final List<FeatureRepresentor<CleanedDocument>> documentFeatureRepresentors;
+    /** The representors that were used to extract features from stock quotes. */
     private final List<FeatureRepresentor<StockQuote>> quoteFeatureRepresentors;
+    /** The number of features & labels for each datapoint. */
     private final int numFeatures, numLabels;
+    /** The data itself */
     private final List<ModelData> data;
 
     // Have to be manually calculated; can't calculate on the fly if we normalise
     private double[] featureMinimums, featureMaximums;
 
+    /**
+     * Create a new instance.
+     *
+     * @param documentFeatureRepresentors
+     * @param quoteFeatureRepresentors
+     * @param numFeatures
+     * @param numLabels
+     * @param data
+     */
     public ProcessedDataset(List<FeatureRepresentor<CleanedDocument>> documentFeatureRepresentors,
                             List<FeatureRepresentor<StockQuote>> quoteFeatureRepresentors,
                             int numFeatures, int numLabels, List<ModelData> data)
@@ -31,6 +47,14 @@ public class ProcessedDataset implements Iterable<ModelData>
         this.data = data;
     }
 
+    /**
+     * Create a new instance with no datapoints.
+     *
+     * @param documentFeatureRepresentors
+     * @param quoteFeatureRepresentors
+     * @param numFeatures
+     * @param numLabels
+     */
     public ProcessedDataset(List<FeatureRepresentor<CleanedDocument>> documentFeatureRepresentors,
                             List<FeatureRepresentor<StockQuote>> quoteFeatureRepresentors,
                             int numFeatures, int numLabels)
@@ -55,7 +79,10 @@ public class ProcessedDataset implements Iterable<ModelData>
     }
 
     /**
-     * Normalise the features based on the minimums & maximums provided.
+     * Normalise the features by specifying the minimums & maximums.
+     *
+     * @param featureMinimums the minimum values for each feature
+     * @param featureMaximums the maximum values for each feature
      */
     public void normalise(double[] featureMinimums, double[] featureMaximums)
     {
@@ -66,11 +93,10 @@ public class ProcessedDataset implements Iterable<ModelData>
                 double unnormalised = modelData.getFeatures()[i];
 
                 if (featureMinimums[i] == featureMaximums[i]) // Prevent dividing by zero
-                {
                     modelData.getFeatures()[i] = 0.0D;
-                }
                 else
                 {
+                    // Safely normalise the features
                     double normalised = (unnormalised - featureMinimums[i])
                                             / (featureMaximums[i] - featureMinimums[i]);
                     modelData.getFeatures()[i] = normalised;
@@ -79,21 +105,25 @@ public class ProcessedDataset implements Iterable<ModelData>
         }
     }
 
+    /**
+     * Normalise the features using the cached minimum & maximum features.
+     *
+     * Note: {@link #calculateFeatureMinsMaxes()} must be called at least once before calling this.
+      */
     public void normalise()
     {
         normalise(this.featureMinimums, this.featureMaximums);
     }
 
     /**
-     * @return [0] = minimums for each feature, [1] = maximums for each feature
+     * Calculate and cache internally the minimum & maximum values for each feature.
      */
     public void calculateFeatureMinsMaxes()
     {
-        Framework.debug("Calculating Feature Mins/Maxes (" + numFeatures + ", " + numLabels + ")");
-
         featureMinimums = featureMaximums = null;
         for (ModelData elem : data)
         {
+            // Set the mins & maxes to the first element
             if (featureMinimums == null)
             {
                 featureMinimums = Arrays.copyOf(elem.getFeatures(), numFeatures);
@@ -101,6 +131,7 @@ public class ProcessedDataset implements Iterable<ModelData>
                 continue;
             }
 
+            // Deduce whether the features of this datapoint are either maximums / minimums
             double[] features = elem.getFeatures();
             for (int i = 0; i < numFeatures; i ++)
             {
@@ -111,36 +142,26 @@ public class ProcessedDataset implements Iterable<ModelData>
             }
         }
 
-        for (ModelData elem : data)
-        {
-            StringBuilder SB = new StringBuilder();
-            for (double val : elem.getFeatures())
-                SB.append(val + ", ");
-            Framework.debug("Datapoint: " + SB.toString());
-        }
-
-        StringBuilder SB = new StringBuilder();
-        for (double val : featureMaximums)
-            SB.append(val + ", ");
-        Framework.debug("Maximums: " + SB.toString());
-
-        StringBuilder SB2 = new StringBuilder();
-        for (double val : featureMinimums)
-            SB2.append(val + ", ");
-        Framework.debug("Minimums: " + SB2.toString());
-
-        Framework.debug("Calculated Feature Mins/Maxes");
+        Framework.info("Calculated Feature Mins/Maxes");
     }
 
+    /**
+     * Shuffle the elements within the dataset to ensure stochastic behaviour.
+     *
+     * @param seed the seed by which to randomise
+     */
     public void shuffle(long seed)
     {
         Collections.shuffle(data, new Random(seed));
     }
 
     /**
+     * Split a dataset based on a ratio. A list containing two new instances of split datasets.
+     *
+     * If the cardinality is < 2, null will be returned.
      *
      * @param splitRatio 0.6 would mean 60% in the first list, 40% in the second
-     * @return
+     * @return the split datasets
      */
     public List<ProcessedDataset> split(double splitRatio)
     {
@@ -151,9 +172,9 @@ public class ProcessedDataset implements Iterable<ModelData>
         if (cardinality == 2)
             index = 0;
         else
-            index = (int) Math.round((cardinality - 1) * splitRatio);
+            index = (int) Math.floor((cardinality - 1) * splitRatio);
 
-        Framework.debug("[ProcessedDataset] Splitting @" + index + " (cardinality=" + cardinality + ')');
+        Framework.info("[ProcessedDataset] Splitting @" + index + " (cardinality=" + cardinality + ')');
 
         List<ProcessedDataset> datasets = new ArrayList<>();
         datasets.add(new ProcessedDataset(documentFeatureRepresentors, quoteFeatureRepresentors,
@@ -163,6 +184,12 @@ public class ProcessedDataset implements Iterable<ModelData>
         return datasets;
     }
 
+    /**
+     * Convert this object to a DataSet that can be used to train models in DeepLearning4J.
+     *
+     * @param seed the seed by which to shuffle
+     * @return the resulting dataset
+     */
     public DataSet toDataSet(long seed)
     {
         int size = size();

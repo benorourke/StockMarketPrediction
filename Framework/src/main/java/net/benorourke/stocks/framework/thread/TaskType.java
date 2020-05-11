@@ -1,5 +1,9 @@
 package net.benorourke.stocks.framework.thread;
 
+
+/**
+ * Interface rather than enum so custom Tasks can be created at runtime.
+ */
 public interface TaskType
 {
     TaskType COLLECTION = new TaskType()

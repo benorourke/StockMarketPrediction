@@ -1,5 +1,10 @@
 package net.benorourke.stocks.framework.util;
 
+/**
+ * A simple wrapper class for storing two objects together
+ * @param <K> type of the first object
+ * @param <V> type of the second object
+ */
 public class Tuple<K, V>
 {
     private K a;

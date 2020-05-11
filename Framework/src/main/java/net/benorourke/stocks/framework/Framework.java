@@ -23,7 +23,6 @@ import net.benorourke.stocks.framework.persistence.gson.model.ProcessedDatasetAd
 import net.benorourke.stocks.framework.preprocess.FeatureRepresentorManager;
 import net.benorourke.stocks.framework.preprocess.document.representor.sentiment.BinarySentimentFeatureRepresentor;
 import net.benorourke.stocks.framework.preprocess.document.representor.sentiment.NormalisedSentimentFeatureRepresentor;
-import net.benorourke.stocks.framework.preprocess.document.representor.sentiment.SentimentFeatureRepresentor;
 import net.benorourke.stocks.framework.preprocess.document.representor.topterm.TopTermFeatureRepresentor;
 import net.benorourke.stocks.framework.preprocess.quote.StockQuoteFeatureRepresentor;
 import net.benorourke.stocks.framework.series.TimeSeries;
@@ -44,6 +43,7 @@ public class Framework implements Initialisable
 {
     private static final Logger logger;
 
+    /** The framework-wide instance of gson used for serialization. */
     private final Gson gson;
 
     private final FileManager fileManager;
@@ -58,6 +58,11 @@ public class Framework implements Initialisable
         logger = LoggerFactory.getLogger(Framework.class);
     }
 
+    /**
+     * Create a new instance with a specified configuration.
+     *
+     * @param config the configuration
+     */
     public Framework(Configuration config)
     {
         GsonBuilder builder = new GsonBuilder()
@@ -78,7 +83,8 @@ public class Framework implements Initialisable
                                         .forEach(e -> builder.registerTypeAdapter(e.getKey(), e.getValue()));
         gson = builder.create();
 
-        // Inject any additional, custom VariableValidators for new DataSources
+        // Inject any additional, custom VariableValidators for new DataSources.
+        // This must happen before the DataSources are instantiated
         for (Map.Entry<String, VariableValidator> entry : config.getCollectionValidators().entrySet())
             Validators.inject(entry.getKey(), entry.getValue());
 
@@ -90,6 +96,9 @@ public class Framework implements Initialisable
         modelHandlerManager = new ModelHandlerManager();
     }
 
+    /**
+     * Create a new instance with the default configuration.
+     */
     public Framework()
     {
         this(new Configuration());

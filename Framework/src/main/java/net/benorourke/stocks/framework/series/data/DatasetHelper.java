@@ -1,6 +1,5 @@
 package net.benorourke.stocks.framework.series.data;
 
-import net.benorourke.stocks.framework.series.data.impl.CleanedDocument;
 import net.benorourke.stocks.framework.series.data.impl.ProcessedDocument;
 import net.benorourke.stocks.framework.series.data.impl.StockQuote;
 import net.benorourke.stocks.framework.util.DateUtil;
@@ -9,6 +8,9 @@ import net.benorourke.stocks.framework.util.Tuple;
 
 import java.util.*;
 
+/**
+ * A helper class for handling datasets.
+ */
 public class DatasetHelper
 {
 
@@ -16,8 +18,9 @@ public class DatasetHelper
 
     /**
      * Adds documents on Saturday / Sunday to the documents on Monday; stock exchanges aren't open on a weekend.
-     * @param data
-     * @return
+     *
+     * @param data the data to scan
+     * @return the cloned map with all data on weekends shifted to a monday
      */
     public static <T extends Data> Map<Date, List<T>> handleWeekends(Map<Date, List<T>> data)
     {
@@ -47,6 +50,14 @@ public class DatasetHelper
         return weekdaysOnly;
     }
 
+    /**
+     * Check a dataset for any missing datatypes
+     *
+     * @param data the data
+     * @param types the types
+     * @param <T> the type of data
+     * @return
+     */
     public static <T extends Data> Map<Date, List<DataType>> checkMissingDataTypes(
                                                                 Map<Date, List<T>> data, DataType... types)
     {
@@ -75,6 +86,12 @@ public class DatasetHelper
         return false;
     }
 
+    /**
+     * Combine two separate lists of data and map them onto days.
+     *
+     * @param data
+     * @return
+     */
     public static Map<Date, List<Data>> combine(Tuple<List<ProcessedDocument>, List<StockQuote>> data)
     {
         Map<Date, List<Data>> combined = new LinkedHashMap<>();
@@ -83,6 +100,12 @@ public class DatasetHelper
         return combined;
     }
 
+    /**
+     * Combine two separate lists of data and map them onto days.
+     *
+     * @param data
+     * @return
+     */
     private static <T extends Data> void combine(Map<Date, List<Data>> combined, List<T> data)
     {
         for (T elem : data)

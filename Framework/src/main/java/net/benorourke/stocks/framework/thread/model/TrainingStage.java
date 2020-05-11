@@ -1,7 +1,5 @@
 package net.benorourke.stocks.framework.thread.model;
 
-import net.benorourke.stocks.framework.thread.preprocessing.PreprocessingStage;
-
 public enum TrainingStage
 {
     CREATE,

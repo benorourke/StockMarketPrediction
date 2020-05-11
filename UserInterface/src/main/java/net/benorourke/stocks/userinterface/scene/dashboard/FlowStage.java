@@ -12,7 +12,7 @@ public enum FlowStage
 {
     COLLECTING_AND_INJECTING(""),
     PRE_PROCESSED("You must pre-process data before you can do this!"),
-    TRAINING_AND_EVALUATING_MODELS("You must pre-process data before training/evaluating models.");
+    TRAINING_AND_EVALUATING_MODELS("You must train a model before evaluating them!");
 
     private final String errorMessage;
 

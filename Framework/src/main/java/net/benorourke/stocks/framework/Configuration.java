@@ -8,20 +8,20 @@ import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Specifies the runtime configuration for the {@link Framework}.
+ */
 public class Configuration
 {
+    /** The file storage directory. */
     private File workingDirectory;
-    /**
-     * How many threads to maintain in the pool to carry out tasks.
-     */
+    /** How many threads to maintain in the pool to carry out tasks. */
     private int taskPoolSize;
-    /**
-     * Custom GSON Adaptersif the user is creating custom serializable objects.
-     */
+    /** Custom GSON Adaptersif the user is creating custom serializable objects. */
     private Map<Type, Object> gsonTypeAdapters;
     /**
      * If injecting a new type of DataSource that requires custom variable validators, put them into this map
-     * and they'll be injected into the map within {@link net.benorourke.stocks.framework.collection.datasource.variable.Validators#VALIDATORS}.
+     * and they'll be injected into the map within {@link net.benorourke.stocks.framework.collection.datasource.variable.Validators#inject(String, VariableValidator)}.
      */
     private Map<String, VariableValidator> collectionValidators;
 

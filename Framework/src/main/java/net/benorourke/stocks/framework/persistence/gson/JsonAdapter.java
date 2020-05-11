@@ -4,6 +4,11 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonSerializer;
 
+/**
+ * The base class for all GSON serialization/deserialization adapters.
+ *
+ * @param <T> the type being serialized
+ */
 public abstract class JsonAdapter<T> implements JsonSerializer<T>, JsonDeserializer<T>
 {
 

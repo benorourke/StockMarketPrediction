@@ -2,6 +2,9 @@ package net.benorourke.stocks.framework.model;
 
 import java.util.Date;
 
+/**
+ * A storage struct for features mapped against labels on a given day.
+ */
 public class ModelData
 {
     private final Date date;

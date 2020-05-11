@@ -4,6 +4,9 @@ import net.benorourke.stocks.framework.series.data.DataType;
 
 import java.util.List;
 
+/**
+ * Exception thrown when pre-processing is attempted with insufficient data present.
+ */
 public class InsuficcientRawDataException extends Exception
 {
     private final List<DataType> missingTypes;

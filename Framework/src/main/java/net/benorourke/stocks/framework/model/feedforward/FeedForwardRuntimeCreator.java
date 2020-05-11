@@ -17,15 +17,15 @@ public class FeedForwardRuntimeCreator implements ModelHandlerManager.RuntimeCre
     }
 
     @Override
-    public FeedForwardModelHandler createFromParameters(ModelParameters parameters)
+    public FeedForwardModelHandler createFromParameters(long seed, ModelParameters parameters)
     {
-        return new FeedForwardModelHandler(parameters);
+        return new FeedForwardModelHandler(seed, parameters);
     }
 
     @Override
-    public FeedForwardModelHandler createFromDataset(ProcessedDataset dataset)
+    public FeedForwardModelHandler createFromDataset(long seed, ProcessedDataset dataset)
     {
-        return new FeedForwardModelHandler(dataset.getNumFeatures(),
+        return new FeedForwardModelHandler(seed, dataset.getNumFeatures(),
                                            FeedForwardModelHandler.HYPERPARAMETER_HIDDEN_NODES_DEFAULT,
                                            dataset.getNumLabels());
     }

@@ -2,6 +2,9 @@ package net.benorourke.stocks.framework.exception;
 
 import net.benorourke.stocks.framework.thread.Task;
 
+/**
+ * Exception thrown when a task cannot start because a clashing task is blocking it.
+ */
 public class TaskStartException extends Exception
 {
     private final Task triedToSchedule;

@@ -1,6 +1,5 @@
 package net.benorourke.stocks.framework.model.feedforward;
 
-import net.benorourke.stocks.framework.Framework;
 import net.benorourke.stocks.framework.model.PredictionModel;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.nd4j.linalg.api.ndarray.INDArray;
@@ -9,6 +8,9 @@ import org.nd4j.linalg.dataset.DataSet;
 import java.io.File;
 import java.io.IOException;
 
+/**
+ * A simple wrapper class for the DeepLearning4J MultiLayerNetwork class.
+ */
 public class FeedForwardModel extends PredictionModel
 {
     private final MultiLayerNetwork network;
@@ -28,6 +30,12 @@ public class FeedForwardModel extends PredictionModel
         return network.output(input);
     }
 
+    /**
+     * Write the model to file
+     *
+     * @param file the file
+     * @throws IOException exception thrown while doing so
+     */
     public void save(File file) throws IOException
     {
         if (file.exists())

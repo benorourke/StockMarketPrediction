@@ -28,10 +28,12 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
+/**
+ * Handler for Feed Forward Models with 1 Hidden Layer.
+ */
 public class FeedForwardModelHandler extends ModelHandler<FeedForwardModel>
 {
-    private static final long SEED = 0;
-
+    /** A list of the hyper-parameters required to train a feedforward model. */
     public static final List<HyperParameter> REQUIRED_HYPERPARAMETERS;
     public static final String HYPERPARAMETER_INPUT_NODES = "Input Nodes";
     public static final String HYPERPARAMETER_HIDDEN_NODES = "Hidden Nodes";
@@ -41,23 +43,41 @@ public class FeedForwardModelHandler extends ModelHandler<FeedForwardModel>
     static
     {
         List<HyperParameter> list = new ArrayList<>();
-        list.add(new HyperParameter(HYPERPARAMETER_INPUT_NODES, false,0)); // Must be specified
+        // Input & Output nodes are specified by the number of features & labels within the dataset
+        list.add(new HyperParameter(HYPERPARAMETER_INPUT_NODES, false,0));
         list.add(new HyperParameter(HYPERPARAMETER_HIDDEN_NODES, true, HYPERPARAMETER_HIDDEN_NODES_DEFAULT));
-        list.add(new HyperParameter(HYPERPARAMETER_OUTPUT_NODES, false, 0)); // Must be specified
+        list.add(new HyperParameter(HYPERPARAMETER_OUTPUT_NODES, false, 0));
 
         REQUIRED_HYPERPARAMETERS = Collections.unmodifiableList(list);
     }
 
+    private final long seed;
     private final ModelParameters configuration;
 
-    protected FeedForwardModelHandler(ModelParameters configuration)
+    /**
+     * Create a new instance based on Model Parameters; missing parameters will have default values et.
+     *
+     * @param seed the seed for this handler
+     * @param configuration the parameters
+     */
+    protected FeedForwardModelHandler(long seed, ModelParameters configuration)
     {
+        this.seed = seed;
         this.configuration = configuration;
         configuration.setMissingDefaults(getRequiredHyperParameters());
     }
 
-    public FeedForwardModelHandler(int numInputs, int numHidden, int numOutputs)
+    /**
+     * Create a new instance of the FeedForwardModelHandler by manually specifying parameters.
+     *
+     * @param seed
+     * @param numInputs the number of features parameter
+     * @param numHidden  the number of hidden layers
+     * @param numOutputs  the number of labels parameter
+     */
+    public FeedForwardModelHandler(long seed, int numInputs, int numHidden, int numOutputs)
     {
+        this.seed = seed;
         configuration = new ModelParameters();
         configuration.set(HYPERPARAMETER_INPUT_NODES, numInputs);
         configuration.set(HYPERPARAMETER_HIDDEN_NODES, numHidden);
@@ -85,8 +105,9 @@ public class FeedForwardModelHandler extends ModelHandler<FeedForwardModel>
         int paramLabels = configuration.get(HYPERPARAMETER_OUTPUT_NODES);
 
         Framework.info("Creating Feed Forward Model with features " + paramFeatures + ", labels " + paramLabels);
+        // Create a FF-NN configuration with an stochastic gradient descent optimizer, Adam updater and 1 hidden layer
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
-                .seed(SEED)
+                .seed(seed)
                 .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
                 .updater(new Adam())
                 .l2(1e-4)
@@ -99,6 +120,7 @@ public class FeedForwardModelHandler extends ModelHandler<FeedForwardModel>
                         .nIn(paramHidden).nOut(paramLabels).build())
                 .build();
 
+        // Instantiate the network here
         MultiLayerNetwork net = new MultiLayerNetwork(conf);
         net.init();
         net.setListeners(new ScoreIterationListener(1));
@@ -109,7 +131,7 @@ public class FeedForwardModelHandler extends ModelHandler<FeedForwardModel>
     @Override
     public void train(FeedForwardModel model, ProcessedDataset corpus)
     {
-        DataSetIterator iterator = new ExistingDataSetIterator(Arrays.asList(corpus.toDataSet(SEED)));
+        DataSetIterator iterator = new ExistingDataSetIterator(Arrays.asList(corpus.toDataSet(seed)));
 
         //Number of epochs (full passes of the feedforward)
         final int nEpochs = 200;
@@ -132,10 +154,17 @@ public class FeedForwardModelHandler extends ModelHandler<FeedForwardModel>
         return new ModelEvaluation(getScore(trainedModel, testingData), trainingPredictions, testingPredictions);
     }
 
+    /**
+     * Get the RMSE for a testing data set.
+     *
+     * @param trainedModel the model
+     * @param testingData the testing data
+     * @return
+     */
     private double getScore(FeedForwardModel trainedModel, ProcessedDataset testingData)
     {
         RegressionEvaluation regressionEvaluation =  new RegressionEvaluation(configuration.get(HYPERPARAMETER_OUTPUT_NODES));
-        DataSet dataset = testingData.toDataSet(SEED);
+        DataSet dataset = testingData.toDataSet(seed);
         INDArray labels = dataset.getLabels();
         INDArray features = dataset.getFeatures();
         INDArray predicted = predict(trainedModel, features);
@@ -144,6 +173,13 @@ public class FeedForwardModelHandler extends ModelHandler<FeedForwardModel>
         return regressionEvaluation.rootMeanSquaredError(0);
     }
 
+    /**
+     * Get the predicted values for a given dataset.
+     *
+     * @param model the model
+     * @param data the dataset
+     * @return
+     */
     private List<ModelEvaluation.Prediction> getPredictions(FeedForwardModel model, ProcessedDataset data)
     {
         List<ModelEvaluation.Prediction> days = new ArrayList<>();
@@ -158,7 +194,6 @@ public class FeedForwardModelHandler extends ModelHandler<FeedForwardModel>
     @Override
     public double[] predictOne(FeedForwardModel trainedModel, double[] features)
     {
-        // TODO - Test
         double[][] inputMatrix = new double[][]{ features };
         return trainedModel.predict(Nd4j.create(inputMatrix)).getRow(0).toDoubleVector();
     }

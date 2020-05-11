@@ -31,8 +31,8 @@ public class StringUtil
      * Numbers are treated as lowercase letters.
      *
      * Examples:
-     * testValue -> [test, Value]   (formatWords=false)
-     * testValue -> [Test, Value]   (formatWords=true)
+     * testValue becomes [test, Value]   (formatWords=false)
+     * testValue becomes [Test, Value]   (formatWords=true)
      *
      * @param value
      * @param formatWords capitalise all first letters of words, leaving the rest lowercased

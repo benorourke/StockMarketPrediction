@@ -7,15 +7,26 @@ import java.util.UUID;
 import java.util.concurrent.ScheduledFuture;
 
 /**
- * Handles all the grizzly inner-workings of a Task implementation.
+ * A wrapper object for more easily identifying & handling Task implementations.
+ *
+ * This class ultimately abstracts a lot of the TaskManager away from creating tasks.
  */
 public class TaskWrapper implements Runnable
 {
+    /** The TaskManager handling this task. */
     private final TaskManager taskManager;
+    /** The ID of the task. */
     private final UUID id;
+    /** The task itself. */
     private final Task task;
+    /** The callback once the Task has been completed. */
     private final ResultCallback resultCallback;
 
+    /**
+     * The thread pool handle injected into the TaskWrapper once this TaskWrapper has been scheduled.
+     *
+     * This also allows for this TaskWrapper to be removed from the pool upon {@link Task#isFinished()}.
+     */
     @Nullable
     private ScheduledFuture handle;
 
@@ -27,12 +38,15 @@ public class TaskWrapper implements Runnable
         this.resultCallback = resultCallback;
     }
 
+    /**
+     * Handles calling the {@link Task#run()} function and also acts accordingly when it has finished.
+      */
     @ThreadSynchronised
     @Override
     public void run()
     {
         task.run();
-        if(task.isFinished())
+        if (task.isFinished())
             taskManager.onTaskFinished(this);
     }
 
@@ -74,6 +88,12 @@ public class TaskWrapper implements Runnable
         return handle != null;
     }
 
+    /**
+     * Inject the thread pool handle into this wrapper so that the TaskWrapper can be removed from the pool upon
+     * Task completion.
+     *
+     * @param handle the handle to inject
+     */
     public void setHandle(ScheduledFuture handle)
     {
         this.handle = handle;

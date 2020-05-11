@@ -1,7 +1,6 @@
 package net.benorourke.stocks.framework.thread;
 
-public class Result
-{
-    // TODO - Add some feedforward that specifies whether it was a success, etc.
-
-}
+/**
+ * A simple abstraction object to contain the result of a task.
+ */
+public class Result { }

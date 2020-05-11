@@ -3,7 +3,6 @@ package net.benorourke.stocks.framework.persistence.gson.data.representor;
 import com.google.gson.*;
 import net.benorourke.stocks.framework.Framework;
 import net.benorourke.stocks.framework.persistence.gson.JsonAdapter;
-import net.benorourke.stocks.framework.preprocess.document.representor.sentiment.SentimentFeatureRepresentor;
 import net.benorourke.stocks.framework.preprocess.document.representor.topterm.RelevancyMetric;
 import net.benorourke.stocks.framework.preprocess.document.representor.topterm.TopTermFeatureRepresentor;
 
@@ -37,10 +36,12 @@ public class TopTermFeatureRepresentorAdapter extends JsonAdapter<TopTermFeature
         String strMetricClazz = object.getAsJsonPrimitive("relevancyMetricClass").getAsString();
         try
         {
+            // Reflect the RelevancyMetric used by this top term feature representer
             Class<? extends RelevancyMetric> metricClazz = (Class<? extends RelevancyMetric>) Class.forName(strMetricClazz);
             RelevancyMetric relevancyMetric = metricClazz.newInstance();
             int maxTopTerms = object.getAsJsonPrimitive("maxTopTerms").getAsInt();
 
+            // Load all of the top terms for this top term representer
             JsonArray topTermsArray = object.getAsJsonArray("topTerms");
             String[] topTerms = new String[topTermsArray.size()];
             for (int i = 0; i < topTerms.length; i ++)
