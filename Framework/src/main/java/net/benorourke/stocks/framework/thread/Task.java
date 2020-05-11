@@ -1,5 +1,7 @@
 package net.benorourke.stocks.framework.thread;
 
+import net.benorourke.stocks.framework.util.Nullable;
+
 /**
  * A repeating task that can be scheduled through the {@link net.benorourke.stocks.framework.thread.TaskManager}.
  * @param <U> the type of TaskDescription for this task
@@ -43,6 +45,7 @@ public interface Task<U extends TaskDescription, S extends Result> extends Runna
      *
      * @return the result of the task
      */
+    @Nullable
     S getResult();
 
 }
