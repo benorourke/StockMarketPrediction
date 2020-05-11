@@ -1,4 +1,4 @@
-package net.benorourke.stocks.framework.net.benorourke.stocks.framework.preprocess.assignment;
+package net.benorourke.stocks.framework.preprocess.assignment;
 
 import net.benorourke.stocks.framework.preprocess.assignment.IgnorePolicy;
 import net.benorourke.stocks.framework.series.data.Data;
