@@ -6,8 +6,7 @@ import net.benorourke.stocks.framework.thread.*;
 
 import java.util.concurrent.TimeUnit;
 
-public class CountingTaskExample
-{
+public class CountingTaskExample {
 
     public static void main(String[] args)
     {
