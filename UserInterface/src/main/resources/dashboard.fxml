@@ -28,7 +28,7 @@
                <children>
                   <Label fx:id="headerLabel" prefHeight="137.0" prefWidth="218.0" styleClass="header" text="Stocks">
                      <font>
-                        <Font size="30.0" />
+                        <Font size="22.0" />
                      </font>
                      <padding>
                         <Insets left="15.0" />
