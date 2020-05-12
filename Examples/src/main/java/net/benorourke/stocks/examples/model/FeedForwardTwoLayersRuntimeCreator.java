@@ -27,6 +27,7 @@ public class FeedForwardTwoLayersRuntimeCreator implements ModelHandlerManager.R
     {
         return new FeedForwardTwoLayersModelHandler(seed, dataset.getNumFeatures(),
                                            FeedForwardTwoLayersModelHandler.HYPERPARAMETER_HIDDEN_NODES_1_DEFAULT,
+                                           FeedForwardTwoLayersModelHandler.HYPERPARAMETER_HIDDEN_NODES_2_DEFAULT,
                                            dataset.getNumLabels());
     }
 

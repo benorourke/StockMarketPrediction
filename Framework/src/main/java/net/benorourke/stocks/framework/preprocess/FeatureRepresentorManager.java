@@ -89,7 +89,7 @@ public class FeatureRepresentorManager implements Initialisable
         return missingDataPolicies;
     }
 
-    public class Metadata
+    public static class Metadata
     {
         private String name, description;
         /**
