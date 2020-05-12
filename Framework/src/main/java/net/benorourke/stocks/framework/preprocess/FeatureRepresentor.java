@@ -23,8 +23,6 @@ public interface FeatureRepresentor<T extends Data>
 
     /**
      * Called before each datapoint is individually represented.
-     *
-     * @param allData
      */
     void initialise(List<T> allData);
 

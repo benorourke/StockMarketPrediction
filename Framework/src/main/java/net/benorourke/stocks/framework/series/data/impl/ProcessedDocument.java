@@ -9,7 +9,7 @@ import java.util.Map;
 
 /**
  * A Document that has gone the pre-processing lifecycle:
- * Document -> Cleaned Document -> Processed Document
+ * Document to Cleaned Document to Processed Document
  *
  * Within it is stored all of the features to be used by a model.
  */

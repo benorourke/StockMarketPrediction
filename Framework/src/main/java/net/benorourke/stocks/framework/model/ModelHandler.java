@@ -45,7 +45,7 @@ public abstract class ModelHandler<T extends PredictionModel>
     public abstract void train(T model, ProcessedDataset corpus);
 
     /**
-     * Evaluate a trained model; creating an evaluation object based on training data & testing data.
+     * Evaluate a trained model by creating an evaluation object based on training data and testing data.
      *
      * @param trainedModel the model to evaluate
      * @param trainingData the training data

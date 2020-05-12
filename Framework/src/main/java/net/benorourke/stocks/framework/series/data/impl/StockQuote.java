@@ -55,12 +55,6 @@ public class StockQuote extends Data implements IdentifiableData
     /**
      * The constructor used when injecting StockQuotes dynamically through the UI.
      *
-     * @param date the date this document was created
-     * @param open
-     * @param close
-     * @param high
-     * @param low
-     * @param volume
      */
     @RawDataConstructorAnnotation(indexOfDate = 0, paramOrder = {"open", "close", "high", "low", "volume"})
     public StockQuote(Date date, double open, double close, double high, double low, double volume)
