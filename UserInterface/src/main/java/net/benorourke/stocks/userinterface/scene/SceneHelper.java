@@ -14,6 +14,9 @@ import java.util.concurrent.TimeUnit;
 
 import static net.benorourke.stocks.userinterface.StockApplication.runUIThread;
 
+/**
+ * A helper class for creating and managing JavaFX scenes.
+ */
 public class SceneHelper
 {
 	private SceneHelper() {}
@@ -58,6 +61,19 @@ public class SceneHelper
 		});
 	}
 
+	/**
+	 * A wrapper function to quickly modify the details about a stage & generate a scene inside it.
+	 *
+	 * @param stage the stage
+	 * @param windowTitle the new title
+	 * @param minWidth the new minimum width
+	 * @param minHeight the new minimum height
+	 * @param resizable whether the stage should be resizable
+	 * @param exitOnClose whether the stage should force exit the program upon close
+	 * @param type the type of stage
+	 * @param params the parameters used to instantiate the stage in the factory
+	 * @throws SceneCreationDataException an exception thrown if it was unable to create the scene
+	 */
 	public static void modifyStage(Stage stage, @Nullable String windowTitle,
 								   int minWidth, int minHeight,
 								   boolean resizable, boolean exitOnClose,
@@ -78,6 +94,19 @@ public class SceneHelper
 		stage.show();
 	}
 
+	/**
+	 * Pop up a new stage.
+	 *
+	 * @param windowTitle the new title
+	 * @param minWidth the new minimum width
+	 * @param minHeight the new minimum height
+	 * @param resizable whether the stage should be resizable
+	 * @param exitOnClose whether the stage should force exit the program upon close
+	 * @param type the type of stage
+	 * @param params the parameters used to instantiate the stage in the factory
+	 * @return the new popup stage
+	 * @throws SceneCreationDataException an exception thrown if it was unable to create the scene
+	 */
 	public static Stage openStage(String windowTitle, int minWidth, int minHeight,
 								  boolean resizable, boolean exitOnClose,
 								  SceneType type, Object... params) throws SceneCreationDataException

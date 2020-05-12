@@ -6,6 +6,9 @@ import net.benorourke.stocks.framework.thread.TaskDescription;
 import java.util.Map;
 import java.util.UUID;
 
+/**
+ * A listener instance for the updates of tasks and their percentage progresses.
+ */
 public interface TaskUpdateAdapter
 {
 

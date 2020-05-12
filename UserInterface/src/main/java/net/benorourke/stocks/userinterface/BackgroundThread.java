@@ -16,12 +16,16 @@ import java.util.concurrent.LinkedBlockingQueue;
 public class BackgroundThread extends Thread
 {
     private final Framework framework;
+    // The current set of adapters
     private final Set<TaskUpdateAdapter> adapters;
 
+    // The queue of background tasks
     private final BlockingQueue<BackgroundRunnable> runnables;
+    // The queue of TaskUpdateAdapter changes
     private final BlockingQueue<Tuple<TaskUpdateAdapter, Boolean>> adapterChanges;
     private final long sleepDelay;
 
+    // When the task updates were last dispatched
     private long lastUpdatedTasks;
 
     public BackgroundThread(Configuration configuration, long sleepDelay)
@@ -42,10 +46,12 @@ public class BackgroundThread extends Thread
     {
         framework.initialise();
 
+        // Simply run the same few tasks repeatedly on the ackground thread
         while (true)
         {
             long now = System.currentTimeMillis();
 
+            // Run all queued tasks on the background thread
             runBackgroundRunnables();
             if (now - lastUpdatedTasks >= Constants.UPDATE_TASKS_EVERY)
                 checkTaskUpdates();

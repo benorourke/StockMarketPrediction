@@ -10,7 +10,10 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.PieChart;
-import javafx.scene.control.*;
+import javafx.scene.control.Label;
+import javafx.scene.control.SingleSelectionModel;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -21,7 +24,6 @@ import net.benorourke.stocks.userinterface.scene.Controller;
 import net.benorourke.stocks.userinterface.scene.SceneHelper;
 import net.benorourke.stocks.userinterface.scene.dashboard.createseries.CreateSeriesController;
 import net.benorourke.stocks.userinterface.scene.dashboard.panes.*;
-import net.benorourke.stocks.userinterface.util.FontFamily;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -141,7 +143,6 @@ public class DashboardController extends Controller
     public void initialize()
     {
         // Initialise Navbars & nav-pane
-        headerLabel.setFont(FontFamily.OPENSANS_BOLD.get(HEADER_SIZE));
         navRows.addAll(resolveNavBarButtons(root));
         for (int i = 0; i < navRows.size(); i ++)
         {

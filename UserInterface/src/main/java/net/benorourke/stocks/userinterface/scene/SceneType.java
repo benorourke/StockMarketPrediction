@@ -4,6 +4,9 @@ import net.benorourke.stocks.userinterface.scene.dashboard.DashboardController;
 import net.benorourke.stocks.userinterface.scene.dashboard.createseries.CreateSeriesController;
 import net.benorourke.stocks.userinterface.scene.tasks.TasksController;
 
+/**
+ * An enum containing data about all the types of scenes that can be created.
+ */
 public enum SceneType
 {
 	/** The dashboard Scene */

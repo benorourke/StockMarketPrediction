@@ -7,6 +7,8 @@ import javafx.scene.layout.Pane;
 import net.benorourke.stocks.framework.util.Nullable;
 
 /**
+ * The base controller class providing easy snackbar functionality.
+ *
  * All FXML files belonging to the Controller must have a root node, called root,
  */
 public class Controller
@@ -22,6 +24,12 @@ public class Controller
         return root;
     }
 
+    /**
+     * Display a snackbar at the bottom of the controller.
+     *
+     * @param type the type of message
+     * @param message the message itself
+     */
     public void snackbar(SnackbarType type, String message)
     {
         if (lastSnackbar != null)
