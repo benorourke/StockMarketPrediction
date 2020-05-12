@@ -51,6 +51,7 @@ public class EvaluationPaneHandler extends PaneHandler
     public void initialise()
     {
         chart.getYAxis().setLabel("Stock Value");
+        chart.setAnimated(false);
 
         evaluationTrainingCheckBox.selectedProperty().addListener(
                 (observable, oldValue, newValue) -> onCheckBoxChanged());

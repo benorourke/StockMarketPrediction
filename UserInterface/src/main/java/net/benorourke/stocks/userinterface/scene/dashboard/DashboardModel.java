@@ -197,6 +197,8 @@ public class DashboardModel
         runBgThread(framework ->
         {
             File evalFile = framework.getFileManager().getModelEvaluationFile(seriesFor, modelName);
+            if (!evalFile.exists()) return;
+
             final ModelEvaluation eval = framework.getFileManager().loadJson(evalFile, ModelEvaluation.class).get();
 
             if (eval == null) return;

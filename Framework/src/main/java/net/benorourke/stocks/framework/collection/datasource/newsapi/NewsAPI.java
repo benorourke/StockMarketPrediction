@@ -90,7 +90,8 @@ public class NewsAPI extends DataSource<Document>
     public CollectionFilter<Document> newDefaultCollectionFilter()
     {
         // Filter any data that doesn't contain the news we want
-        return data -> !data.getContent().toLowerCase().contains(searchTerm.toLowerCase());
+//        return data -> !data.getContent().toLowerCase().contains(searchTerm.toLowerCase());
+        return data -> false;
     }
 
     @Override

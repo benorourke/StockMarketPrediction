@@ -81,7 +81,7 @@
                               <Insets left="20.0" />
                            </HBox.margin>
                         </FontAwesomeIcon>
-                        <Label prefHeight="50.0" styleClass="nav-text" text="Injection" textFill="WHITE">
+                        <Label prefHeight="50.0" styleClass="nav-text" text=" Injection" textFill="WHITE">
                            <opaqueInsets>
                               <Insets />
                            </opaqueInsets>
@@ -101,7 +101,7 @@
                               <Insets left="20.0" />
                            </HBox.margin>
                         </FontAwesomeIcon>
-                        <Label prefHeight="50.0" styleClass="nav-text" text="Pre-processing" textFill="WHITE">
+                        <Label prefHeight="50.0" styleClass="nav-text" text=" Pre-processing" textFill="WHITE">
                            <opaqueInsets>
                               <Insets />
                            </opaqueInsets>
