@@ -13,9 +13,6 @@ public enum PreprocessingStage
 
     DONE;
 
-    // Order of Document Processing:
-    // Document[] -> CleanedDocument[] -> ProcessedDataset (ModelData[])
-
     public static PreprocessingStage first()
     {
         return INITIALISE_PREPROCESSES;

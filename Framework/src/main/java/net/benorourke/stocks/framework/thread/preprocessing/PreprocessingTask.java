@@ -28,12 +28,16 @@ import net.benorourke.stocks.framework.util.Tuple;
 import java.util.*;
 
 /**
- * No TaskDescription derivative class required as we only want to enable one
- * pre-processing task at a time.
+ * Order of Document Processing:
+ * Document[] -> CleanedDocument[] -> ProcessedDataset (ModelData[])
  */
 public class PreprocessingTask implements Task<TaskDescription, PreprocessingResult>
 {
+    // the sub-tasks with their weights
     private static final LinkedHashMap<Integer, Double> PROGRESS_STEPS;
+    /**
+     * Below are the sub-task IDs
+     */
     private static final int PROGRESS_INIT = 0;
     private static final int PROGRESS_LOAD_QUOTES = 1;
     private static final int PROGRESS_LOAD_CORPUS = 2;
@@ -43,6 +47,7 @@ public class PreprocessingTask implements Task<TaskDescription, PreprocessingRes
 
     static
     {
+        // initialise the sub-tasks with their weights
         PROGRESS_STEPS = new LinkedHashMap<>();
         PROGRESS_STEPS.put(PROGRESS_INIT, 5.0D);
         PROGRESS_STEPS.put(PROGRESS_LOAD_QUOTES, 7.5D);
@@ -131,12 +136,19 @@ public class PreprocessingTask implements Task<TaskDescription, PreprocessingRes
         // Check there is sufficient feedforward:
         checkSufficiency(grouped);
 
+        // Store all of the sources
         stockQuoteSource = (DataSource<StockQuote>) grouped.get(DataType.STOCK_QUOTE).get(0);
         documentSources = new ArrayList<>();
         for (DataSource source : grouped.get(DataType.DOCUMENT))
             documentSources.add( (DataSource<Document>) source);
     }
 
+    /**
+     * Check whether there's enough data to begin pre-processing
+     *
+     * @param grouped the grouped data
+     * @throws InsuficcientRawDataException if there is insufficient data
+     */
     private void checkSufficiency(Map<DataType, List<DataSource>> grouped)
             throws InsuficcientRawDataException
     {
@@ -159,6 +171,9 @@ public class PreprocessingTask implements Task<TaskDescription, PreprocessingRes
     @Override
     public TaskDescription getDescription()
     {
+        /**
+         * Only allow one pre-processing task to run at once.
+         */
         return new TaskDescription(TaskType.PRE_PROCESSING)
         {
             @Override
@@ -229,6 +244,7 @@ public class PreprocessingTask implements Task<TaskDescription, PreprocessingRes
             preprocess.initialise();
             preprocess.addProgressAdapter(percentageProgress ->
             {
+                // Determine the sub-task ID based on the index of the pre-processes (it's a fixed order)
                 int progressId;
                 switch (finalI)
                 {
@@ -247,6 +263,7 @@ public class PreprocessingTask implements Task<TaskDescription, PreprocessingRes
                 progressHelper.updatePercentage(progressId, percentageProgress);
             });
 
+            // Update the percentage when this pre-process updates its percentage
             double percentage = (100.0 * (i + 1.0)) / ((double) preprocesses.length);
             progressHelper.updatePercentage(PROGRESS_INIT,  percentage);
         }

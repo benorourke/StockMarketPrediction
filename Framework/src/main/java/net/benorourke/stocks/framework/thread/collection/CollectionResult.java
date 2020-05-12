@@ -6,6 +6,11 @@ import net.benorourke.stocks.framework.thread.Result;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * The result for collection tasks.
+ *
+ * @param <T> the inferred type of data
+ */
 public class CollectionResult<T extends Data> extends Result
 {
     private final List<T> data;

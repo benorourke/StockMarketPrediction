@@ -14,12 +14,15 @@ import net.benorourke.stocks.framework.util.Nullable;
 import java.util.*;
 
 /**
- * No TaskDescription derivative class required as we only want to enable one
- * pre-processing task at a time.
+ * A task to train prediction models from datasets.
  */
 public class TrainingTask<T extends PredictionModel> implements Task<TaskDescription, TrainingResult<T>>
 {
+    // the sub-tasks with their weights
     private static final LinkedHashMap<Integer, Double> PROGRESS_STEPS;
+    /**
+     * Below are the sub-task IDs
+     */
     private static final int PROGRESS_CREATE = 0;
     private static final int PROGRESS_TRAIN = 1;
     private static final int PROGRESS_EVALUATE = 2;
@@ -27,6 +30,7 @@ public class TrainingTask<T extends PredictionModel> implements Task<TaskDescrip
 
     static
     {
+        // initialise the sub-tasks with their weights
         PROGRESS_STEPS = new LinkedHashMap<>();
         PROGRESS_STEPS.put(PROGRESS_CREATE, 20.0D);
         PROGRESS_STEPS.put(PROGRESS_TRAIN, 60.0D);
@@ -36,7 +40,7 @@ public class TrainingTask<T extends PredictionModel> implements Task<TaskDescrip
 
     private final ModelHandler<T> modelHandler;
     private final ProcessedDataset training, testing;
-    private final long seed; // TODO - Do something with this
+    private final long seed;
 
     private TrainingStage stage;
     private Progress progress;

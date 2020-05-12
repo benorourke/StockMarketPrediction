@@ -16,6 +16,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+/*
+ * A task to collect data from a given source.
+ */
 public class CollectionTask<T extends Data> implements Task<CollectionDescription, CollectionResult<T>>
 {
     private final DataSource<T> dataSource;
@@ -28,8 +31,15 @@ public class CollectionTask<T extends Data> implements Task<CollectionDescriptio
     private List<T> collected;
     private Progress progress;
 
-    public CollectionTask(DataSource<T> dataSource, CollectionSession<T> session,
-                          CollectionExceptionHook exceptionHook)
+    /**
+     * Create a new instance.
+     *
+     * @param dataSource the source to collect data from
+     * @param session the collection session
+     * @param exceptionHook the event listener: warning it will be called on whatever thread in the pool the
+     *                      task is running on
+     */
+    public CollectionTask(DataSource<T> dataSource, CollectionSession<T> session, CollectionExceptionHook exceptionHook)
     {
         this.dataSource = dataSource;
         this.session = session;
